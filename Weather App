@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .search-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 8px;
+        }
+
+        .search-bar button {
+            padding: 10px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .weather-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .weather-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .weather-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 25px;
+            color: white;
+        }
+
+        .location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 14px;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        .main-temp {
+            text-align: center;
+        }
+
+        .temp-display {
+            font-size: 72px;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .weather-desc {
+            font-size: 18px;
+            margin-top: 8px;
+            opacity: 0.95;
+        }
+
+        .forecast-strip {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .forecast-day {
+            text-align: center;
+            flex: 1;
+        }
+
+        .day-name {
+            font-size: 13px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .day-icon {
+            font-size: 28px;
+            margin: 6px 0;
+        }
+
+        .day-temp {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .card-footer {
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .city-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .refresh-btn:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .weather-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-image {
+                height: 350px;
+            }
+
+            .temp-display {
+                font-size: 60px;
+            }
+
+            .forecast-strip {
+                padding: 12px;
+            }
+
+            .day-icon {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search for a city...">
+            <button onclick="addCity()">Add City</button>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">Loading weather data...</div>
+
+        <div class="weather-grid" id="weatherGrid"></div>
+    </div>
+
+    <script>
+        const weatherBgs = {
+            'rainy': 'https://images.unsplash.com/photo-1428908728789-d2de25dbd4e2?w=800&h=1000&fit=crop',
+            'sunny': 'https://images.unsplash.com/photo-1601297183305-6df142704ea2?w=800&h=1000&fit=crop',
+            'cloudy': 'https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=800&h=1000&fit=crop',
+            'partly cloudy': 'https://images.unsplash.com/photo-1546587348-d12660c30c50?w=800&h=1000&fit=crop',
+            'clear': 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&h=1000&fit=crop'
+        };
+
+        const cities = {
+            'cape town': {t: 22, d: 'sunny', fc: [{n: 'FRI', i: '☀️', t: 24}, {n: 'SAT', i: '☀️', t: 25}, {n: 'SUN', i: '⛅', t: 23}, {n: 'MON', i: '🌧️', t: 19}, {n: 'TUE', i: '⛅', t: 21}]},
+            'johannesburg': {t: 18, d: 'partly cloudy', fc: [{n: 'FRI', i: '⛅', t: 19}, {n: 'SAT', i: '☀️', t: 21}, {n: 'SUN', i: '☀️', t: 22}, {n: 'MON', i: '⛅', t: 20}, {n: 'TUE', i: '🌧️', t: 17}]},
+            'durban': {t: 26, d: 'clear', fc: [{n: 'FRI', i: '☀️', t: 27}, {n: 'SAT', i: '☀️', t: 28}, {n: 'SUN', i: '⛅', t: 26}, {n: 'MON', i: '⛅', t: 25}, {n: 'TUE', i: '☀️', t: 27}]},
+            'pretoria': {t: 19, d: 'sunny', fc: [{n: 'FRI', i: '☀️', t: 20}, {n: 'SAT', i: '☀️', t: 22}, {n: 'SUN', i: '⛅', t: 21}, {n: 'MON', i: '🌧️', t: 18}, {n: 'TUE', i: '⛅', t: 19}]},
+            'port elizabeth': {t: 20, d: 'partly cloudy', fc: [{n: 'FRI', i: '⛅', t: 21}, {n: 'SAT', i: '☀️', t: 23}, {n: 'SUN', i: '☀️', t: 22}, {n: 'MON', i: '⛅', t: 20}, {n: 'TUE', i: '🌧️', t: 18}]},
+            'bloemfontein': {t: 17, d: 'sunny', fc: [{n: 'FRI', i: '☀️', t: 18}, {n: 'SAT', i: '☀️', t: 20}, {n: 'SUN', i: '⛅', t: 19}, {n: 'MON', i: '☁️', t: 16}, {n: 'TUE', i: '⛅', t: 17}]}
+        };
+
+        let displayedCities = ['cape town', 'durban'];
+
+        function createCard(cityName, data) {
+            const bg = weatherBgs[data.d] || weatherBgs['cloudy'];
+            
+            return `
+                <div class="weather-card">
+                    <div class="card-image" style="background-image: url('${bg}')">
+                        <div class="weather-overlay">
+                            <div class="location">
+                                <span>📍</span>
+                                <span>${cityName}</span>
+                            </div>
+                            
+                            <div class="main-temp">
+                                <div class="temp-display">${data.t}°</div>
+                                <div class="weather-desc">${data.d}</div>
+                            </div>
+
+                            <div class="forecast-strip">
+                                ${data.fc.map(day => `
+                                    <div class="forecast-day">
+                                        <div class="day-name">${day.n}</div>
+                                        <div class="day-icon">${day.i}</div>
+                                        <div class="day-temp">${day.t}°</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="city-name">${cityName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</div>
+                        <button class="refresh-btn" onclick="refreshCard('${cityName}')">↻</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function render() {
+            const grid = document.getElementById('weatherGrid');
+            grid.innerHTML = displayedCities.map(city => createCard(city, cities[city])).join('');
+        }
+
+        function addCity() {
+            const input = document.getElementById('searchInput');
+            const city = input.value.trim().toLowerCase();
+            
+            if (!city) return;
+
+            if (cities[city] && !displayedCities.includes(city)) {
+                displayedCities.push(city);
+                render();
+                input.value = '';
+            } else if (!cities[city]) {
+                alert('City not available. Try: Cape Town, Johannesburg, Durban, Pretoria, Port Elizabeth, Bloemfontein');
+            } else {
+                alert('City already displayed');
+            }
+        }
+
+        function refreshCard(city) {
+            const data = cities[city];
+            data.t = data.t + Math.floor(Math.random() * 3 - 1);
+            render();
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addCity();
+        });
+
+        render();
+    </script>
+</body>
+</html>

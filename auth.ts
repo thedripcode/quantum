@@ -23,13 +23,7 @@ declare module 'next-auth' {
   }
 }
 
-declare module 'next-auth/jwt' {
-  interface JWT {
-    role: UserRole;
-    portalId?: string | null;
-    grade?: string | null;
-  }
-}
+// JWT augmentation handled via next-auth callbacks only
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   // JWT strategy — no DB adapter needed for sessions (Credentials + JWT only)
@@ -132,9 +126,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id       = token.sub as string;
-        session.user.role     = token.role;
-        session.user.portalId = token.portalId;
-        session.user.grade    = token.grade;
+        session.user.role     = token.role as UserRole;
+        session.user.portalId = token.portalId as string | null | undefined;
+        session.user.grade    = token.grade as string | null | undefined;
       }
       return session;
     },

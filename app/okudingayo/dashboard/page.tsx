@@ -462,7 +462,7 @@ function TeamTab() {
                 { l: 'Cert',   v: t.cert === 'COC Certified' ? 'Certified' : 'Training', Icon: ShieldIcon, c: '#10b981' },
               ].map(({ l, v, Icon, c }) => (
                 <div key={l} style={{ background: '#f8fafc', borderRadius: 10, padding: '10px 12px', textAlign: 'center' }}>
-                  <Icon size={14} color={c} strokeWidth={1.8} style={{ margin: '0 auto 4px' }} />
+                  <div style={{ margin: '0 auto 4px', display: 'flex', justifyContent: 'center' }}><Icon size={14} color={c} strokeWidth={1.8} /></div>
                   <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{l}</div>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>{v}</div>
                 </div>

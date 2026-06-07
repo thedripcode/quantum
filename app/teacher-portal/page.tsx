@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LoginForm from '@/components/forms/LoginForm';
 import ChatBot   from '@/components/chatbot/ChatBot';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Teacher Portal Login | Sidelile High School',
   description: 'Sign in to the Sidelile High School Teacher Portal to manage your classes, learner records, attendance, and marks.',

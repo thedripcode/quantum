@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 300" fill="none">
+  <defs>
+    <!-- Arc path for top text -->
+    <path id="topArc"   d="M 44,155 A 96,96 0 0,1 236,155"/>
+    <!-- Arc path for bottom text -->
+    <path id="botArc"   d="M 58,195 A 83,83 0 0,0 222,195"/>
+  </defs>
+
+  <!-- ── Shield body ───────────────────────────────── -->
+  <path
+    d="M140,6
+       C140,6 6,48 6,138
+       C6,210 90,272 140,294
+       C190,272 274,210 274,138
+       C274,48 140,6 140,6 Z"
+    fill="#2e2e8a"
+  />
+
+  <!-- Shield inner ring -->
+  <path
+    d="M140,20
+       C140,20 20,60 20,138
+       C20,204 98,263 140,283
+       C182,263 260,204 260,138
+       C260,60 140,20 140,20 Z"
+    fill="none"
+    stroke="rgba(255,255,255,0.18)"
+    stroke-width="1.5"
+  />
+
+  <!-- ── Laurel wreath — left branch ───────────────── -->
+  <g fill="#2e2e8a" stroke="white" stroke-width="1.2" stroke-linecap="round">
+    <!-- stem -->
+    <path d="M68,240 Q72,170 90,120" stroke-width="1.4"/>
+    <!-- leaves up the stem -->
+    <ellipse cx="76"  cy="226" rx="9"  ry="5"  transform="rotate(-50 76 226)"/>
+    <ellipse cx="71"  cy="207" rx="9"  ry="5"  transform="rotate(-45 71 207)"/>
+    <ellipse cx="69"  cy="188" rx="8"  ry="4.5" transform="rotate(-40 69 188)"/>
+    <ellipse cx="70"  cy="170" rx="8"  ry="4"  transform="rotate(-35 70 170)"/>
+    <ellipse cx="73"  cy="153" rx="7"  ry="4"  transform="rotate(-30 73 153)"/>
+    <ellipse cx="78"  cy="138" rx="7"  ry="3.5" transform="rotate(-25 78 138)"/>
+    <ellipse cx="84"  cy="124" rx="6"  ry="3"  transform="rotate(-20 84 124)"/>
+  </g>
+
+  <!-- ── Laurel wreath — right branch ──────────────── -->
+  <g fill="#2e2e8a" stroke="white" stroke-width="1.2" stroke-linecap="round">
+    <path d="M212,240 Q208,170 190,120" stroke-width="1.4"/>
+    <ellipse cx="204" cy="226" rx="9"  ry="5"  transform="rotate(50 204 226)"/>
+    <ellipse cx="209" cy="207" rx="9"  ry="5"  transform="rotate(45 209 207)"/>
+    <ellipse cx="211" cy="188" rx="8"  ry="4.5" transform="rotate(40 211 188)"/>
+    <ellipse cx="210" cy="170" rx="8"  ry="4"  transform="rotate(35 210 170)"/>
+    <ellipse cx="207" cy="153" rx="7"  ry="4"  transform="rotate(30 207 153)"/>
+    <ellipse cx="202" cy="138" rx="7"  ry="3.5" transform="rotate(25 202 138)"/>
+    <ellipse cx="196" cy="124" rx="6"  ry="3"  transform="rotate(20 196 124)"/>
+  </g>
+
+  <!-- ── Sun / rays (top-right area) ───────────────── -->
+  <g transform="translate(190,82)">
+    <circle cx="0" cy="0" r="13" fill="white" opacity="0.9"/>
+    <!-- rays -->
+    <line x1="0" y1="-18" x2="0"  y2="-23" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="0" y1="18"  x2="0"  y2="23"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="-18" y1="0" x2="-23" y2="0"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="18"  y1="0" x2="23"  y2="0"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="-13" y1="-13" x2="-17" y2="-17" stroke="white" stroke-width="2"   stroke-linecap="round"/>
+    <line x1="13"  y1="-13" x2="17"  y2="-17" stroke="white" stroke-width="2"   stroke-linecap="round"/>
+    <line x1="-13" y1="13"  x2="-17" y2="17"  stroke="white" stroke-width="2"   stroke-linecap="round"/>
+    <line x1="13"  y1="13"  x2="17"  y2="17"  stroke="white" stroke-width="2"   stroke-linecap="round"/>
+  </g>
+
+  <!-- ── Open book (centre) ─────────────────────────── -->
+  <g transform="translate(140,168)">
+    <!-- book base shadow -->
+    <rect x="-46" y="-30" width="92" height="58" rx="4" fill="#1a1a60" opacity="0.4"/>
+    <!-- left page -->
+    <path d="M0,-28 L-44,-24 L-44,24 Q-22,20 0,24 Z" fill="white" opacity="0.92"/>
+    <!-- right page -->
+    <path d="M0,-28 L44,-24 L44,24 Q22,20 0,24 Z" fill="white" opacity="0.85"/>
+    <!-- spine -->
+    <rect x="-2.5" y="-28" width="5" height="52" rx="2" fill="#2e2e8a"/>
+    <!-- left page lines -->
+    <line x1="-36" y1="-10" x2="-8"  y2="-12" stroke="#2e2e8a" stroke-width="1.2" opacity="0.5"/>
+    <line x1="-36" y1="-2"  x2="-8"  y2="-4"  stroke="#2e2e8a" stroke-width="1.2" opacity="0.5"/>
+    <line x1="-36" y1="6"   x2="-8"  y2="4"   stroke="#2e2e8a" stroke-width="1.2" opacity="0.5"/>
+    <line x1="-36" y1="14"  x2="-8"  y2="12"  stroke="#2e2e8a" stroke-width="1.2" opacity="0.5"/>
+    <!-- right page lines -->
+    <line x1="8"   y1="-12" x2="36"  y2="-10" stroke="#2e2e8a" stroke-width="1.2" opacity="0.5"/>
+    <line x1="8"   y1="-4"  x2="36"  y2="-2"  stroke="#2e2e8a" stroke-width="1.2" opacity="0.5"/>
+    <line x1="8"   y1="4"   x2="36"  y2="6"   stroke="#2e2e8a" stroke-width="1.2" opacity="0.5"/>
+    <line x1="8"   y1="12"  x2="36"  y2="14"  stroke="#2e2e8a" stroke-width="1.2" opacity="0.5"/>
+  </g>
+
+  <!-- ── Top arc text ────────────────────────────────── -->
+  <text
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="15"
+    font-weight="bold"
+    fill="white"
+    letter-spacing="2"
+  >
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">
+      SIDELILE HIGH SCHOOL
+    </textPath>
+  </text>
+
+  <!-- ── Bottom arc text ────────────────────────────── -->
+  <text
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="13"
+    font-weight="bold"
+    fill="white"
+    letter-spacing="1.5"
+  >
+    <textPath href="#botArc" startOffset="50%" text-anchor="middle">
+      SIKHULA NGEMFUNDO
+    </textPath>
+  </text>
+
+  <!-- ── Decorative divider dots (left & right of bottom text) ── -->
+  <circle cx="74"  cy="252" r="2.5" fill="white" opacity="0.7"/>
+  <circle cx="206" cy="252" r="2.5" fill="white" opacity="0.7"/>
+</svg>

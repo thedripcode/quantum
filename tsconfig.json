@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "target": "ES2017"
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "services",
+    "App.tsx",
+    "index.tsx",
+    "vite.config.ts",
+    "components/ChatWidget.tsx",
+    "components/Hero.tsx",
+    "components/Navbar.tsx",
+    "components/AboutSection.tsx",
+    "components/AcademicsSection.tsx",
+    "components/StatsSection.tsx",
+    "components/GallerySection.tsx",
+    "components/ContactSection.tsx",
+    "components/LoginModal.tsx",
+    "components/FadeIn.tsx"
+  ]
+}

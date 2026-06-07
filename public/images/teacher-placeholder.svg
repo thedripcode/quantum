@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" fill="none">
+  <!-- Card bg -->
+  <rect width="400" height="480" fill="#111111"/>
+  <!-- Head -->
+  <circle cx="200" cy="148" r="82" fill="#1f1f1f"/>
+  <!-- Shoulders / jacket body -->
+  <path d="M 10 480 C 10 320 80 255 152 232 L 176 258 L 200 278 L 224 258 L 248 232 C 320 255 390 320 390 480 Z" fill="#1a1a1a"/>
+  <!-- White shirt -->
+  <path d="M 176 258 L 200 278 L 224 258 L 212 240 L 200 252 L 188 240 Z" fill="#e0e0e0"/>
+  <!-- Tie knot -->
+  <path d="M 194 248 L 200 256 L 206 248 L 203 244 L 200 246 L 197 244 Z" fill="#0d0d0d"/>
+  <!-- Tie body -->
+  <path d="M 196 256 L 200 264 L 204 256 L 201 296 L 200 300 L 199 296 Z" fill="#0d0d0d"/>
+</svg>

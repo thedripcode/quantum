@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Left ear -->
+  <path d="M38,30 C38,18 28,14 28,14 C28,14 20,20 22,32 C24,40 32,42 38,38 Z"
+    fill="currentColor" stroke="none"/>
+  <!-- Right ear -->
+  <path d="M82,30 C82,18 92,14 92,14 C92,14 100,20 98,32 C96,40 88,42 82,38 Z"
+    fill="currentColor" stroke="none"/>
+  <!-- Inner left ear -->
+  <path d="M36,30 C36,21 29,18 29,18 C29,18 24,23 25,31 C26,37 31,39 36,36 Z"
+    fill="white" stroke="none"/>
+  <!-- Inner right ear -->
+  <path d="M84,30 C84,21 91,18 91,18 C91,18 96,23 95,31 C94,37 89,39 84,36 Z"
+    fill="white" stroke="none"/>
+
+  <!-- Fluffy body/head shape -->
+  <path d="
+    M60,15
+    C44,15 28,26 24,42
+    C20,52 20,56 18,64
+    C16,74 18,82 24,88
+    C30,94 38,98 48,100
+    C52,101 56,102 60,102
+    C64,102 68,101 72,100
+    C82,98 90,94 96,88
+    C102,82 104,74 102,64
+    C100,56 100,52 96,42
+    C92,26 76,15 60,15 Z"
+    fill="currentColor"/>
+
+  <!-- Fluffy texture bumps left -->
+  <path d="M24,70 C20,68 16,72 18,76 C20,80 26,78 24,74" fill="currentColor"/>
+  <path d="M20,82 C16,80 13,85 16,88 C19,91 24,88 22,85" fill="currentColor"/>
+  <path d="M26,58 C22,56 18,60 20,64 C22,68 28,66 26,62" fill="currentColor"/>
+
+  <!-- Fluffy texture bumps right -->
+  <path d="M96,70 C100,68 104,72 102,76 C100,80 94,78 96,74" fill="currentColor"/>
+  <path d="M100,82 C104,80 107,85 104,88 C101,91 96,88 98,85" fill="currentColor"/>
+  <path d="M94,58 C98,56 102,60 100,64 C98,68 92,66 94,62" fill="currentColor"/>
+
+  <!-- White face area -->
+  <ellipse cx="60" cy="60" rx="28" ry="30" fill="white"/>
+
+  <!-- Left eye -->
+  <circle cx="50" cy="54" r="4" fill="currentColor"/>
+  <circle cx="51.5" cy="52.5" r="1.2" fill="white"/>
+
+  <!-- Right eye -->
+  <circle cx="70" cy="54" r="4" fill="currentColor"/>
+  <circle cx="71.5" cy="52.5" r="1.2" fill="white"/>
+
+  <!-- Muzzle/snout oval -->
+  <ellipse cx="60" cy="70" rx="14" ry="11" fill="currentColor" opacity="0.12"/>
+  <ellipse cx="60" cy="70" rx="12" ry="9" fill="white"/>
+  <ellipse cx="60" cy="70" rx="13" ry="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+
+  <!-- Nose Y shape -->
+  <path d="M60,65 L60,69 M60,69 L57,72 M60,69 L63,72"
+    stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Bottom fluff -->
+  <path d="M40,100 C36,102 32,106 36,108 C40,110 48,106 48,102" fill="currentColor"/>
+  <path d="M60,102 C58,105 58,108 62,108 C66,108 66,105 64,102" fill="currentColor"/>
+  <path d="M80,100 C84,102 88,106 84,108 C80,110 72,106 72,102" fill="currentColor"/>
+</svg>

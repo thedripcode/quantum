@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "makeup-studio",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "3004"],
+      "cwd": "../makeup-studio",
+      "port": 3004
+    },
+    {
+      "name": "sidelile-school",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3001,
+      "autoPort": false,
+      "startUrl": "http://localhost:3001/dashboard/teacher"
+    }
+  ,{
+      "name": "construction",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "3005", "."],
+      "port": 3005,
+      "startUrl": "http://localhost:3005/construction.html"
+    }
+  ]
+}

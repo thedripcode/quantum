@@ -680,6 +680,14 @@ export default function LoginForm({ type }: LoginFormProps) {
             <Link href={cfg.switchHref}>{cfg.switchLabel}</Link>
           </SwitchRow>
 
+          {/* ── Register ── */}
+          {(type === 'student' || type === 'parent') && (
+            <SwitchRow style={{ borderTop: 'none', marginTop: 8, paddingTop: 0 }}>
+              New here?{' '}
+              <Link href="/register">Create an account →</Link>
+            </SwitchRow>
+          )}
+
           {/* ── SSL note ── */}
           <SSLNote>
             <Lock size={11} strokeWidth={1.5} />

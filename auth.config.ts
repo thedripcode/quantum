@@ -1,5 +1,4 @@
 import type { NextAuthConfig } from 'next-auth';
-import type { UserRole } from '@/auth';
 
 // Lightweight config used by middleware (Edge Runtime — no bcryptjs/prisma)
 export const authConfig: NextAuthConfig = {

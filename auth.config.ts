@@ -30,5 +30,25 @@ export const authConfig: NextAuthConfig = {
 
       return true;
     },
+
+    // These MUST exist here too — middleware uses this instance, and without
+    // them token.role never reaches auth.user.role, breaking the checks above.
+    jwt({ token, user }) {
+      if (user) {
+        token.role     = (user as any).role;
+        token.portalId = (user as any).portalId;
+        token.grade    = (user as any).grade;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (session.user) {
+        (session.user as any).id       = token.sub as string;
+        (session.user as any).role     = token.role;
+        (session.user as any).portalId = token.portalId;
+        (session.user as any).grade    = token.grade;
+      }
+      return session;
+    },
   },
 };

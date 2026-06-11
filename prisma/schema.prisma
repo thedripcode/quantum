@@ -48,6 +48,37 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// ─── Admissions ───────────────────────────────────────────────────────────────
+
+model Application {
+  id               String   @id @default(cuid())
+  ref              String   @unique              // e.g. SHS-2026-001
+  firstName        String
+  lastName         String
+  dob              String?
+  gender           String?
+  idNumber         String?
+  email            String?
+  phone            String?
+  address          String?
+  city             String?
+  province         String?
+  parentName       String?
+  parentRelation   String?
+  parentPhone      String?
+  parentEmail      String?
+  parentOccupation String?
+  previousSchool   String?
+  previousGrade    String?
+  previousYear     String?
+  applyingGrade    String
+  academicYear     String
+  status           String   @default("Pending")  // Pending | Approved | Rejected | Waitlisted
+  adminNote        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
 // ─── Core User model ──────────────────────────────────────────────────────────
 
 model User {

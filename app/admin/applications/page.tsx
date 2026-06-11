@@ -5,7 +5,7 @@ import {
   Search, X, CheckCircle2, XCircle, AlertTriangle, Clock, ChevronDown,
   FileText, User, Phone, Mail, Calendar, GraduationCap, MapPin, AlertCircle,
 } from 'lucide-react';
-import { APPLICATIONS, ADMIN_CLASSES, type Application } from '@/data/adminData';
+import { ADMIN_CLASSES, type Application } from '@/data/adminData';
 
 const BG       = '#0C0C0C';
 const SURFACE  = '#161616';
@@ -121,8 +121,45 @@ function ApproveConfirmModal({ app, assignedClass, studentNumber, onConfirm, onC
 }
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
+// Map a DB application row (from /api/applications) into the UI shape
+function dbToLocalApp(row: any): LocalApp {
+  return {
+    id:             row.id,
+    ref:            row.ref,
+    firstName:      row.firstName,
+    lastName:       row.lastName,
+    dob:            row.dob ?? '—',
+    gender:         (row.gender as 'Male' | 'Female') ?? 'Male',
+    gradeApplying:  parseInt(String(row.applyingGrade).replace(/\D/g, ''), 10) || 8,
+    currentSchool:  row.previousSchool ?? '—',
+    currentAverage: 0,
+    mathsMark:      0,
+    scienceMark:    0,
+    subjectChoices: [],
+    parentName:     row.parentName ?? '—',
+    parentPhone:    row.parentPhone ?? '—',
+    parentEmail:    row.parentEmail ?? row.email ?? '—',
+    address:        [row.address, row.city, row.province].filter(Boolean).join(', ') || '—',
+    dateSubmitted:  new Date(row.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' }),
+    status:         (String(row.status).toLowerCase() as Application['status']) || 'pending',
+    notes:          row.adminNote ?? '',
+    missingDocs:    [],
+  };
+}
+
 export default function ApplicationsPage() {
-  const [apps, setApps] = useState<LocalApp[]>(APPLICATIONS as LocalApp[]);
+  const [apps, setApps] = useState<LocalApp[]>([]);
+  const [loadingApps, setLoadingApps] = useState(true);
+
+  // Load real applications from the database
+  useEffect(() => {
+    fetch('/api/applications')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => setApps((data.applications ?? []).map(dbToLocalApp)))
+      .catch(() => setApps([]))
+      .finally(() => setLoadingApps(false));
+  }, []);
+
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<LocalApp | null>(null);

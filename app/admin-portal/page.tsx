@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Shield, Eye, EyeOff, Lock, User } from 'lucide-react';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
@@ -18,18 +19,26 @@ export default function AdminPortalPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username || !password) { setError('Please enter your username and password.'); return; }
     setLoading(true);
     setError('');
-    setTimeout(() => {
-      if (username === 'admin' && password === 'admin123') {
-        router.push('/admin');
-      } else {
-        setError('Invalid credentials. Try admin / admin123.');
-        setLoading(false);
-      }
-    }, 900);
+
+    const result = await signIn('credentials', {
+      identifier: username,
+      password,
+      role: 'admin',
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError('Invalid credentials. Please check your admin ID / email and password.');
+      setLoading(false);
+      return;
+    }
+
+    router.push('/admin');
+    router.refresh();
   };
 
   return (

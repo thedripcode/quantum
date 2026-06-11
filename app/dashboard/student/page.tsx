@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { AlertTriangle, TrendingUp, Flame, Target, ChevronRight, Clock, BookOpen, ArrowRight } from 'lucide-react';
 import { STUDENT, SUBJECTS, ASSIGNMENTS, OVERALL_AVERAGE, AT_RISK_SUBJECTS, CURRENT_STREAK, TIMETABLE } from '@/data/studentData';
 
@@ -59,15 +60,17 @@ const displaySlots = (todaySlots.length > 0 ? todaySlots : TIMETABLE.filter(t =>
 const pendingAssignments = ASSIGNMENTS.filter(a => a.status === 'pending' || a.status === 'overdue');
 
 export default function StudentDashboardPage() {
+  const { data: session } = useSession();
   const hour  = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const firstName = session?.user?.name?.split(' ')[0] ?? STUDENT.firstName;
 
   return (
     <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%' }}>
       {/* Greeting */}
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontFamily: F_HEADING, fontSize: 24, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.02em' }}>
-          {greeting}, {STUDENT.firstName} 👋
+          {greeting}, {firstName} 👋
         </h2>
         <p style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>
           Here's your academic overview for Term 3, 2024.

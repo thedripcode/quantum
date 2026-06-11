@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import styled from 'styled-components';
 import {
   LayoutDashboard, BarChart2, ClipboardList, Calendar,
@@ -240,7 +240,13 @@ const NAV = [
 export default function StudentPortalSidebar() {
   const pathname   = usePathname();
   const router     = useRouter();
+  const { data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
+
+  // Real logged-in user (falls back to mock while session loads)
+  const displayName  = session?.user?.name ?? `${STUDENT.firstName} ${STUDENT.lastName}`;
+  const displayGrade = (session?.user as any)?.grade ?? `Grade ${STUDENT.grade}`;
+  const initials     = displayName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
 
   const isActive = (href: string) =>
     href === '/dashboard/student'
@@ -262,13 +268,13 @@ export default function StudentPortalSidebar() {
 
       {/* Profile card */}
       <ProfileCard $collapsed={collapsed}>
-        <Avatar>{STUDENT.avatarInitials}</Avatar>
+        <Avatar>{initials}</Avatar>
         {!collapsed && (
           <div style={{ overflow: 'hidden' }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: TEXT, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {STUDENT.firstName} {STUDENT.lastName}
+              {displayName}
             </div>
-            <div style={{ fontSize: 11, color: MUTED, marginTop: 1 }}>Grade {STUDENT.grade} · {STUDENT.className}</div>
+            <div style={{ fontSize: 11, color: MUTED, marginTop: 1 }}>{displayGrade}</div>
           </div>
         )}
       </ProfileCard>

@@ -259,6 +259,8 @@ export default function ApplicationForm() {
   const [step,      setStep]      = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading,   setLoading]   = useState(false);
+  const [appRef,    setAppRef]    = useState('');
+  const [submitErr, setSubmitErr] = useState('');
   const [form,      setForm]      = useState({
     firstName: '', lastName: '', dob: '', gender: '', idNumber: '', email: '', phone: '', address: '', city: '', province: '',
     parentName: '', parentRelation: '', parentPhone: '', parentEmail: '', parentOccupation: '',
@@ -270,9 +272,25 @@ export default function ApplicationForm() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1800));
-    setLoading(false);
-    setSubmitted(true);
+    setSubmitErr('');
+    try {
+      const res = await fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSubmitErr(data.error ?? 'Could not submit application. Please try again.');
+        return;
+      }
+      setAppRef(data.ref);
+      setSubmitted(true);
+    } catch {
+      setSubmitErr('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ── Success state ──────────────────────────────────────────────────────────
@@ -296,6 +314,15 @@ export default function ApplicationForm() {
         <h2 style={{ fontFamily: F.heading, fontSize: 28, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.03em', marginBottom: 12 }}>
           Application Submitted!
         </h2>
+        {appRef && (
+          <div style={{
+            display: 'inline-block', padding: '10px 22px', borderRadius: 12, marginBottom: 16,
+            background: 'var(--accent-subtle)', border: '1px solid var(--border)',
+          }}>
+            <span style={{ fontFamily: F.body, fontSize: 12, color: 'var(--text-muted)', marginRight: 10 }}>Reference:</span>
+            <strong style={{ fontFamily: F.heading, fontSize: 17, fontWeight: 800, color: 'var(--text)', letterSpacing: '0.05em' }}>{appRef}</strong>
+          </div>
+        )}
         <p style={{ fontFamily: F.body, fontSize: 15, fontWeight: 300, color: 'var(--text-muted)', maxWidth: 420, margin: '0 auto 8px', lineHeight: 1.65 }}>
           Thank you, <strong style={{ color: 'var(--text)', fontWeight: 600 }}>{form.firstName}</strong>! Your application for{' '}
           <strong style={{ color: 'var(--text)', fontWeight: 600 }}>{form.applyingGrade}</strong> ({form.academicYear}) has been received.
@@ -465,6 +492,17 @@ export default function ApplicationForm() {
           )}
         </motion.div>
       </AnimatePresence>
+
+      {/* ── Submit error ── */}
+      {submitErr && (
+        <div style={{
+          padding: '12px 16px', borderRadius: 10, marginBottom: 16,
+          background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+          fontFamily: F.body, fontSize: 13, color: '#dc2626',
+        }}>
+          {submitErr}
+        </div>
+      )}
 
       {/* ── Navigation ── */}
       <NavRow>

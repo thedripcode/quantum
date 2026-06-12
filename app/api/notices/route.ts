@@ -47,3 +47,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Could not post notice.' }, { status: 500 });
   }
 }
+
+// Teacher/admin: delete a notice
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!session?.user || (role !== 'teacher' && role !== 'admin')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  try {
+    const id = req.nextUrl.searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'id is required.' }, { status: 400 });
+    await prisma.notice.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('Notice delete error:', err);
+    return NextResponse.json({ error: 'Could not delete notice.' }, { status: 500 });
+  }
+}

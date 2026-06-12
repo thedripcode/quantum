@@ -113,6 +113,7 @@ const CBtn = styled.button<{ $col: boolean }>`
 const NAV = [
   { section: 'Overview', items: [
     { label: 'Dashboard',        href: '/admin',                  Icon: LayoutDashboard, badge: null, gold: false },
+    { label: 'Manage Data',      href: '/admin/manage',           Icon: ClipboardList,   badge: null, gold: true  },
   ]},
   { section: 'Admissions', items: [
     { label: 'Applications',     href: '/admin/applications',     Icon: FileText,        badge: '12', gold: false },

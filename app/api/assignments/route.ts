@@ -4,6 +4,45 @@ import { auth } from '@/auth';
 
 export const dynamic = 'force-dynamic';
 
+// Teacher/admin: list assignments
+export async function GET() {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!session?.user || (role !== 'teacher' && role !== 'admin')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const assignments = await prisma.assignment.findMany({
+    include: { subject: { select: { name: true, short: true, color: true } } },
+    orderBy: { dueDate: 'desc' },
+    take: 100,
+  });
+  return NextResponse.json({
+    assignments: assignments.map(a => ({
+      id: a.id, subject: a.subject.name, subjectShort: a.subject.short, color: a.subject.color,
+      title: a.title, type: a.type, dueDate: a.dueDate.toISOString().slice(0, 10),
+      total: a.total, priority: a.priority,
+    })),
+  });
+}
+
+// Teacher/admin: delete an assignment
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!session?.user || (role !== 'teacher' && role !== 'admin')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  try {
+    const id = req.nextUrl.searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'id is required.' }, { status: 400 });
+    await prisma.assignment.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('Assignment delete error:', err);
+    return NextResponse.json({ error: 'Could not delete assignment.' }, { status: 500 });
+  }
+}
+
 // Teacher/admin: post an assignment for a subject
 // Body: { subjectCode, title, description?, type?, dueDate (YYYY-MM-DD), total?, priority? }
 export async function POST(req: NextRequest) {

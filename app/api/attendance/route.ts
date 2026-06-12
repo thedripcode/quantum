@@ -4,6 +4,26 @@ import { auth } from '@/auth';
 
 export const dynamic = 'force-dynamic';
 
+// Teacher/admin: list recent attendance records
+export async function GET() {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!session?.user || (role !== 'teacher' && role !== 'admin')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const records = await prisma.attendanceRecord.findMany({
+    include: { student: { select: { name: true, portalId: true, grade: true } } },
+    orderBy: { date: 'desc' },
+    take: 500,
+  });
+  return NextResponse.json({
+    records: records.map(r => ({
+      id: r.id, studentName: r.student.name, studentPortalId: r.student.portalId,
+      grade: r.student.grade, date: r.date.toISOString().slice(0, 10), status: r.status, note: r.note,
+    })),
+  });
+}
+
 // Teacher/admin: mark daily attendance
 // Body: { studentPortalId, date (YYYY-MM-DD), status: present|absent|late|excused, note? }
 export async function POST(req: NextRequest) {

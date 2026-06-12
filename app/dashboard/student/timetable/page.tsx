@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Clock, MapPin } from 'lucide-react';
-import { TIMETABLE } from '@/data/studentData';
+import { useStudentData } from '@/lib/useStudentData';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E'; const S3 = '#272727';
 const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
@@ -27,11 +27,24 @@ const activeDayDefault = todayIdx >= 1 && todayIdx <= 5 ? DAYS[todayIdx - 1] : '
 export default function TimetablePage() {
   const [view,    setView]    = useState<'day' | 'week'>('week');
   const [selDay,  setSelDay]  = useState(activeDayDefault);
+  const { data, loading } = useStudentData();
+  const TIMETABLE = data.timetable;
 
-  const get = (day: string, period: number) =>
-    TIMETABLE.find(t => t.day === day && t.period === period);
+  // Match DB slots to the period grid by start time (DB period numbers are 1-4)
+  const get = (day: string, period: number) => {
+    const row = PERIODS.find(p => p.period === period);
+    return TIMETABLE.find(t => t.day === day && t.time === row?.time);
+  };
 
   const daySlots = PERIODS.map(p => ({ ...p, slot: get(selDay, p.period) }));
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: MUTED, fontSize: 14 }}>Loading timetable…</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%' }}>

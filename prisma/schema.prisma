@@ -196,6 +196,9 @@ model Notice {
   id        String   @id @default(cuid())
   title     String
   body      String
+  category  String   @default("Admin")     // Academic | Sport | Event | Admin | Urgent
+  author    String?
+  pinned    Boolean  @default(false)
   audience  String   @default("all")       // all | students | teachers | parents
   createdAt DateTime @default(now())
 }

@@ -3,7 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Mail, MapPin, TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
-import { SUBJECTS } from '@/data/studentData';
+import { useStudentData } from '@/lib/useStudentData';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E'; const S3 = '#272727';
 const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
@@ -33,7 +33,12 @@ function Ring({ pct, color, size = 100 }: { pct: number; color: string; size?: n
 export default function SubjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const sub = SUBJECTS.find(s => s.id === id);
+  const { data, loading } = useStudentData();
+  const sub = data.subjects.find(s => s.id === id);
+
+  if (loading) return (
+    <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontFamily: F_BODY }}>Loading subject…</div>
+  );
 
   if (!sub) return (
     <div style={{ padding: 40, textAlign: 'center', color: MUTED }}>

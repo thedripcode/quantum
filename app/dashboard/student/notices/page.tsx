@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { Pin, ChevronDown, ChevronUp, Calendar, User } from 'lucide-react';
-import { NOTICES, Notice } from '@/data/studentData';
+import { useStudentData, type StudentData } from '@/lib/useStudentData';
+
+type Notice = StudentData['notices'][number];
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
 const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
@@ -10,7 +12,7 @@ const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = '
 const RED = '#EF4444';
 const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
 
-type FilterType = Notice['category'] | 'All';
+type FilterType = string;
 
 const CAT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   Urgent:   { bg: 'rgba(239,68,68,0.12)',    text: '#EF4444',  border: 'rgba(239,68,68,0.30)' },
@@ -83,9 +85,19 @@ function NoticeCard({ notice }: { notice: Notice }) {
 
 export default function NoticesPage() {
   const [filter, setFilter] = useState<FilterType>('All');
+  const { data, loading } = useStudentData();
+  const NOTICES = data.notices;
 
   const categories: FilterType[] = ['All', 'Urgent', 'Academic', 'Event', 'Admin', 'Sport'];
   const filtered = NOTICES.filter(n => filter === 'All' || n.category === filter);
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: MUTED, fontSize: 14 }}>Loading notices…</span>
+      </div>
+    );
+  }
   const pinned    = filtered.filter(n => n.pinned);
   const rest      = filtered.filter(n => !n.pinned);
 

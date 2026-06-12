@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ClipboardList, UserCheck, CheckCircle2, XCircle, Clock, MinusCircle, Save, Loader2 } from 'lucide-react';
+import { ClipboardList, UserCheck, CheckCircle2, XCircle, Clock, MinusCircle, Save, Loader2, BookOpen, Bell } from 'lucide-react';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
 const PURPLE = '#7C3AED'; const PURPLE_DIM = 'rgba(124,58,237,0.10)'; const PURPLE_B = 'rgba(124,58,237,0.25)';
@@ -25,7 +25,7 @@ const ATT_STATUSES = [
 ] as const;
 
 export default function CapturePage() {
-  const [tab, setTab] = useState<'marks' | 'attendance'>('marks');
+  const [tab, setTab] = useState<'marks' | 'attendance' | 'assignment' | 'notice'>('marks');
   const [students, setStudents] = useState<Student[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading]   = useState(true);
@@ -44,10 +44,25 @@ export default function CapturePage() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [statuses, setStatuses] = useState<Record<string, string>>({});
 
+  // Assignment form
+  const [asgnSubject, setAsgnSubject] = useState('');
+  const [asgnTitle, setAsgnTitle]     = useState('');
+  const [asgnDesc, setAsgnDesc]       = useState('');
+  const [asgnType, setAsgnType]       = useState('Assignment');
+  const [asgnDue, setAsgnDue]         = useState('');
+  const [asgnTotal, setAsgnTotal]     = useState('100');
+  const [asgnPriority, setAsgnPriority] = useState('medium');
+
+  // Notice form
+  const [ntcTitle, setNtcTitle]       = useState('');
+  const [ntcBody, setNtcBody]         = useState('');
+  const [ntcCategory, setNtcCategory] = useState('Academic');
+  const [ntcPinned, setNtcPinned]     = useState(false);
+
   useEffect(() => {
     fetch('/api/teacher/roster')
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then(d => { setStudents(d.students); setSubjects(d.subjects); if (d.subjects[0]) setSubjectCode(d.subjects[0].code); })
+      .then(d => { setStudents(d.students); setSubjects(d.subjects); if (d.subjects[0]) { setSubjectCode(d.subjects[0].code); setAsgnSubject(d.subjects[0].code); } })
       .catch(() => setToast('Could not load students — check your connection.'))
       .finally(() => setLoading(false));
   }, []);
@@ -96,6 +111,34 @@ export default function CapturePage() {
   const markAll = (status: string) =>
     setStatuses(Object.fromEntries(students.map(s => [s.portalId, status])));
 
+  const saveAssignment = async () => {
+    if (!asgnSubject || !asgnTitle.trim() || !asgnDue) { flash('Fill in the subject, title and due date.'); return; }
+    setSaving(true);
+    const res = await fetch('/api/assignments', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subjectCode: asgnSubject, title: asgnTitle, description: asgnDesc, type: asgnType, dueDate: asgnDue, total: Number(asgnTotal || 100), priority: asgnPriority }),
+    });
+    const data = await res.json();
+    setSaving(false);
+    if (!res.ok) { flash(data.error ?? 'Could not create assignment.'); return; }
+    flash(`✓ Assignment "${asgnTitle.trim()}" posted.`);
+    setAsgnTitle(''); setAsgnDesc(''); setAsgnDue('');
+  };
+
+  const saveNotice = async () => {
+    if (!ntcTitle.trim() || !ntcBody.trim()) { flash('Fill in the notice title and body.'); return; }
+    setSaving(true);
+    const res = await fetch('/api/notices', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: ntcTitle, body: ntcBody, category: ntcCategory, pinned: ntcPinned }),
+    });
+    const data = await res.json();
+    setSaving(false);
+    if (!res.ok) { flash(data.error ?? 'Could not post notice.'); return; }
+    flash(`✓ Notice "${ntcTitle.trim()}" posted.`);
+    setNtcTitle(''); setNtcBody(''); setNtcPinned(false);
+  };
+
   if (loading) {
     return (
       <div style={{ padding: 24, fontFamily: FB, background: BG, minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -113,7 +156,7 @@ export default function CapturePage() {
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {([['marks', 'Marks', ClipboardList], ['attendance', 'Attendance', UserCheck]] as const).map(([key, label, Icon]) => (
+        {([['marks', 'Marks', ClipboardList], ['attendance', 'Attendance', UserCheck], ['assignment', 'Assignment', BookOpen], ['notice', 'Notice', Bell]] as const).map(([key, label, Icon]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -138,7 +181,7 @@ export default function CapturePage() {
         </div>
       )}
 
-      {tab === 'marks' ? (
+      {tab === 'marks' && (
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 22 }}>
           {/* Assessment details */}
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr', gap: 12, marginBottom: 20 }}>
@@ -205,7 +248,9 @@ export default function CapturePage() {
             {saving ? 'Saving…' : `Save ${filledScores.length || ''} Mark${filledScores.length !== 1 ? 's' : ''}`}
           </button>
         </div>
-      ) : (
+      )}
+
+      {tab === 'attendance' && (
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 22 }}>
           {/* Date + bulk actions */}
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
@@ -263,6 +308,82 @@ export default function CapturePage() {
           >
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             {saving ? 'Saving…' : 'Save Register'}
+          </button>
+        </div>
+      )}
+
+      {tab === 'assignment' && (
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 22, maxWidth: 720 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div>
+              <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>SUBJECT</label>
+              <select value={asgnSubject} onChange={e => setAsgnSubject(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+                {subjects.map(s => <option key={s.code} value={s.code} style={{ background: S2 }}>{s.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>TYPE</label>
+              <select value={asgnType} onChange={e => setAsgnType(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+                {['Assignment', 'Project', 'Essay', 'Practical', 'Test', 'Exam'].map(t => <option key={t} style={{ background: S2 }}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>TITLE</label>
+            <input value={asgnTitle} onChange={e => setAsgnTitle(e.target.value)} placeholder="e.g. Map Skills Research Project" style={inputStyle} />
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>DESCRIPTION (optional)</label>
+            <textarea value={asgnDesc} onChange={e => setAsgnDesc(e.target.value)} rows={3} placeholder="Instructions for learners…" style={{ ...inputStyle, resize: 'vertical' }} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 18 }}>
+            <div>
+              <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>DUE DATE</label>
+              <input type="date" value={asgnDue} onChange={e => setAsgnDue(e.target.value)} style={{ ...inputStyle, colorScheme: 'dark' }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>OUT OF</label>
+              <input value={asgnTotal} onChange={e => setAsgnTotal(e.target.value.replace(/\D/g, ''))} style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>PRIORITY</label>
+              <select value={asgnPriority} onChange={e => setAsgnPriority(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+                {['low', 'medium', 'high'].map(p => <option key={p} value={p} style={{ background: S2 }}>{p}</option>)}
+              </select>
+            </div>
+          </div>
+          <button onClick={saveAssignment} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 26px', borderRadius: 10, cursor: saving ? 'default' : 'pointer', background: PURPLE, border: 'none', color: '#fff', fontFamily: FH, fontSize: 14, fontWeight: 700, opacity: saving ? 0.6 : 1 }}>
+            {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+            {saving ? 'Posting…' : 'Post Assignment'}
+          </button>
+        </div>
+      )}
+
+      {tab === 'notice' && (
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 22, maxWidth: 720 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div>
+              <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>TITLE</label>
+              <input value={ntcTitle} onChange={e => setNtcTitle(e.target.value)} placeholder="e.g. Term 2 Exam Timetable Released" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>CATEGORY</label>
+              <select value={ntcCategory} onChange={e => setNtcCategory(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+                {['Academic', 'Sport', 'Event', 'Admin', 'Urgent'].map(c => <option key={c} style={{ background: S2 }}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6 }}>BODY</label>
+            <textarea value={ntcBody} onChange={e => setNtcBody(e.target.value)} rows={5} placeholder="Write the notice…" style={{ ...inputStyle, resize: 'vertical' }} />
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18, cursor: 'pointer', fontSize: 13, color: MUTED }}>
+            <input type="checkbox" checked={ntcPinned} onChange={e => setNtcPinned(e.target.checked)} style={{ accentColor: PURPLE }} />
+            Pin to top
+          </label>
+          <button onClick={saveNotice} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 26px', borderRadius: 10, cursor: saving ? 'default' : 'pointer', background: PURPLE, border: 'none', color: '#fff', fontFamily: FH, fontSize: 14, fontWeight: 700, opacity: saving ? 0.6 : 1 }}>
+            {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+            {saving ? 'Posting…' : 'Post Notice'}
           </button>
         </div>
       )}

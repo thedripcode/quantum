@@ -36,7 +36,7 @@ export interface StudentData {
   attendanceRecords: { date: string; status: 'present' | 'absent' | 'late' | 'excused'; note: string }[];
   overallAttendance: { attended: number; total: number; percentage: number };
   monthlyAttendance: { month: string; days: number; attended: number; percentage: number }[];
-  notices: { id: string; title: string; body: string; date: string }[];
+  notices: { id: string; category: string; title: string; body: string; date: string; author: string; pinned: boolean }[];
 }
 
 const EMPTY: StudentData = {

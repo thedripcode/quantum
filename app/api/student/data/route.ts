@@ -21,7 +21,7 @@ export async function GET() {
     }),
     prisma.mark.findMany({ where: { studentId: userId }, orderBy: { date: 'asc' } }),
     prisma.attendanceRecord.findMany({ where: { studentId: userId }, orderBy: { date: 'asc' } }),
-    prisma.notice.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
+    prisma.notice.findMany({ orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }], take: 30 }),
     prisma.timetableSlot.findMany({ where: { grade }, include: { subject: { include: { teacher: true } } }, orderBy: [{ day: 'asc' }, { period: 'asc' }] }),
   ]);
 
@@ -148,6 +148,10 @@ export async function GET() {
     attendanceRecords: attendance.map(r => ({ date: r.date.toISOString().slice(0, 10), status: r.status, note: r.note ?? '' })),
     overallAttendance,
     monthlyAttendance,
-    notices: notices.map(n => ({ id: n.id, title: n.title, body: n.body, date: n.createdAt.toISOString().slice(0, 10) })),
+    notices: notices.map(n => ({
+      id: n.id, category: n.category, title: n.title, body: n.body,
+      date: n.createdAt.toISOString().slice(0, 10),
+      author: n.author ?? 'School Office', pinned: n.pinned,
+    })),
   });
 }

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Edit2, Save, X, Camera, User, BookOpen, Heart, Phone } from 'lucide-react';
-import { STUDENT, SUBJECTS } from '@/data/studentData';
+import { useSession } from 'next-auth/react';
+import { useStudentData } from '@/lib/useStudentData';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
 const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
@@ -43,14 +44,26 @@ function Section({ icon, title, children }: { icon: React.ReactNode; title: stri
 }
 
 export default function ProfilePage() {
+  const { data: session } = useSession();
+  const { data: studentData } = useStudentData();
+  const SUBJECTS = studentData.subjects;
+
+  const fullName = session?.user?.name ?? '…';
+  const portalId = (session?.user as any)?.portalId ?? '—';
+  const grade    = (session?.user as any)?.grade ?? '—';
+  const initials = fullName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
+
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
   const [data, setData] = useState({
-    phone: STUDENT.phone,
-    email: STUDENT.email,
-    address: STUDENT.address,
-    homeLanguage: STUDENT.homeLanguage,
+    phone: '',
+    email: '',
+    address: '',
+    homeLanguage: '',
   });
+
+  // Fill email once session loads
+  const email = data.email || session?.user?.email || '';
 
   const set = (k: keyof typeof data) => (v: string) => setData(prev => ({ ...prev, [k]: v }));
 
@@ -67,7 +80,7 @@ export default function ProfilePage() {
         {/* Avatar */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <div style={{ width: 90, height: 90, borderRadius: '50%', background: `linear-gradient(135deg, ${GOLD} 0%, #a07830 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 800, color: '#000', border: `3px solid ${GOLD}`, boxShadow: `0 0 20px rgba(201,168,76,0.25)` }}>
-            {STUDENT.avatarInitials}
+            {initials}
           </div>
           <button style={{ position: 'absolute', bottom: 2, right: 2, width: 26, height: 26, borderRadius: '50%', background: GOLD, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Camera size={12} style={{ color: '#000' }} />
@@ -77,16 +90,13 @@ export default function ProfilePage() {
         {/* Info */}
         <div style={{ flex: 1 }}>
           <h2 style={{ fontFamily: F_HEADING, fontSize: 24, fontWeight: 800, color: TEXT, margin: '0 0 4px', letterSpacing: '-0.03em' }}>
-            {STUDENT.firstName} {STUDENT.lastName}
+            {fullName}
           </h2>
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, color: MUTED }}>Grade {STUDENT.grade} · {STUDENT.className}</span>
+            <span style={{ fontSize: 13, color: MUTED }}>{grade}</span>
             <span style={{ fontSize: 13, color: MUTED }}>·</span>
-            <span style={{ fontSize: 13, color: MUTED }}>{STUDENT.id}</span>
-            <span style={{ fontSize: 13, color: MUTED }}>·</span>
-            <span style={{ fontSize: 13, color: MUTED }}>House: {STUDENT.house}</span>
+            <span style={{ fontSize: 13, color: MUTED }}>{portalId}</span>
           </div>
-          <div style={{ marginTop: 6, fontSize: 12, color: FAINT }}>Enrolled {STUDENT.enrolledDate}</div>
         </div>
 
         {/* Edit button */}
@@ -116,48 +126,31 @@ export default function ProfilePage() {
 
       {/* Personal Details */}
       <Section icon={<User size={14} />} title="Personal Details">
-        <InfoRow label="Full Name" value={`${STUDENT.firstName} ${STUDENT.lastName}`} editable={false} />
-        <InfoRow label="Date of Birth" value={STUDENT.dob} editable={false} />
-        <InfoRow label="Gender" value={STUDENT.gender} editable={false} />
+        <InfoRow label="Full Name" value={fullName} editable={false} />
         <InfoRow label="Home Language" value={data.homeLanguage} editable={editing} onChange={set('homeLanguage')} />
-        <InfoRow label="Religion" value={STUDENT.religion} editable={false} />
         <InfoRow label="Phone" value={data.phone} editable={editing} onChange={set('phone')} />
-        <InfoRow label="Email" value={data.email} editable={editing} onChange={set('email')} />
+        <InfoRow label="Email" value={email} editable={editing} onChange={set('email')} />
         <InfoRow label="Address" value={data.address} editable={editing} onChange={set('address')} />
       </Section>
 
       {/* Academic Details */}
       <Section icon={<BookOpen size={14} />} title="Academic Details">
-        <InfoRow label="Student Number" value={STUDENT.id} editable={false} />
-        <InfoRow label="Grade" value={`Grade ${STUDENT.grade}`} editable={false} />
-        <InfoRow label="Class" value={STUDENT.className} editable={false} />
-        <InfoRow label="House" value={STUDENT.house} editable={false} />
-        <InfoRow label="Enrolled" value={STUDENT.enrolledDate} editable={false} />
+        <InfoRow label="Student Number" value={portalId} editable={false} />
+        <InfoRow label="Grade" value={grade} editable={false} />
         <InfoRow label="Subjects" value={SUBJECTS.map(s => s.short).join(', ')} editable={false} />
       </Section>
 
-      {/* Parent/Guardian */}
+      {/* Parent/Guardian — captured during enrolment, coming to profiles soon */}
       <Section icon={<Heart size={14} />} title="Parent / Guardian">
-        <InfoRow label="Name" value={STUDENT.parent.name} editable={false} />
-        <InfoRow label="Relationship" value={STUDENT.parent.relation} editable={false} />
-        <InfoRow label="Cell Phone" value={STUDENT.parent.phone} editable={false} />
-        <InfoRow label="Work Phone" value={STUDENT.parent.workPhone} editable={false} />
-        <InfoRow label="Email" value={STUDENT.parent.email} editable={false} />
+        <InfoRow label="Name" value="" editable={false} />
+        <InfoRow label="Cell Phone" value="" editable={false} />
+        <InfoRow label="Email" value="" editable={false} />
       </Section>
 
       {/* Emergency Contact */}
       <Section icon={<Phone size={14} />} title="Emergency Contact">
-        <InfoRow label="Name" value={STUDENT.emergency.name} editable={false} />
-        <InfoRow label="Relationship" value={STUDENT.emergency.relation} editable={false} />
-        <InfoRow label="Phone" value={STUDENT.emergency.phone} editable={false} />
-      </Section>
-
-      {/* Medical */}
-      <Section icon={<span style={{ fontSize: 14 }}>🏥</span>} title="Medical Information">
-        <InfoRow label="Conditions" value={STUDENT.medicalInfo.conditions} editable={false} />
-        <InfoRow label="Allergies" value={STUDENT.medicalInfo.allergies} editable={false} />
-        <InfoRow label="Doctor" value={STUDENT.medicalInfo.doctor} editable={false} />
-        <InfoRow label="Doctor Phone" value={STUDENT.medicalInfo.doctorPhone} editable={false} />
+        <InfoRow label="Name" value="" editable={false} />
+        <InfoRow label="Phone" value="" editable={false} />
       </Section>
     </div>
   );

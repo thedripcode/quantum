@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AlertTriangle, CheckCircle2, Clock, FileCheck, Filter } from 'lucide-react';
-import { ASSIGNMENTS, Assignment } from '@/data/studentData';
+import { useStudentData, type RealAssignment as Assignment } from '@/lib/useStudentData';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
 const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
@@ -100,6 +100,16 @@ function AssignmentCard({ a }: { a: Assignment }) {
 
 export default function AssignmentsPage() {
   const [filter, setFilter] = useState<Filter>('all');
+  const { data, loading } = useStudentData();
+  const ASSIGNMENTS = data.assignments;
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: MUTED, fontSize: 14 }}>Loading assignments…</span>
+      </div>
+    );
+  }
 
   const counts = {
     all: ASSIGNMENTS.length,

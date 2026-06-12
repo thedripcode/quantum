@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, AlertTriangle, Award } from 'lucide-react';
-import { SUBJECTS } from '@/data/studentData';
+import { useStudentData, type RealSubject } from '@/lib/useStudentData';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E'; const S3 = '#272727';
 const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
@@ -42,10 +42,10 @@ function LineChart({ data, color, width = 200, height = 56 }: { data: { term: nu
 }
 
 // ─── Overall bar chart comparing all subjects ─────────────────────────────────
-function SubjectBarChart() {
+function SubjectBarChart({ subjects }: { subjects: RealSubject[] }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 200); }, []);
-  const sorted = [...SUBJECTS].sort((a, b) => b.currentMark - a.currentMark);
+  const sorted = [...subjects].sort((a, b) => b.currentMark - a.currentMark);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {sorted.map(sub => (
@@ -70,7 +70,19 @@ const TYPE_COLORS: Record<string, string> = {
 
 export default function MarksPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
-  const overall = Math.round(SUBJECTS.reduce((s, sub) => s + sub.currentMark, 0) / SUBJECTS.length);
+  const { data, loading } = useStudentData();
+  const SUBJECTS = data.subjects;
+  const graded   = SUBJECTS.filter(s => s.marks.length > 0);
+  const overall  = graded.length ? Math.round(graded.reduce((s, sub) => s + sub.currentMark, 0) / graded.length) : 0;
+  const best     = graded.length ? [...graded].sort((a, b) => b.currentMark - a.currentMark)[0] : null;
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: MUTED, fontSize: 14 }}>Loading your marks…</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%' }}>
@@ -78,16 +90,16 @@ export default function MarksPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
         <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 14, padding: 20, gridColumn: '1 / 2' }}>
           <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.70)', fontWeight: 500, marginBottom: 6 }}>Overall Average</div>
-          <div style={{ fontFamily: F_HEADING, fontSize: 36, fontWeight: 800, color: GOLD, letterSpacing: '-0.03em', lineHeight: 1 }}>{overall}%</div>
-          <div style={{ fontSize: 12, color: MUTED, marginTop: 6 }}>Term 3 · 2024 · Grade 11A</div>
+          <div style={{ fontFamily: F_HEADING, fontSize: 36, fontWeight: 800, color: GOLD, letterSpacing: '-0.03em', lineHeight: 1 }}>{graded.length ? `${overall}%` : '—'}</div>
+          <div style={{ fontSize: 12, color: MUTED, marginTop: 6 }}>{graded.length ? `${graded.length} graded subject${graded.length !== 1 ? 's' : ''}` : 'No marks captured yet'}</div>
         </div>
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 20 }}>
           <div style={{ fontSize: 11, color: MUTED, fontWeight: 500, marginBottom: 6 }}>Best Subject</div>
           <div style={{ fontFamily: F_HEADING, fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: '-0.02em' }}>
-            {[...SUBJECTS].sort((a, b) => b.currentMark - a.currentMark)[0].short}
+            {best ? best.short : '—'}
           </div>
           <div style={{ fontSize: 14, color: GREEN, fontWeight: 600, marginTop: 4 }}>
-            {[...SUBJECTS].sort((a, b) => b.currentMark - a.currentMark)[0].currentMark}%
+            {best ? `${best.currentMark}%` : 'Awaiting marks'}
           </div>
         </div>
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 20 }}>
@@ -102,7 +114,9 @@ export default function MarksPage() {
       {/* Comparison bar chart */}
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '20px 22px', marginBottom: 20 }}>
         <h3 style={{ fontFamily: F_HEADING, fontSize: 15, fontWeight: 600, color: TEXT, margin: '0 0 16px' }}>Subject Comparison</h3>
-        <SubjectBarChart />
+        {graded.length > 0
+          ? <SubjectBarChart subjects={graded} />
+          : <div style={{ fontSize: 12, color: FAINT, padding: '8px 0' }}>The comparison chart appears once your teachers capture marks.</div>}
       </div>
 
       {/* Subject cards */}
@@ -131,11 +145,11 @@ export default function MarksPage() {
                   <LineChart data={sub.termAverages} color={sub.isAtRisk ? RED : sub.color} width={80} height={32} />
                 </div>
                 <div style={{ textAlign: 'right', minWidth: 80 }}>
-                  <div style={{ fontFamily: F_HEADING, fontSize: 22, fontWeight: 700, color: sub.isAtRisk ? RED : TEXT, letterSpacing: '-0.02em' }}>{sub.currentMark}%</div>
+                  <div style={{ fontFamily: F_HEADING, fontSize: 22, fontWeight: 700, color: sub.isAtRisk ? RED : TEXT, letterSpacing: '-0.02em' }}>{sub.marks.length > 0 ? `${sub.currentMark}%` : '—'}</div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 3, marginTop: 2 }}>
                     {trend > 0 ? <TrendingUp size={11} style={{ color: GREEN }} /> : trend < 0 ? <TrendingDown size={11} style={{ color: RED }} /> : <Minus size={11} style={{ color: FAINT }} />}
                     <span style={{ fontSize: 11, color: trend > 0 ? GREEN : trend < 0 ? RED : FAINT, fontWeight: 500 }}>
-                      {trend > 0 ? '+' : ''}{trend}% vs T{sub.termAverages[sub.termAverages.length - 2]?.term}
+                      {sub.termAverages.length >= 2 ? `${trend > 0 ? '+' : ''}${trend}% vs T${sub.termAverages[sub.termAverages.length - 2].term}` : sub.marks.length > 0 ? 'First term' : 'No data'}
                     </span>
                   </div>
                 </div>
@@ -150,6 +164,11 @@ export default function MarksPage() {
                       <div key={h} style={{ fontSize: 10, fontWeight: 600, color: FAINT, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 6px' }}>{h}</div>
                     ))}
                   </div>
+                  {sub.marks.length === 0 && (
+                    <div style={{ padding: '14px 6px', fontSize: 12, color: FAINT, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                      No marks captured for this subject yet.
+                    </div>
+                  )}
                   {sub.marks.map((m, i) => {
                     const pct = Math.round((m.mark / m.total) * 100);
                     return (

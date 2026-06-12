@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { AlertTriangle, TrendingUp, Flame, Target, ChevronRight, Clock, BookOpen, ArrowRight } from 'lucide-react';
-import { STUDENT, SUBJECTS, ASSIGNMENTS, OVERALL_AVERAGE, AT_RISK_SUBJECTS, CURRENT_STREAK, TIMETABLE } from '@/data/studentData';
+import { useStudentData } from '@/lib/useStudentData';
 
 // ─── Tokens ──────────────────────────────────────────────────────────────────
 const BG      = '#0C0C0C';
@@ -49,21 +49,34 @@ function MiniBar({ value, max = 100, color }: { value: number; max?: number; col
   );
 }
 
-// ─── Today's timetable ─────────────────────────────────────────────────────────
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const todayName = DAYS[new Date().getDay()] || 'Monday';
-const todaySlots = TIMETABLE.filter(t => t.day === todayName && t.type === 'Lesson').slice(0, 5);
-const displayDay = todaySlots.length > 0 ? todayName : 'Monday';
-const displaySlots = (todaySlots.length > 0 ? todaySlots : TIMETABLE.filter(t => t.day === 'Monday' && t.type === 'Lesson')).slice(0, 5);
-
-// pending assignments
-const pendingAssignments = ASSIGNMENTS.filter(a => a.status === 'pending' || a.status === 'overdue');
 
 export default function StudentDashboardPage() {
   const { data: session } = useSession();
+  const { data, loading } = useStudentData();
+  const { subjects: SUBJECTS, assignments: ASSIGNMENTS, overallAverage: OVERALL_AVERAGE,
+          atRiskSubjects: AT_RISK_SUBJECTS, currentStreak: CURRENT_STREAK,
+          timetable: TIMETABLE, overallAttendance } = data;
+
   const hour  = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const firstName = session?.user?.name?.split(' ')[0] ?? STUDENT.firstName;
+  const firstName = session?.user?.name?.split(' ')[0] ?? 'Student';
+
+  // Today's timetable
+  const todayName  = DAYS[new Date().getDay()] || 'Monday';
+  const todaySlots = TIMETABLE.filter(t => t.day === todayName && t.type === 'Lesson').slice(0, 5);
+  const displayDay = todaySlots.length > 0 ? todayName : 'Monday';
+  const displaySlots = (todaySlots.length > 0 ? todaySlots : TIMETABLE.filter(t => t.day === 'Monday' && t.type === 'Lesson')).slice(0, 5);
+
+  const pendingAssignments = ASSIGNMENTS.filter(a => a.status === 'pending' || a.status === 'overdue');
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: MUTED, fontSize: 14 }}>Loading your dashboard…</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%' }}>
@@ -73,7 +86,7 @@ export default function StudentDashboardPage() {
           {greeting}, {firstName} 👋
         </h2>
         <p style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>
-          Here's your academic overview for Term 3, 2024.
+          Here&apos;s your academic overview for {new Date().getFullYear()}.
         </p>
       </div>
 
@@ -98,9 +111,9 @@ export default function StudentDashboardPage() {
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
         {[
-          { label: 'Overall Average', value: `${OVERALL_AVERAGE}%`, sub: 'Term 3 · 7 subjects', icon: <TrendingUp size={16} style={{ color: GOLD }} />, accent: GOLD },
-          { label: 'Attendance', value: '95.7%', sub: '154 / 161 days', icon: <BookOpen size={16} style={{ color: '#10B981' }} />, accent: '#10B981' },
-          { label: 'Study Streak', value: `${CURRENT_STREAK} days`, sub: 'Keep it going!', icon: <Flame size={16} style={{ color: '#F59E0B' }} />, accent: '#F59E0B' },
+          { label: 'Overall Average', value: OVERALL_AVERAGE > 0 ? `${OVERALL_AVERAGE}%` : '—', sub: `${SUBJECTS.length} subjects`, icon: <TrendingUp size={16} style={{ color: GOLD }} />, accent: GOLD },
+          { label: 'Attendance', value: overallAttendance.total > 0 ? `${overallAttendance.percentage}%` : '—', sub: overallAttendance.total > 0 ? `${overallAttendance.attended} / ${overallAttendance.total} days` : 'No records yet', icon: <BookOpen size={16} style={{ color: '#10B981' }} />, accent: '#10B981' },
+          { label: 'Attendance Streak', value: `${CURRENT_STREAK} days`, sub: CURRENT_STREAK > 0 ? 'Keep it going!' : 'Starts when marked', icon: <Flame size={16} style={{ color: '#F59E0B' }} />, accent: '#F59E0B' },
           { label: 'Pending Tasks', value: `${pendingAssignments.length}`, sub: `${ASSIGNMENTS.filter(a => a.status === 'overdue').length} overdue`, icon: <Target size={16} style={{ color: pendingAssignments.length > 0 ? RED : '#10B981' }} />, accent: pendingAssignments.length > 0 ? RED : '#10B981' },
         ].map(stat => (
           <div key={stat.label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 16 }}>
@@ -141,7 +154,7 @@ export default function StudentDashboardPage() {
                     </div>
                     {sub.isAtRisk && <AlertTriangle size={12} style={{ color: RED, flexShrink: 0 }} />}
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: sub.isAtRisk ? RED : TEXT, fontFamily: F_HEADING, letterSpacing: '-0.02em' }}>{sub.currentMark}%</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: sub.isAtRisk ? RED : TEXT, fontFamily: F_HEADING, letterSpacing: '-0.02em' }}>{sub.marks.length > 0 ? `${sub.currentMark}%` : '—'}</div>
                   <MiniBar value={sub.currentMark} color={sub.isAtRisk ? RED : sub.color} />
                   <div style={{ fontSize: 10, color: FAINT, marginTop: 5 }}>{sub.teacher}</div>
                 </Link>
@@ -158,6 +171,11 @@ export default function StudentDashboardPage() {
               </Link>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {pendingAssignments.length === 0 && (
+                <div style={{ padding: '18px 12px', textAlign: 'center', fontSize: 12, color: FAINT }}>
+                  No assignments yet — they appear here when your teachers post them.
+                </div>
+              )}
               {pendingAssignments.slice(0, 5).map(a => {
                 const due    = new Date(a.dueDate);
                 const today  = new Date();
@@ -195,6 +213,11 @@ export default function StudentDashboardPage() {
               </Link>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {displaySlots.length === 0 && (
+                <div style={{ padding: '14px 10px', textAlign: 'center', fontSize: 12, color: FAINT }}>
+                  Timetable not published for your grade yet.
+                </div>
+              )}
               {displaySlots.map(period => (
                 <div key={`${period.day}-${period.period}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: S2, borderRadius: 9, border: `1px solid ${BORDER}` }}>
                   <div style={{ width: 3, height: 30, borderRadius: 2, background: period.color, flexShrink: 0 }} />
@@ -215,6 +238,11 @@ export default function StudentDashboardPage() {
           <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 16, padding: '18px 18px' }}>
             <h3 style={{ fontFamily: F_HEADING, fontSize: 15, fontWeight: 600, color: GOLD, margin: '0 0 12px' }}>Performance Prediction</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {SUBJECTS.filter(s => s.nextAssessment).length === 0 && (
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+                  Predictions appear once marks and upcoming assessments are captured.
+                </div>
+              )}
               {SUBJECTS.filter(s => s.nextAssessment).slice(0, 4).map(sub => {
                 const goal = 60;
                 const termContr = sub.currentMark * (1 - sub.termAverages[2]?.average / 100 || 0.6);
@@ -246,7 +274,7 @@ export default function StudentDashboardPage() {
               {[
                 { label: 'View Attendance Report', href: '/dashboard/student/attendance' },
                 { label: 'Check Term Results', href: '/dashboard/student/marks' },
-                { label: 'Messages (1 unread)', href: '/dashboard/student/messages' },
+                { label: 'Messages', href: '/dashboard/student/messages' },
                 { label: 'Ask AI Assistant', href: '/dashboard/student/assistant' },
               ].map(item => (
                 <Link

@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Bell, Search, X, ChevronDown, Check, User, Settings, LogOut } from 'lucide-react';
-import { STUDENT, NOTICES, MESSAGES } from '@/data/studentData';
+import { NOTICES, MESSAGES } from '@/data/studentData';
 
 const BG      = '#0C0C0C';
 const BORDER  = 'rgba(255,255,255,0.07)';
@@ -28,6 +29,13 @@ const PAGE_TITLES: Record<string, string> = {
 
 export default function StudentPortalTopBar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const displayName = session?.user?.name ?? '…';
+  const displayId   = (session?.user as any)?.portalId ?? '';
+  const displayGrade = (session?.user as any)?.grade ?? '';
+  const displayEmail = session?.user?.email ?? '';
+  const initials = displayName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
 
   const [searchOpen,  setSearchOpen]  = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,7 +96,7 @@ export default function StudentPortalTopBar() {
           {pageTitle}
         </h1>
         <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>
-          Term 3 · 2024 · Grade {STUDENT.grade}{STUDENT.className}
+          {new Date().getFullYear()}{displayGrade ? ` · ${displayGrade}` : ''}
         </p>
       </div>
 
@@ -187,11 +195,11 @@ export default function StudentPortalTopBar() {
         >
           {/* Avatar circle — white ring with initials */}
           <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(255,255,255,0.10)', border: '1.5px solid rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: WHITE }}>
-            {STUDENT.avatarInitials}
+            {initials}
           </div>
           <div style={{ textAlign: 'left' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: WHITE, whiteSpace: 'nowrap' }}>{STUDENT.firstName} {STUDENT.lastName}</div>
-            <div style={{ fontSize: 10, color: MUTED }}>{STUDENT.id}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: WHITE, whiteSpace: 'nowrap' }}>{displayName}</div>
+            <div style={{ fontSize: 10, color: MUTED }}>{displayId}</div>
           </div>
           <ChevronDown size={12} style={{ color: MUTED }} />
         </button>
@@ -200,8 +208,8 @@ export default function StudentPortalTopBar() {
           <div style={{ ...drop, width: 210 }}>
             {/* Header */}
             <div style={{ padding: '12px 14px', borderBottom: `1px solid ${BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>{STUDENT.firstName} {STUDENT.lastName}</div>
-              <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>{STUDENT.email}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>{displayName}</div>
+              <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>{displayEmail}</div>
             </div>
 
             {/* Menu items */}

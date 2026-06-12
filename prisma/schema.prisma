@@ -97,4 +97,118 @@ model User {
 
   accounts Account[]
   sessions Session[]
+
+  taughtSubjects    Subject[]              @relation("SubjectTeacher")
+  enrollments       Enrollment[]
+  marks             Mark[]
+  attendanceRecords AttendanceRecord[]
+  submissions       AssignmentSubmission[]
+}
+
+// ─── Academics ────────────────────────────────────────────────────────────────
+
+model Subject {
+  id        String  @id @default(cuid())
+  code      String  @unique               // e.g. 'math'
+  name      String                        // e.g. 'Mathematics'
+  short     String                        // e.g. 'MATH'
+  color     String  @default("#3B82F6")
+  room      String?
+  teacherId String?
+  teacher   User?   @relation("SubjectTeacher", fields: [teacherId], references: [id])
+
+  enrollments Enrollment[]
+  marks       Mark[]
+  assignments Assignment[]
+  timetable   TimetableSlot[]
+}
+
+model Enrollment {
+  id         String @id @default(cuid())
+  studentId  String
+  subjectId  String
+  targetMark Int    @default(75)
+
+  student User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, subjectId])
+}
+
+model Mark {
+  id        String   @id @default(cuid())
+  studentId String
+  subjectId String
+  task      String                        // e.g. 'Test 1'
+  type      String   @default("Test")     // Test | Assignment | Exam | Project
+  score     Float
+  total     Float
+  weight    Int      @default(0)
+  term      Int      @default(1)
+  date      DateTime @default(now())
+
+  student User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+}
+
+model AttendanceRecord {
+  id        String   @id @default(cuid())
+  studentId String
+  date      DateTime
+  status    String                        // present | absent | late | excused
+  note      String?
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, date])
+}
+
+model Assignment {
+  id          String   @id @default(cuid())
+  subjectId   String
+  title       String
+  description String?
+  type        String   @default("Assignment") // Assignment | Project | Essay | Practical
+  dueDate     DateTime
+  total       Int      @default(100)
+  priority    String   @default("medium")     // high | medium | low
+
+  subject     Subject                @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  submissions AssignmentSubmission[]
+}
+
+model AssignmentSubmission {
+  id            String    @id @default(cuid())
+  assignmentId  String
+  studentId     String
+  submittedDate DateTime?
+  mark          Float?
+  feedback      String?
+  status        String    @default("pending") // pending | submitted | graded | overdue
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, studentId])
+}
+
+model Notice {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  audience  String   @default("all")       // all | students | teachers | parents
+  createdAt DateTime @default(now())
+}
+
+model TimetableSlot {
+  id        String  @id @default(cuid())
+  grade     String                          // e.g. 'Grade 11'
+  day       String                          // Monday..Friday
+  period    Int
+  time      String                          // '07:30'
+  endTime   String                          // '08:30'
+  room      String?
+  subjectId String
+
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 }

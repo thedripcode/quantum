@@ -11,7 +11,7 @@ import {
   Award, Target, User, Users, LogOut, ChevronLeft, Menu,
   AlertTriangle,
 } from 'lucide-react';
-import { STUDENT, AT_RISK_SUBJECTS, OVERALL_AVERAGE } from '@/data/studentData';
+import { useStudentData } from '@/lib/useStudentData';
 
 // ─── Tokens ──────────────────────────────────────────────────────────────────
 const BG         = '#0C0C0C';
@@ -241,11 +241,13 @@ export default function StudentPortalSidebar() {
   const pathname   = usePathname();
   const router     = useRouter();
   const { data: session } = useSession();
+  const { data: studentData } = useStudentData();
+  const AT_RISK_SUBJECTS = studentData.atRiskSubjects;
   const [collapsed, setCollapsed] = useState(false);
 
-  // Real logged-in user (falls back to mock while session loads)
-  const displayName  = session?.user?.name ?? `${STUDENT.firstName} ${STUDENT.lastName}`;
-  const displayGrade = (session?.user as any)?.grade ?? `Grade ${STUDENT.grade}`;
+  // Real logged-in user
+  const displayName  = session?.user?.name ?? '…';
+  const displayGrade = (session?.user as any)?.grade ?? '';
   const initials     = displayName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
 
   const isActive = (href: string) =>

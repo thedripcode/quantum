@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { CheckCircle2, XCircle, Clock, MinusCircle } from 'lucide-react';
-import { SUBJECT_ATTENDANCE, ATTENDANCE_RECORDS, OVERALL_ATTENDANCE, MONTHLY_ATTENDANCE } from '@/data/studentData';
+import { useStudentData, type StudentData } from '@/lib/useStudentData';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
 const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
 const GREEN = '#10B981'; const RED = '#EF4444'; const AMBER = '#F59E0B';
 const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
+
+type Rec = StudentData['attendanceRecords'][number];
 
 // ─── Donut ring ───────────────────────────────────────────────────────────────
 function Donut({ pct, color, size = 80 }: { pct: number; color: string; size?: number }) {
@@ -28,12 +30,15 @@ function Donut({ pct, color, size = 80 }: { pct: number; color: string; size?: n
 }
 
 // ─── Monthly bar chart ────────────────────────────────────────────────────────
-function MonthlyBars() {
+function MonthlyBars({ months }: { months: StudentData['monthlyAttendance'] }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 200); }, []);
+  if (months.length === 0) {
+    return <div style={{ fontSize: 12, color: FAINT, padding: '8px 0' }}>The monthly chart appears once attendance is captured.</div>;
+  }
   return (
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end', height: 80 }}>
-      {MONTHLY_ATTENDANCE.map(m => (
+      {months.map(m => (
         <div key={m.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <span style={{ fontSize: 11, fontWeight: 600, color: TEXT }}>{m.percentage}%</span>
           <div style={{ width: '100%', height: 48, background: 'rgba(255,255,255,0.05)', borderRadius: '6px 6px 0 0', overflow: 'hidden', position: 'relative' }}>
@@ -50,9 +55,13 @@ function MonthlyBars() {
 const STATUS_COLORS = { present: GREEN, absent: RED, late: AMBER, excused: '#8B5CF6' };
 const STATUS_ICONS = { present: CheckCircle2, absent: XCircle, late: Clock, excused: MinusCircle };
 
-function CalendarView() {
-  const months = [...new Set(ATTENDANCE_RECORDS.map(r => r.date.slice(0, 7)))];
-  const byDate = Object.fromEntries(ATTENDANCE_RECORDS.map(r => [r.date, r]));
+function CalendarView({ records }: { records: Rec[] }) {
+  const months = [...new Set(records.map(r => r.date.slice(0, 7)))];
+  const byDate = Object.fromEntries(records.map(r => [r.date, r]));
+
+  if (months.length === 0) {
+    return <div style={{ fontSize: 12, color: FAINT }}>The calendar fills in as your teachers mark the register.</div>;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -98,8 +107,22 @@ function CalendarView() {
 }
 
 export default function AttendancePage() {
-  const absent = ATTENDANCE_RECORDS.filter(r => r.status === 'absent').length;
-  const late   = ATTENDANCE_RECORDS.filter(r => r.status === 'late').length;
+  const { data, loading } = useStudentData();
+  const records = data.attendanceRecords;
+  const overall = data.overallAttendance;
+  const absent  = records.filter(r => r.status === 'absent').length;
+  const late    = records.filter(r => r.status === 'late').length;
+  const present = records.filter(r => r.status === 'present').length;
+  const recent  = [...records].reverse().slice(0, 10);
+  const noted   = records.filter(r => r.status !== 'present' && r.note);
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: MUTED, fontSize: 14 }}>Loading your attendance…</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%' }}>
@@ -107,17 +130,17 @@ export default function AttendancePage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
         <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 14, padding: 18, display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ position: 'relative' }}>
-            <Donut pct={OVERALL_ATTENDANCE.percentage} color={GOLD} size={64} />
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: GOLD }}>{OVERALL_ATTENDANCE.percentage}%</div>
+            <Donut pct={overall.percentage} color={GOLD} size={64} />
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: GOLD }}>{overall.total > 0 ? `${Math.round(overall.percentage)}%` : '—'}</div>
           </div>
           <div>
             <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.70)', fontWeight: 500 }}>Overall</div>
-            <div style={{ fontFamily: F_HEADING, fontSize: 20, fontWeight: 700, color: GOLD, letterSpacing: '-0.02em' }}>{OVERALL_ATTENDANCE.attended}/{OVERALL_ATTENDANCE.total}</div>
+            <div style={{ fontFamily: F_HEADING, fontSize: 20, fontWeight: 700, color: GOLD, letterSpacing: '-0.02em' }}>{overall.attended}/{overall.total}</div>
             <div style={{ fontSize: 10, color: 'rgba(201,168,76,0.50)' }}>days attended</div>
           </div>
         </div>
         {[
-          { label: 'Present', value: OVERALL_ATTENDANCE.attended, color: GREEN, icon: CheckCircle2 },
+          { label: 'Present', value: present, color: GREEN, icon: CheckCircle2 },
           { label: 'Absent', value: absent, color: RED, icon: XCircle },
           { label: 'Late', value: late, color: AMBER, icon: Clock },
         ].map(stat => {
@@ -129,7 +152,7 @@ export default function AttendancePage() {
                 <Icon size={16} style={{ color: stat.color }} />
               </div>
               <div style={{ fontFamily: F_HEADING, fontSize: 28, fontWeight: 700, color: stat.value > 0 && stat.label !== 'Present' ? stat.color : TEXT, letterSpacing: '-0.02em', marginTop: 8 }}>{stat.value}</div>
-              <div style={{ fontSize: 11, color: FAINT, marginTop: 2 }}>this term</div>
+              <div style={{ fontSize: 11, color: FAINT, marginTop: 2 }}>this year</div>
             </div>
           );
         })}
@@ -137,36 +160,41 @@ export default function AttendancePage() {
 
       {/* Main grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
-        {/* Left: subject attendance + calendar */}
+        {/* Left: recent register + absence notes */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {/* Subject breakdown */}
+          {/* Recent register */}
           <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '18px 20px' }}>
-            <h3 style={{ fontFamily: F_HEADING, fontSize: 15, fontWeight: 600, color: TEXT, margin: '0 0 16px' }}>Per Subject Attendance</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {SUBJECT_ATTENDANCE.map(sub => (
-                <div key={sub.subjectId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: S2, borderRadius: 10 }}>
-                  <div style={{ width: 3, height: 36, borderRadius: 2, background: sub.color, flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                      <span style={{ fontSize: 12, fontWeight: 500, color: TEXT }}>{sub.subject}</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: sub.percentage >= 90 ? GREEN : sub.percentage >= 80 ? AMBER : RED }}>
-                        {sub.percentage}%
+            <h3 style={{ fontFamily: F_HEADING, fontSize: 15, fontWeight: 600, color: TEXT, margin: '0 0 16px' }}>Recent Register</h3>
+            {recent.length === 0 && (
+              <div style={{ fontSize: 12, color: FAINT }}>
+                No attendance captured yet — your daily register appears here once teachers start marking it.
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {recent.map(r => {
+                const Icon = STATUS_ICONS[r.status];
+                const color = STATUS_COLORS[r.status];
+                return (
+                  <div key={r.date} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: S2, borderRadius: 10 }}>
+                    <Icon size={15} style={{ color, flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 500, color: TEXT }}>
+                        {new Date(r.date).toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
+                      {r.note && <div style={{ fontSize: 11, color: MUTED, marginTop: 1 }}>{r.note}</div>}
                     </div>
-                    <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${sub.percentage}%`, background: sub.percentage >= 90 ? sub.color : sub.percentage >= 80 ? AMBER : RED, borderRadius: 2, transition: 'width 1.1s ease' }} />
-                    </div>
-                    <div style={{ fontSize: 10, color: FAINT, marginTop: 3 }}>{sub.attended} / {sub.total} classes</div>
+                    <span style={{ fontSize: 11, fontWeight: 700, color, textTransform: 'capitalize' }}>{r.status}</span>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          {/* Attendance records list */}
+          {/* Absence notes */}
           <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '18px 20px' }}>
             <h3 style={{ fontFamily: F_HEADING, fontSize: 15, fontWeight: 600, color: TEXT, margin: '0 0 14px' }}>Absence Notes</h3>
-            {ATTENDANCE_RECORDS.filter(r => r.status !== 'present' && r.note).map(r => {
+            {noted.length === 0 && <div style={{ fontSize: 12, color: FAINT }}>No absence notes on record.</div>}
+            {noted.map(r => {
               const Icon = STATUS_ICONS[r.status];
               return (
                 <div key={r.date} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
@@ -185,7 +213,7 @@ export default function AttendancePage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '18px 18px' }}>
             <h3 style={{ fontFamily: F_HEADING, fontSize: 15, fontWeight: 600, color: TEXT, margin: '0 0 14px' }}>Monthly Breakdown</h3>
-            <MonthlyBars />
+            <MonthlyBars months={data.monthlyAttendance} />
           </div>
 
           <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '18px 18px' }}>
@@ -199,7 +227,7 @@ export default function AttendancePage() {
                 </div>
               ))}
             </div>
-            <CalendarView />
+            <CalendarView records={records} />
           </div>
         </div>
       </div>

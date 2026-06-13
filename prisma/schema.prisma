@@ -215,3 +215,27 @@ model TimetableSlot {
 
   subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 }
+
+// ─── Messaging ────────────────────────────────────────────────────────────────
+
+model Message {
+  id         String    @id @default(cuid())
+  senderId   String
+  receiverId String
+  subject    String
+  body       String
+  readAt     DateTime?
+  sentAt     DateTime  @default(now())
+}
+
+// ─── Student Goals ────────────────────────────────────────────────────────────
+
+model Goal {
+  id         String  @id @default(cuid())
+  studentId  String
+  subjectId  String
+  targetMark Int     @default(75)
+  note       String?
+
+  @@unique([studentId, subjectId])
+}

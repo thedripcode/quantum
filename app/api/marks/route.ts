@@ -5,21 +5,24 @@ import { auth } from '@/auth';
 export const dynamic = 'force-dynamic';
 
 // Teacher/admin: list recent marks (for review/removal)
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await auth();
   const role = session?.user?.role;
   if (!session?.user || (role !== 'teacher' && role !== 'admin')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const limitParam = req.nextUrl.searchParams.get('limit');
+  const take = limitParam ? Math.min(Number(limitParam), 5000) : 200;
   const marks = await prisma.mark.findMany({
-    include: { student: { select: { name: true, portalId: true } }, subject: { select: { name: true, short: true, color: true } } },
-    orderBy: { date: 'desc' },
-    take: 200,
+    include: { student: { select: { name: true, portalId: true, grade: true } }, subject: { select: { name: true, short: true, color: true, code: true } } },
+    orderBy: { date: 'asc' },
+    take,
   });
   return NextResponse.json({
     marks: marks.map(m => ({
       id: m.id, studentName: m.student.name, studentPortalId: m.student.portalId,
-      subject: m.subject.name, subjectShort: m.subject.short, color: m.subject.color,
+      grade: m.student.grade,
+      subject: m.subject.name, subjectShort: m.subject.short, subjectCode: (m.subject as any).code, color: m.subject.color,
       task: m.task, type: m.type, score: m.score, total: m.total, term: m.term,
       date: m.date.toISOString().slice(0, 10),
     })),

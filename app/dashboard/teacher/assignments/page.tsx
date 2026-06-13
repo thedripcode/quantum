@@ -1,381 +1,195 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import {
-  Plus, Trash2, Send, Eye, EyeOff, ChevronDown, ChevronUp,
-  ClipboardList, CheckCircle2, Clock, Users, BookOpen,
-} from 'lucide-react';
-import {
-  TeacherWork, Question, QuestionType,
-  getWorks, saveWork, deleteWork, publishWork,
-  getSubmissions, newId,
-} from '@/lib/assignmentStore';
+import { useCallback, useEffect, useState } from 'react';
+import { Plus, Trash2, ClipboardList, Loader2, ChevronDown } from 'lucide-react';
 
-// ─── Tokens ──────────────────────────────────────────────────────────────────
-const BG = '#0C0C0C', S1 = '#111111', S2 = '#171717', S3 = '#1E1E1E';
-const BORDER = 'rgba(255,255,255,0.07)', BORDER2 = 'rgba(255,255,255,0.12)';
-const TEXT = '#FFFFFF', MUTED = 'rgba(255,255,255,0.50)', FAINT = 'rgba(255,255,255,0.22)';
-const FH = "'Bricolage Grotesque', sans-serif", FB = "'Inter', sans-serif";
+const BG='#0C0C0C',S2='#171717',S3='#1E1E1E';
+const BORDER='rgba(255,255,255,0.07)';
+const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
+const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const GOLD='#C9A84C',AMBER='#F59E0B',RED='#EF4444',GREEN='#10B981',BLUE='#3B82F6';
 
-const SUBJECTS = ['Mathematics','Physical Sciences','English HL','IsiZulu FAL','Life Orientation','History','Geography','Accounting','Business Studies'];
-const GRADES   = ['8','9','10','11','12'];
-const Q_TYPES: { value: QuestionType; label: string }[] = [
-  { value:'short_answer', label:'Short Answer' },
-  { value:'essay',        label:'Essay / Long Answer' },
-  { value:'mcq',          label:'Multiple Choice' },
-  { value:'calculation',  label:'Calculation / Show Work' },
-];
+const PRIORITY_COLORS={high:RED,medium:AMBER,low:GREEN};
+const A_TYPES=['Assignment','Project','Essay','Practical','Test'];
 
-const inp = (extra?: React.CSSProperties): React.CSSProperties => ({
-  background: S2, border:`1px solid ${BORDER}`, borderRadius:10,
-  padding:'10px 14px', color:TEXT, fontFamily:FB, fontSize:13,
-  outline:'none', width:'100%', boxSizing:'border-box' as const,
-  ...extra,
-});
+interface Assignment { id:string; subject:string; subjectShort:string; color:string; title:string; type:string; dueDate:string; total:number; priority:string; }
+interface Subject { code:string; name:string; short:string; color:string; }
 
-// ─── Question Builder ─────────────────────────────────────────────────────────
-function QuestionRow({ q, idx, onChange, onDelete }: {
-  q: Question; idx: number;
-  onChange: (q: Question) => void;
-  onDelete: () => void;
-}) {
-  const [open, setOpen] = useState(true);
+const inp=(extra?:React.CSSProperties):React.CSSProperties=>({background:S3,border:`1px solid ${BORDER}`,borderRadius:10,padding:'10px 14px',color:TEXT,fontFamily:FB,fontSize:13,outline:'none',width:'100%',boxSizing:'border-box' as const,...extra});
 
-  return (
-    <div style={{ background:S3, border:`1px solid ${BORDER}`, borderRadius:14, marginBottom:10, overflow:'hidden' }}>
-      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 16px', cursor:'pointer' }} onClick={() => setOpen(o=>!o)}>
-        <div style={{ width:24, height:24, borderRadius:7, background:'rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:FB, fontSize:11, fontWeight:700, color:MUTED, flexShrink:0 }}>
-          {idx+1}
+export default function AssignmentsPage() {
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [subjects, setSubjects]       = useState<Subject[]>([]);
+  const [loading, setLoading]         = useState(true);
+  const [busy, setBusy]               = useState(false);
+  const [toast, setToast]             = useState('');
+  const [showForm, setShowForm]       = useState(false);
+  const [form, setForm]               = useState({subjectCode:'',title:'',type:'Assignment',dueDate:'',total:'100',priority:'medium',description:''});
+
+  const flash=(m:string)=>{ setToast(m); setTimeout(()=>setToast(''),4000); };
+
+  const load = useCallback(()=>{
+    Promise.all([
+      fetch('/api/assignments').then(r=>r.json()),
+      fetch('/api/teacher/roster').then(r=>r.json()),
+    ]).then(([ad,rd])=>{
+      setAssignments(ad.assignments??[]);
+      setSubjects(rd.subjects??[]);
+      setLoading(false);
+      if(rd.subjects?.length&&!form.subjectCode) setForm(f=>({...f,subjectCode:rd.subjects[0].code}));
+    });
+  },[]);
+
+  useEffect(()=>{ load(); },[load]);
+
+  const create = async () => {
+    if(!form.subjectCode||!form.title.trim()||!form.dueDate){ flash('Subject, title and due date are required.'); return; }
+    setBusy(true);
+    const res=await fetch('/api/assignments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      subjectCode:form.subjectCode, title:form.title.trim(), description:form.description.trim()||undefined,
+      type:form.type, dueDate:form.dueDate, total:Number(form.total)||100, priority:form.priority,
+    })});
+    setBusy(false);
+    if(res.ok){ flash('✓ Assignment created.'); setShowForm(false); setForm(f=>({...f,title:'',description:'',dueDate:''})); load(); }
+    else flash('Could not create assignment.');
+  };
+
+  const remove = async (a:Assignment) => {
+    if(!confirm(`Delete "${a.title}"?`)) return;
+    const res=await fetch(`/api/assignments?id=${a.id}`,{method:'DELETE'});
+    if(res.ok){ flash('✓ Assignment deleted.'); load(); }
+    else flash('Could not delete.');
+  };
+
+  const today=new Date().toISOString().split('T')[0];
+  const upcoming=assignments.filter(a=>a.dueDate>=today);
+  const past=assignments.filter(a=>a.dueDate<today);
+
+  return(
+    <div style={{padding:24,fontFamily:FB,background:BG,minHeight:'100%'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,gap:10,flexWrap:'wrap'}}>
+        <div>
+          <h2 style={{fontFamily:FH,fontSize:22,fontWeight:700,color:TEXT,margin:0,letterSpacing:'-0.02em'}}>Assignments</h2>
+          <p style={{fontSize:13,color:MUTED,marginTop:4}}>Manage assignments across your subjects.</p>
         </div>
-        <span style={{ flex:1, fontFamily:FB, fontSize:13, color: q.text ? TEXT : FAINT, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-          {q.text || 'New question…'}
-        </span>
-        <span style={{ fontFamily:FB, fontSize:11, color:MUTED, flexShrink:0 }}>{q.marks} mk{q.marks!==1?'s':''}</span>
-        <button onClick={e=>{e.stopPropagation();onDelete();}} style={{ background:'none', border:'none', cursor:'pointer', color:'rgba(239,68,68,0.50)', padding:4, display:'flex' }}>
-          <Trash2 size={13}/>
+        <button onClick={()=>setShowForm(s=>!s)}
+          style={{display:'flex',alignItems:'center',gap:7,padding:'10px 20px',borderRadius:10,background:GOLD,border:'none',color:'#000',fontFamily:FH,fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          <Plus size={14}/>{showForm?'Cancel':'New Assignment'}
         </button>
-        {open ? <ChevronUp size={14} style={{color:FAINT}}/> : <ChevronDown size={14} style={{color:FAINT}}/>}
       </div>
 
-      {open && (
-        <div style={{ padding:'0 16px 16px', borderTop:`1px solid ${BORDER}`, paddingTop:14 }}>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:10, marginBottom:12 }}>
+      {toast&&<div style={{marginBottom:16,padding:'11px 16px',borderRadius:10,background:toast.startsWith('✓')?'rgba(16,185,129,0.10)':'rgba(245,158,11,0.10)',border:`1px solid ${toast.startsWith('✓')?'rgba(16,185,129,0.30)':'rgba(245,158,11,0.30)'}`,fontSize:13,color:toast.startsWith('✓')?GREEN:AMBER}}>{toast}</div>}
+
+      {showForm&&(
+        <div style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:16,padding:20,marginBottom:20}}>
+          <h3 style={{fontFamily:FH,fontSize:15,fontWeight:600,color:TEXT,margin:'0 0 16px'}}>New Assignment</h3>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:12,marginBottom:12}}>
             <div>
-              <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Question Type</div>
-              <select value={q.type} onChange={e=>onChange({...q, type:e.target.value as QuestionType, options: e.target.value==='mcq' ? ['','','',''] : undefined})}
-                style={inp()}>
-                {Q_TYPES.map(t=><option key={t.value} value={t.value}>{t.label}</option>)}
+              <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.08em',marginBottom:5}}>SUBJECT</div>
+              <select value={form.subjectCode} onChange={e=>setForm(f=>({...f,subjectCode:e.target.value}))} style={inp()}>
+                {subjects.map(s=><option key={s.code} value={s.code} style={{background:S3}}>{s.name}</option>)}
               </select>
             </div>
             <div>
-              <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Marks</div>
-              <input type="number" min={1} max={100} value={q.marks}
-                onChange={e=>onChange({...q, marks:+e.target.value||1})}
-                style={{...inp(), width:72}}/>
+              <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.08em',marginBottom:5}}>TYPE</div>
+              <select value={form.type} onChange={e=>setForm(f=>({...f,type:e.target.value}))} style={inp()}>
+                {A_TYPES.map(t=><option key={t} value={t} style={{background:S3}}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.08em',marginBottom:5}}>DUE DATE</div>
+              <input type="date" value={form.dueDate} onChange={e=>setForm(f=>({...f,dueDate:e.target.value}))} style={inp()}/>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.08em',marginBottom:5}}>TOTAL MARKS</div>
+              <input type="number" min={1} value={form.total} onChange={e=>setForm(f=>({...f,total:e.target.value}))} style={inp()}/>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.08em',marginBottom:5}}>PRIORITY</div>
+              <select value={form.priority} onChange={e=>setForm(f=>({...f,priority:e.target.value}))} style={inp()}>
+                {['high','medium','low'].map(p=><option key={p} value={p} style={{background:S3}}>{p.charAt(0).toUpperCase()+p.slice(1)}</option>)}
+              </select>
             </div>
           </div>
-
-          <div style={{ marginBottom:10 }}>
-            <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Question Text</div>
-            <textarea value={q.text} onChange={e=>onChange({...q, text:e.target.value})}
-              placeholder="Type your question here…" rows={2}
-              style={{...inp(), resize:'vertical' as const}}/>
+          <div style={{marginBottom:12}}>
+            <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.08em',marginBottom:5}}>TITLE</div>
+            <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))} placeholder="e.g. Term 2 Investigation" style={inp()}/>
           </div>
-
-          {q.type === 'mcq' && (
-            <div style={{ marginBottom:10 }}>
-              <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Answer Options</div>
-              {(q.options ?? ['','','','']).map((opt, oi) => (
-                <div key={oi} style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
-                  <span style={{ fontFamily:FB, fontSize:12, color:MUTED, width:20, flexShrink:0 }}>{String.fromCharCode(65+oi)}.</span>
-                  <input value={opt} onChange={e=>{const opts=[...(q.options??['','','',''])]; opts[oi]=e.target.value; onChange({...q, options:opts});}}
-                    placeholder={`Option ${String.fromCharCode(65+oi)}`}
-                    style={{...inp(), flex:1}}/>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div>
-            <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Answer Hint (shown to SIDI after submission)</div>
-            <input value={q.hint??''} onChange={e=>onChange({...q, hint:e.target.value})}
-              placeholder="Key points SIDI should highlight when reviewing this question…"
-              style={inp()}/>
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.08em',marginBottom:5}}>DESCRIPTION (optional)</div>
+            <textarea rows={3} value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} placeholder="Instructions for students…" style={{...inp(),resize:'vertical'}}/>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Create / Edit Form ───────────────────────────────────────────────────────
-function AssignmentForm({ onSaved, editing }: {
-  onSaved: () => void;
-  editing?: TeacherWork | null;
-}) {
-  const blank: TeacherWork = editing ?? {
-    id:'', type:'assignment', title:'', subject:'Mathematics', subjectCode:'MATH',
-    grade:'10', dueDate:'', totalMarks:0, instructions:'', questions:[], published:false,
-    createdAt: new Date().toISOString(), teacherName:'Mr. Nkosi',
-  };
-
-  const [form, setForm] = useState<TeacherWork>(blank);
-
-  useEffect(() => { if (editing) setForm(editing); }, [editing]);
-
-  const addQ = () => setForm(f=>({...f, questions:[...f.questions, { id:newId(), text:'', type:'short_answer', marks:5 }]}));
-  const updateQ = (idx:number, q:Question) => setForm(f=>({...f, questions:f.questions.map((q2,i)=>i===idx?q:q2)}));
-  const removeQ = (idx:number) => setForm(f=>({...f, questions:f.questions.filter((_,i)=>i!==idx)}));
-
-  const total = form.questions.reduce((s,q)=>s+q.marks, 0);
-
-  const save = (publish=false) => {
-    if (!form.title.trim() || !form.dueDate) return;
-    const work: TeacherWork = {
-      ...form,
-      id: form.id || newId(),
-      totalMarks: total,
-      published: publish || form.published,
-      createdAt: form.createdAt || new Date().toISOString(),
-    };
-    saveWork(work);
-    onSaved();
-  };
-
-  return (
-    <div>
-      <div style={{ fontFamily:FH, fontSize:15, fontWeight:700, color:TEXT, marginBottom:18, letterSpacing:'-0.01em' }}>
-        {editing ? 'Edit Assignment' : 'New Assignment'}
-      </div>
-
-      {/* Basic info */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
-        <div>
-          <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Title</div>
-          <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))}
-            placeholder="e.g. Chapter 3 Assignment" style={inp()}/>
-        </div>
-        <div>
-          <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Due Date</div>
-          <input type="date" value={form.dueDate} onChange={e=>setForm(f=>({...f,dueDate:e.target.value}))}
-            style={{...inp(), colorScheme:'dark'}}/>
-        </div>
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
-        <div>
-          <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Subject</div>
-          <select value={form.subject} onChange={e=>setForm(f=>({...f,subject:e.target.value}))} style={inp()}>
-            {SUBJECTS.map(s=><option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-        <div>
-          <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Grade</div>
-          <select value={form.grade} onChange={e=>setForm(f=>({...f,grade:e.target.value}))} style={inp()}>
-            {GRADES.map(g=><option key={g} value={g}>Grade {g}</option>)}
-          </select>
-        </div>
-      </div>
-      <div style={{ marginBottom:18 }}>
-        <div style={{ fontFamily:FB, fontSize:10, color:FAINT, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>Instructions for Students</div>
-        <textarea value={form.instructions} onChange={e=>setForm(f=>({...f,instructions:e.target.value}))}
-          placeholder="Describe what students need to do, materials needed, how to format their responses…"
-          rows={3} style={{...inp(), resize:'vertical' as const}}/>
-      </div>
-
-      {/* Questions */}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-        <div style={{ fontFamily:FB, fontSize:13, fontWeight:600, color:TEXT }}>Questions</div>
-        <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-          {total > 0 && <span style={{ fontFamily:FB, fontSize:12, color:MUTED }}>{form.questions.length} questions · {total} marks total</span>}
-          <button onClick={addQ}
-            style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 14px', borderRadius:9, background:'rgba(255,255,255,0.06)', border:`1px solid ${BORDER2}`, color:TEXT, fontFamily:FB, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-            <Plus size={13}/> Add Question
+          <button onClick={create} disabled={busy}
+            style={{display:'flex',alignItems:'center',gap:7,padding:'10px 22px',borderRadius:10,background:GOLD,border:'none',color:'#000',fontFamily:FH,fontSize:13,fontWeight:700,cursor:busy?'default':'pointer',opacity:busy?0.6:1}}>
+            {busy?<Loader2 size={14} className="animate-spin"/>:<Plus size={14}/>}{busy?'Creating…':'Create Assignment'}
           </button>
         </div>
-      </div>
-
-      {form.questions.length === 0 && (
-        <div style={{ textAlign:'center', padding:'28px 0', color:FAINT, fontFamily:FB, fontSize:13, border:`1px dashed ${BORDER}`, borderRadius:12, marginBottom:18 }}>
-          No questions yet — click "Add Question" to get started
-        </div>
       )}
 
-      {form.questions.map((q,i) => (
-        <QuestionRow key={q.id} q={q} idx={i}
-          onChange={nq=>updateQ(i,nq)}
-          onDelete={()=>removeQ(i)}/>
-      ))}
-
-      {/* Actions */}
-      <div style={{ display:'flex', gap:10, marginTop:20 }}>
-        <button onClick={()=>save(false)}
-          disabled={!form.title.trim()||!form.dueDate}
-          style={{ flex:1, padding:'12px', borderRadius:12, background: (!form.title.trim()||!form.dueDate) ? S3 : 'rgba(255,255,255,0.06)', border:`1px solid ${BORDER}`, color: (!form.title.trim()||!form.dueDate) ? FAINT : MUTED, fontFamily:FB, fontSize:13, fontWeight:600, cursor:(!form.title.trim()||!form.dueDate)?'default':'pointer' }}>
-          Save Draft
-        </button>
-        <button onClick={()=>save(true)}
-          disabled={!form.title.trim()||!form.dueDate||form.questions.length===0}
-          style={{ flex:1, padding:'12px', borderRadius:12, background:(!form.title.trim()||!form.dueDate||form.questions.length===0) ? S3 : 'rgba(16,185,129,0.12)', border:`1px solid ${(!form.title.trim()||!form.dueDate||form.questions.length===0) ? BORDER : 'rgba(16,185,129,0.30)'}`, color:(!form.title.trim()||!form.dueDate||form.questions.length===0) ? FAINT : '#10B981', fontFamily:FB, fontSize:13, fontWeight:700, cursor:(!form.title.trim()||!form.dueDate||form.questions.length===0)?'default':'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
-          <Send size={13}/> Publish to Students
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─── Assignment Card ──────────────────────────────────────────────────────────
-function WorkCard({ work, onEdit, onDelete, onTogglePublish, subCount }: {
-  work: TeacherWork;
-  onEdit: () => void;
-  onDelete: () => void;
-  onTogglePublish: () => void;
-  subCount: number;
-}) {
-  const due = new Date(work.dueDate);
-  const past = due < new Date();
-
-  return (
-    <div style={{ background:S1, border:`1px solid ${work.published ? 'rgba(16,185,129,0.20)' : BORDER}`, borderRadius:14, padding:'16px 18px', marginBottom:10 }}>
-      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10 }}>
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
-            <div style={{ fontFamily:FH, fontSize:14, fontWeight:700, color:TEXT, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-              {work.title}
-            </div>
-            <span style={{ fontFamily:FB, fontSize:9, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', padding:'2px 7px', borderRadius:5, flexShrink:0,
-              background: work.published ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)',
-              color: work.published ? '#10B981' : MUTED }}>
-              {work.published ? 'Live' : 'Draft'}
-            </span>
-          </div>
-          <div style={{ fontFamily:FB, fontSize:12, color:MUTED }}>
-            Grade {work.grade} · {work.subject} · {work.questions.length} questions · {work.totalMarks} marks
-          </div>
-          <div style={{ display:'flex', alignItems:'center', gap:14, marginTop:8 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:5, fontFamily:FB, fontSize:11, color: past ? '#EF4444' : FAINT }}>
-              <Clock size={11}/> Due {work.dueDate}
-            </div>
-            {work.published && (
-              <div style={{ display:'flex', alignItems:'center', gap:5, fontFamily:FB, fontSize:11, color: subCount > 0 ? '#10B981' : FAINT }}>
-                <Users size={11}/> {subCount} submission{subCount!==1?'s':''}
+      {loading?(
+        <div style={{display:'flex',justifyContent:'center',padding:40}}><Loader2 size={24} className="animate-spin" style={{color:MUTED}}/></div>
+      ):assignments.length===0?(
+        <div style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:16,padding:60,textAlign:'center'}}>
+          <ClipboardList size={36} style={{color:MUTED,marginBottom:12,opacity:0.5}}/>
+          <div style={{fontSize:15,fontWeight:600,color:TEXT}}>No assignments yet</div>
+          <div style={{fontSize:13,color:MUTED,marginTop:4}}>Create your first assignment above.</div>
+        </div>
+      ):(
+        <>
+          {upcoming.length>0&&(
+            <div style={{marginBottom:24}}>
+              <div style={{fontSize:11,fontWeight:700,color:FAINT,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:10}}>Upcoming ({upcoming.length})</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {upcoming.map(a=>(<AssignmentRow key={a.id} a={a} onDelete={()=>remove(a)}/>))}
               </div>
-            )}
-          </div>
-        </div>
-        <div style={{ display:'flex', gap:6, flexShrink:0 }}>
-          <button onClick={onTogglePublish}
-            style={{ padding:'6px 10px', borderRadius:8, background:'transparent', border:`1px solid ${BORDER}`, color:MUTED, cursor:'pointer', display:'flex', alignItems:'center' }}
-            title={work.published ? 'Unpublish' : 'Publish'}>
-            {work.published ? <EyeOff size={13}/> : <Eye size={13}/>}
-          </button>
-          <button onClick={onEdit}
-            style={{ padding:'6px 12px', borderRadius:8, background:'transparent', border:`1px solid ${BORDER}`, color:MUTED, fontFamily:FB, fontSize:12, cursor:'pointer' }}>
-            Edit
-          </button>
-          <button onClick={onDelete}
-            style={{ padding:'6px 10px', borderRadius:8, background:'transparent', border:'1px solid rgba(239,68,68,0.20)', color:'rgba(239,68,68,0.60)', cursor:'pointer', display:'flex', alignItems:'center' }}>
-            <Trash2 size={13}/>
-          </button>
-        </div>
-      </div>
+            </div>
+          )}
+          {past.length>0&&(
+            <div>
+              <div style={{fontSize:11,fontWeight:700,color:FAINT,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:10}}>Past ({past.length})</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {past.map(a=>(<AssignmentRow key={a.id} a={a} onDelete={()=>remove(a)}/>))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-export default function TeacherAssignmentsPage() {
-  const [works, setWorks]     = useState<TeacherWork[]>([]);
-  const [creating, setCreating] = useState(false);
-  const [editing, setEditing]  = useState<TeacherWork | null>(null);
-  const [subs, setSubs]        = useState<Record<string,number>>({});
-
-  const load = () => {
-    const all = getWorks().filter(w => w.type === 'assignment');
-    setWorks(all);
-    const counts: Record<string,number> = {};
-    all.forEach(w => { counts[w.id] = getSubmissions(w.id).length; });
-    setSubs(counts);
-  };
-
-  useEffect(() => { load(); }, []);
-
-  const handleTogglePublish = (id: string, published: boolean) => {
-    const works2 = getWorks().map(w => w.id === id ? { ...w, published: !published } : w);
-    localStorage.setItem('sidelile_teacher_works', JSON.stringify(works2));
-    load();
-  };
-
-  const stats = [
-    { label:'Total Assignments', value: works.length,                                            icon:ClipboardList, color:'#3B82F6' },
-    { label:'Published',         value: works.filter(w=>w.published).length,                     icon:CheckCircle2, color:'#10B981' },
-    { label:'Pending Submissions',value: Object.values(subs).reduce((a,b)=>a+b,0),               icon:Clock,        color:'#F59E0B' },
-    { label:'Drafts',            value: works.filter(w=>!w.published).length,                    icon:BookOpen,     color:MUTED as string },
-  ];
-
-  return (
-    <div style={{ padding:24, fontFamily:FB, background:BG, minHeight:'100%' }}>
-      {/* Header */}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:22 }}>
-        <div>
-          <h1 style={{ fontFamily:FH, fontSize:20, fontWeight:800, color:TEXT, margin:0, letterSpacing:'-0.03em' }}>Assignments</h1>
-          <p style={{ fontSize:12, color:FAINT, margin:'4px 0 0' }}>Create and manage assignments for your classes</p>
+function AssignmentRow({a,onDelete}:{a:Assignment;onDelete:()=>void}) {
+  const dueDate=new Date(a.dueDate+'T00:00:00');
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diff=Math.ceil((dueDate.getTime()-today.getTime())/86400000);
+  const isOverdue=diff<0;
+  const pColor=(PRIORITY_COLORS as any)[a.priority]??AMBER;
+  return(
+    <div style={{background:S2,border:`1px solid ${isOverdue?'rgba(239,68,68,0.25)':BORDER}`,borderRadius:13,padding:'14px 18px',display:'flex',alignItems:'center',gap:14}}>
+      <div style={{width:4,height:40,borderRadius:2,background:a.color,flexShrink:0}}/>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3}}>
+          <span style={{fontSize:13,fontWeight:600,color:TEXT,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.title}</span>
+          <span style={{fontSize:9,fontWeight:700,letterSpacing:'0.08em',color:pColor,background:pColor+'18',padding:'2px 5px',borderRadius:4,flexShrink:0,textTransform:'uppercase'}}>{a.priority}</span>
         </div>
-        <button onClick={() => { setEditing(null); setCreating(true); }}
-          style={{ display:'flex', alignItems:'center', gap:7, padding:'10px 20px', borderRadius:12, background:'rgba(255,255,255,0.07)', border:`1px solid ${BORDER2}`, color:TEXT, fontFamily:FB, fontSize:13, fontWeight:700, cursor:'pointer' }}>
-          <Plus size={15}/> New Assignment
-        </button>
-      </div>
-
-      {/* Stats */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:24 }}>
-        {stats.map(({ label, value, icon:Icon, color }) => (
-          <div key={label} style={{ background:S1, border:`1px solid ${BORDER}`, borderRadius:14, padding:'14px 16px' }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
-              <span style={{ fontFamily:FB, fontSize:11, color:MUTED }}>{label}</span>
-              <Icon size={14} style={{ color }}/>
-            </div>
-            <div style={{ fontFamily:FH, fontSize:26, fontWeight:800, color }}>{value}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display:'grid', gridTemplateColumns: (creating || editing) ? '1fr 420px' : '1fr', gap:20 }}>
-        {/* List */}
-        <div>
-          {works.length === 0 ? (
-            <div style={{ textAlign:'center', padding:'60px 0', color:FAINT, border:`1px dashed ${BORDER}`, borderRadius:16 }}>
-              <ClipboardList size={36} style={{ marginBottom:12, opacity:0.4 }}/>
-              <div style={{ fontFamily:FH, fontSize:16, fontWeight:700, marginBottom:6, color:MUTED }}>No assignments yet</div>
-              <div style={{ fontFamily:FB, fontSize:13 }}>Click "New Assignment" to create your first one</div>
-            </div>
-          ) : (
-            works.map(w => (
-              <WorkCard
-                key={w.id}
-                work={w}
-                subCount={subs[w.id]??0}
-                onEdit={() => { setEditing(w); setCreating(true); }}
-                onDelete={() => { deleteWork(w.id); load(); }}
-                onTogglePublish={() => handleTogglePublish(w.id, w.published)}
-              />
-            ))
-          )}
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <span style={{fontSize:11,color:a.color,fontWeight:500}}>{a.subject}</span>
+          <span style={{fontSize:11,color:FAINT}}>·</span>
+          <span style={{fontSize:11,color:MUTED}}>{a.type}</span>
+          <span style={{fontSize:11,color:FAINT}}>·</span>
+          <span style={{fontSize:11,color:MUTED}}>{a.total} marks</span>
         </div>
-
-        {/* Form panel */}
-        {(creating || editing) && (
-          <div style={{ background:S1, border:`1px solid ${BORDER}`, borderRadius:18, padding:22, height:'fit-content', position:'sticky', top:24 }}>
-            <AssignmentForm
-              editing={editing}
-              onSaved={() => { setCreating(false); setEditing(null); load(); }}
-            />
-            <button onClick={() => { setCreating(false); setEditing(null); }}
-              style={{ width:'100%', marginTop:12, padding:'9px', borderRadius:10, background:'transparent', border:`1px solid ${BORDER}`, color:MUTED, fontFamily:FB, fontSize:12, cursor:'pointer' }}>
-              Cancel
-            </button>
-          </div>
-        )}
       </div>
+      <div style={{textAlign:'right',flexShrink:0}}>
+        <div style={{fontSize:12,fontWeight:600,color:isOverdue?RED:diff<=3?AMBER:MUTED}}>
+          {isOverdue?`${Math.abs(diff)}d overdue`:diff===0?'Due today':diff===1?'Due tomorrow':`Due in ${diff}d`}
+        </div>
+        <div style={{fontSize:11,color:FAINT,marginTop:2}}>{a.dueDate}</div>
+      </div>
+      <button onClick={onDelete}
+        style={{display:'flex',alignItems:'center',gap:5,padding:'7px 12px',borderRadius:8,cursor:'pointer',background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.25)',color:RED,fontSize:11,fontWeight:600,flexShrink:0}}>
+        <Trash2 size={12}/>
+      </button>
     </div>
   );
 }

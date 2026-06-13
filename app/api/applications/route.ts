@@ -51,6 +51,26 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Admin only: update application status / admin note
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  try {
+    const { id, status, adminNote } = await req.json();
+    if (!id || !status) return NextResponse.json({ error: 'id and status are required.' }, { status: 400 });
+    const application = await prisma.application.update({
+      where: { id },
+      data: { status, ...(adminNote !== undefined ? { adminNote } : {}) },
+    });
+    return NextResponse.json({ success: true, application });
+  } catch (err) {
+    console.error('Application update error:', err);
+    return NextResponse.json({ error: 'Could not update application.' }, { status: 500 });
+  }
+}
+
 // Admin only: list all applications
 export async function GET() {
   const session = await auth();

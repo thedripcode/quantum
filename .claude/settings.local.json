@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx next *)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "PowerShell(Start-Process -FilePath \"cmd\" -ArgumentList \"/c cd C:\\\\Users\\\\User\\\\Downloads\\\\construction-management-system && npm run dev\" -WindowStyle Hidden)",
+      "PowerShell(netstat -ano)"
     ]
   }
 }

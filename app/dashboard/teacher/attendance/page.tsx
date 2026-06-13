@@ -1,154 +1,152 @@
 'use client';
 
-import { useState } from 'react';
-import { Check, Clock, X, AlertTriangle, Save, ChevronDown } from 'lucide-react';
-import { STUDENTS, SCHOOL_CLASSES } from '@/lib/teacher/mockData';
-import type { AttendanceStatus } from '@/types/teacher';
+import { useCallback, useEffect, useState } from 'react';
+import { Check, Clock, X, AlertTriangle, Save, Loader2, RefreshCw } from 'lucide-react';
 
-const BG='#0C0C0C',S1='#111111',S2='#171717',S3='#1E1E1E';
-const BORDER='rgba(255,255,255,0.07)',BORDER2='rgba(255,255,255,0.12)';
+const BG='#0C0C0C',S2='#171717';
+const BORDER='rgba(255,255,255,0.07)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
 const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const GREEN='#10B981',AMBER='#F59E0B',RED='#EF4444',INDIGO='#6366F1';
 
-const STATUS_CFG: Record<AttendanceStatus,{label:string;color:string;bg:string;icon:React.ElementType}> = {
-  present: { label:'Present', color:'#10B981', bg:'rgba(16,185,129,0.12)', icon:Check },
-  late:    { label:'Late',    color:'#F59E0B', bg:'rgba(245,158,11,0.12)', icon:Clock },
-  absent:  { label:'Absent',  color:'#EF4444', bg:'rgba(239,68,68,0.12)', icon:X },
-  excused: { label:'Excused', color:'#6366F1', bg:'rgba(99,102,241,0.12)', icon:AlertTriangle },
+type AttStatus = 'present'|'late'|'absent'|'excused';
+const STATUS_CFG: Record<AttStatus,{label:string;color:string;bg:string;icon:React.ElementType}> = {
+  present:{label:'Present',color:GREEN, bg:'rgba(16,185,129,0.12)',icon:Check},
+  late:   {label:'Late',   color:AMBER, bg:'rgba(245,158,11,0.12)',icon:Clock},
+  absent: {label:'Absent', color:RED,   bg:'rgba(239,68,68,0.12)', icon:X},
+  excused:{label:'Excused',color:INDIGO,bg:'rgba(99,102,241,0.12)',icon:AlertTriangle},
 };
 
-const CLASSES = [
-  { id:'cls-10b-math', label:'Grade 10B — Mathematics', room:'C12' },
-  { id:'cls-11a-math', label:'Grade 11A — Mathematics', room:'B08' },
-  { id:'cls-12d-math', label:'Grade 12D — Mathematics', room:'A04' },
-];
+interface Student { portalId:string; name:string; grade:string|null; }
 
 export default function AttendancePage() {
-  const [classId, setClassId]   = useState('cls-10b-math');
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [grade, setGrade]       = useState('');
   const [date, setDate]         = useState(new Date().toISOString().split('T')[0]);
-  const [saved, setSaved]       = useState(false);
+  const [statuses, setStatuses] = useState<Record<string,AttStatus>>({});
+  const [saving, setSaving]     = useState(false);
+  const [toast, setToast]       = useState('');
 
-  const cls = CLASSES.find(c=>c.id===classId)!;
-  const students = STUDENTS.filter(s=>s.classId===classId);
+  const flash = (m:string) => { setToast(m); setTimeout(()=>setToast(''),4000); };
 
-  // Deterministic default attendance based on student + date
-  const seed = (s:string,d:string) => {
-    let h=0; for(const c of s+d){h=(h*31+c.charCodeAt(0))&0xffffffff;} return (h<0?h+0x100000000:h)/0x100000000;
+  useEffect(() => {
+    fetch('/api/teacher/roster').then(r=>r.json()).then(d => {
+      setStudents(d.students ?? []);
+      setLoading(false);
+    });
+  }, []);
+
+  const grades = [...new Set(students.map(s=>s.grade).filter(Boolean))].sort() as string[];
+  useEffect(() => { if (grades.length && !grade) setGrade(grades[0]); }, [grades.join(',')]);
+
+  const loadExisting = useCallback(() => {
+    if (!grade||!date) return;
+    fetch('/api/attendance').then(r=>r.json()).then(d => {
+      const recs: any[] = d.records??[];
+      const map: Record<string,AttStatus>={};
+      for (const r of recs) {
+        if (r.date===date && r.grade===grade) map[r.studentPortalId]=r.status;
+      }
+      setStatuses(map);
+    });
+  }, [grade,date]);
+
+  useEffect(() => { loadExisting(); }, [loadExisting]);
+
+  const gradeStudents = students.filter(s=>s.grade===grade);
+  const getStatus = (pid:string):AttStatus => statuses[pid]??'present';
+  const setS = (pid:string,s:AttStatus) => setStatuses(p=>({...p,[pid]:s}));
+
+  const counts = gradeStudents.reduce((acc,s)=>({...acc,[getStatus(s.portalId)]:(acc[getStatus(s.portalId)]||0)+1}),{} as Record<AttStatus,number>);
+
+  const saveAll = async () => {
+    setSaving(true);
+    let ok=0,fail=0;
+    for (const s of gradeStudents) {
+      const res = await fetch('/api/attendance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({studentPortalId:s.portalId,date,status:getStatus(s.portalId)})});
+      if(res.ok) ok++; else fail++;
+    }
+    setSaving(false);
+    flash(fail===0?`✓ Saved attendance for ${ok} student${ok!==1?'s':''}.`:`Saved ${ok}, failed ${fail}.`);
   };
-  const defaultStatus = (sid:string): AttendanceStatus => {
-    const r = seed(sid,date);
-    if(r<0.03) return 'absent';
-    if(r<0.06) return 'late';
-    if(r<0.07) return 'excused';
-    return 'present';
-  };
 
-  const [statuses, setStatuses] = useState<Record<string,AttendanceStatus>>({});
-  const getStatus = (sid:string): AttendanceStatus => statuses[sid] ?? defaultStatus(sid);
-  const set = (sid:string, s:AttendanceStatus) => { setStatuses(p=>({...p,[sid]:s})); setSaved(false); };
-
-  const counts = students.reduce((acc,s)=>{
-    const st = getStatus(s._id);
-    acc[st] = (acc[st]??0)+1;
-    return acc;
-  },{} as Record<AttendanceStatus,number>);
-
-  const STATS = [
-    { status:'present' as AttendanceStatus, label:'Present' },
-    { status:'late'    as AttendanceStatus, label:'Late'    },
-    { status:'absent'  as AttendanceStatus, label:'Absent'  },
-    { status:'excused' as AttendanceStatus, label:'Excused' },
-  ];
+  if (loading) {
+    return <div style={{padding:24,fontFamily:FB,background:BG,minHeight:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}><Loader2 size={24} className="animate-spin" style={{color:MUTED}}/></div>;
+  }
 
   return (
     <div style={{padding:24,fontFamily:FB,background:BG,minHeight:'100%'}}>
-      {/* Header */}
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:22}}>
-        <div>
-          <h1 style={{fontFamily:FH,fontSize:20,fontWeight:800,color:TEXT,margin:0,letterSpacing:'-0.03em'}}>Attendance</h1>
-          <p style={{fontSize:12,color:FAINT,margin:'4px 0 0'}}>Capture daily attendance for your classes</p>
-        </div>
-        <button onClick={()=>setSaved(true)}
-          style={{display:'flex',alignItems:'center',gap:7,padding:'10px 20px',borderRadius:12,background:saved?'rgba(16,185,129,0.12)':'rgba(255,255,255,0.07)',border:`1px solid ${saved?'rgba(16,185,129,0.30)':BORDER2}`,color:saved?'#10B981':TEXT,fontFamily:FB,fontSize:13,fontWeight:700,cursor:'pointer',transition:'all 0.2s'}}>
-          {saved?<><Check size={15}/>Saved!</>:<><Save size={15}/>Save Register</>}
+      <div style={{marginBottom:20}}>
+        <h2 style={{fontFamily:FH,fontSize:22,fontWeight:700,color:TEXT,margin:0,letterSpacing:'-0.02em'}}>Attendance Register</h2>
+        <p style={{fontSize:13,color:MUTED,marginTop:4}}>Mark daily attendance for a class.</p>
+      </div>
+
+      {toast&&<div style={{marginBottom:16,padding:'11px 16px',borderRadius:10,background:toast.startsWith('✓')?'rgba(16,185,129,0.10)':'rgba(245,158,11,0.10)',border:`1px solid ${toast.startsWith('✓')?'rgba(16,185,129,0.30)':'rgba(245,158,11,0.30)'}`,fontSize:13,color:toast.startsWith('✓')?GREEN:AMBER}}>{toast}</div>}
+
+      <div style={{display:'flex',gap:10,marginBottom:20,flexWrap:'wrap',alignItems:'center'}}>
+        <select value={grade} onChange={e=>{setGrade(e.target.value);setStatuses({});}}
+          style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:10,color:TEXT,fontFamily:FB,fontSize:13,padding:'10px 16px',outline:'none',cursor:'pointer'}}>
+          {grades.map(g=><option key={g} value={g} style={{background:S2}}>{g}</option>)}
+        </select>
+        <input type="date" value={date} onChange={e=>{setDate(e.target.value);setStatuses({});}}
+          style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:10,color:TEXT,fontFamily:FB,fontSize:13,padding:'10px 14px',outline:'none'}}/>
+        <button onClick={loadExisting} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 14px',borderRadius:10,background:S2,border:`1px solid ${BORDER}`,color:MUTED,fontFamily:FB,fontSize:13,cursor:'pointer'}}>
+          <RefreshCw size={13}/>Load Saved
+        </button>
+        <button onClick={saveAll} disabled={saving||gradeStudents.length===0}
+          style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,background:'#C9A84C',border:'none',color:'#000',fontFamily:FH,fontSize:13,fontWeight:700,cursor:saving?'default':'pointer',opacity:saving?0.6:1,marginLeft:'auto'}}>
+          {saving?<Loader2 size={13} className="animate-spin"/>:<Save size={13}/>}{saving?'Saving…':'Save Register'}
         </button>
       </div>
 
-      {/* Controls */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
-        <div style={{background:S1,border:`1px solid ${BORDER}`,borderRadius:14,padding:'14px 16px',display:'flex',alignItems:'center',gap:10}}>
-          <div style={{flex:1}}>
-            <div style={{fontFamily:FB,fontSize:10,color:FAINT,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:5}}>Class</div>
-            <select value={classId} onChange={e=>{setClassId(e.target.value);setStatuses({});setSaved(false);}}
-              style={{background:'transparent',border:'none',outline:'none',color:TEXT,fontFamily:FH,fontSize:15,fontWeight:700,cursor:'pointer',width:'100%'}}>
-              {CLASSES.map(c=><option key={c.id} value={c.id} style={{background:S2}}>{c.label}</option>)}
-            </select>
-          </div>
-          <ChevronDown size={14} style={{color:FAINT,flexShrink:0}}/>
-        </div>
-        <div style={{background:S1,border:`1px solid ${BORDER}`,borderRadius:14,padding:'14px 16px'}}>
-          <div style={{fontFamily:FB,fontSize:10,color:FAINT,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:5}}>Date</div>
-          <input type="date" value={date} onChange={e=>{setDate(e.target.value);setStatuses({});setSaved(false);}}
-            style={{background:'transparent',border:'none',outline:'none',color:TEXT,fontFamily:FH,fontSize:15,fontWeight:700,cursor:'pointer',colorScheme:'dark',width:'100%'}}/>
-        </div>
-      </div>
-
-      {/* Summary cards */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
-        {STATS.map(({status,label})=>{
-          const cfg=STATUS_CFG[status];
+      <div className="portal-stats-grid" style={{marginBottom:20}}>
+        {(Object.entries(STATUS_CFG) as [AttStatus,typeof STATUS_CFG[AttStatus]][]).map(([key,cfg])=>{
           const Icon=cfg.icon;
-          return (
-            <div key={status} style={{background:S1,border:`1px solid ${BORDER}`,borderRadius:14,padding:'14px 16px'}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <span style={{fontFamily:FB,fontSize:11,color:MUTED}}>{label}</span>
-                <Icon size={14} style={{color:cfg.color}}/>
+          return(
+            <div key={key} style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:13,padding:'14px 16px'}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+                <span style={{fontSize:11,color:MUTED,fontWeight:500}}>{cfg.label}</span><Icon size={13} style={{color:cfg.color}}/>
               </div>
-              <div style={{fontFamily:FH,fontSize:28,fontWeight:800,color:cfg.color}}>{counts[status]??0}</div>
-              <div style={{fontFamily:FB,fontSize:11,color:FAINT,marginTop:4}}>
-                {Math.round(((counts[status]??0)/students.length)*100)}% of {students.length}
-              </div>
+              <div style={{fontFamily:FH,fontSize:26,fontWeight:700,color:cfg.color,letterSpacing:'-0.02em'}}>{counts[key]??0}</div>
             </div>
           );
         })}
       </div>
 
-      {/* Roster */}
-      <div style={{background:S1,border:`1px solid ${BORDER}`,borderRadius:18,overflow:'hidden'}}>
-        <div style={{padding:'14px 20px',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <span style={{fontFamily:FH,fontSize:14,fontWeight:700,color:TEXT}}>{cls.label}</span>
-          <span style={{fontFamily:FB,fontSize:12,color:MUTED}}>Room {cls.room} · {students.length} learners</span>
+      {gradeStudents.length===0?(
+        <div style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:16,padding:40,textAlign:'center',color:MUTED,fontSize:13}}>{grades.length===0?'No students in the system yet.':'No students found for '+grade+'.'}</div>
+      ):(
+        <div style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:16,overflow:'hidden'}}>
+          <div style={{display:'flex',justifyContent:'space-between',padding:'11px 20px',borderBottom:`1px solid ${BORDER}`}}>
+            <div style={{fontSize:10,fontWeight:700,color:FAINT,letterSpacing:'0.08em',textTransform:'uppercase'}}>Student ({gradeStudents.length})</div>
+            <div style={{fontSize:10,fontWeight:700,color:FAINT,letterSpacing:'0.08em',textTransform:'uppercase'}}>Status</div>
+          </div>
+          {gradeStudents.map((s,i)=>{
+            const cur=getStatus(s.portalId);
+            return(
+              <div key={s.portalId} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 20px',borderBottom:i<gradeStudents.length-1?`1px solid ${BORDER}`:'none'}}>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:13.5,fontWeight:600,color:TEXT}}>{s.name}</div>
+                  <div style={{fontSize:11,color:FAINT,marginTop:1}}>{s.portalId}</div>
+                </div>
+                <div style={{display:'flex',gap:4,flexWrap:'wrap',justifyContent:'flex-end'}}>
+                  {(Object.entries(STATUS_CFG) as [AttStatus,typeof STATUS_CFG[AttStatus]][]).map(([key,cfg])=>{
+                    const Icon=cfg.icon; const active=cur===key;
+                    return(
+                      <button key={key} onClick={()=>setS(s.portalId,key)} title={cfg.label}
+                        style={{display:'flex',alignItems:'center',gap:4,padding:'6px 10px',borderRadius:8,border:`1px solid ${active?cfg.color+'60':BORDER}`,cursor:'pointer',background:active?cfg.bg:'transparent',color:active?cfg.color:FAINT,fontSize:11,fontWeight:600,fontFamily:FB}}>
+                        <Icon size={11}/><span style={{display:'none'}}>{cfg.label}</span>
+                        <span>{cfg.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
-        {students.map((s,i)=>{
-          const status = getStatus(s._id);
-          const cfg = STATUS_CFG[status];
-          return (
-            <div key={s._id} style={{display:'flex',alignItems:'center',gap:14,padding:'12px 20px',borderTop:i>0?`1px solid rgba(255,255,255,0.04)`:'none'}}>
-              <div style={{width:34,height:34,borderRadius:'50%',background:'rgba(255,255,255,0.07)',border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:FB,fontSize:11,fontWeight:700,color:MUTED,flexShrink:0}}>
-                {s.avatarInitials}
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontFamily:FB,fontSize:13,fontWeight:600,color:TEXT}}>{s.firstName} {s.lastName}</div>
-                <div style={{fontFamily:FB,fontSize:11,color:FAINT}}>{s.studentNumber}</div>
-              </div>
-              {/* Status buttons */}
-              <div style={{display:'flex',gap:6,flexShrink:0}}>
-                {(['present','late','absent','excused'] as AttendanceStatus[]).map(st=>{
-                  const c=STATUS_CFG[st];
-                  const active=status===st;
-                  const Icon=c.icon;
-                  return (
-                    <button key={st} onClick={()=>set(s._id,st)}
-                      style={{display:'flex',alignItems:'center',gap:5,padding:'6px 12px',borderRadius:8,background:active?c.bg:'transparent',border:`1px solid ${active?c.color:BORDER}`,color:active?c.color:FAINT,fontFamily:FB,fontSize:11,fontWeight:active?700:400,cursor:'pointer',transition:'all 0.15s'}}>
-                      <Icon size={11}/>{c.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      )}
     </div>
   );
 }

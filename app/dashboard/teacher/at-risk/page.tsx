@@ -1,183 +1,125 @@
 'use client';
 
-import { useState } from 'react';
-import { AlertTriangle, Phone, Mail, TrendingDown, ChevronDown, FileText } from 'lucide-react';
-import { STUDENTS, MARKS, ASSESSMENTS } from '@/lib/teacher/mockData';
+import { useEffect, useState } from 'react';
+import { AlertTriangle, TrendingDown, Loader2, Users } from 'lucide-react';
 
-const BG='#0C0C0C',S1='#111111',S2='#171717',S3='#1E1E1E';
-const BORDER='rgba(255,255,255,0.07)',BORDER2='rgba(255,255,255,0.12)';
+const BG='#0C0C0C',S2='#171717',S3='#1E1E1E';
+const BORDER='rgba(255,255,255,0.07)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
 const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
-const RED='#EF4444',AMBER='#F59E0B',GREEN='#10B981';
+const RED='#EF4444',AMBER='#F59E0B',INDIGO='#6366F1';
 
-type RiskBand = 'critical'|'high'|'moderate';
+type RiskBand='critical'|'high'|'moderate';
+const BAND_CFG: Record<RiskBand,{label:string;color:string;bg:string;range:string}> = {
+  critical:{label:'Critical', color:RED,   bg:'rgba(239,68,68,0.10)',   range:'< 40%'},
+  high:    {label:'High Risk',color:AMBER, bg:'rgba(245,158,11,0.10)',  range:'40–49%'},
+  moderate:{label:'Moderate', color:INDIGO,bg:'rgba(99,102,241,0.10)', range:'50–59%'},
+};
 
-interface RiskStudent {
-  student: typeof STUDENTS[0];
-  average: number;
-  lowestMark: number;
-  lowestAssessment: string;
-  band: RiskBand;
-  trend: 'declining'|'stable';
-}
+interface Mark { studentName:string; studentPortalId:string; grade:string|null; subject:string; score:number; total:number; date:string; }
+interface RiskStudent { name:string; portalId:string; grade:string; average:number; band:RiskBand; subjectCount:number; lowestSubject:string; lowestAvg:number; }
 
-function computeAtRisk(): RiskStudent[] {
-  const result: RiskStudent[] = [];
-  for(const student of STUDENTS){
-    const myMarks = MARKS.filter(m=>m.studentId===student._id && m.percentage!==null && !m.isAbsent);
-    if(myMarks.length===0) continue;
-    const avg = Math.round(myMarks.reduce((s,m)=>s+(m.percentage??0),0)/myMarks.length);
-    if(avg>=60) continue;
-    const sorted = [...myMarks].sort((a,b)=>(a.percentage??0)-(b.percentage??0));
-    const lowest = sorted[0];
-    const assessment = ASSESSMENTS.find(a=>a._id===lowest.assessmentId);
-    const band: RiskBand = avg<40?'critical':avg<50?'high':'moderate';
-    result.push({
-      student, average:avg,
-      lowestMark: lowest.percentage??0,
-      lowestAssessment: assessment?.title??'Unknown',
-      band,
-      trend: myMarks.length>=2 && (myMarks[myMarks.length-1].percentage??0)<(myMarks[0].percentage??0) ? 'declining':'stable',
-    });
+function computeAtRisk(marks:Mark[]): RiskStudent[] {
+  const byStudent: Record<string,{name:string;grade:string;bySubject:Record<string,number[]>}> = {};
+  for(const m of marks){
+    if(!byStudent[m.studentPortalId]) byStudent[m.studentPortalId]={name:m.studentName,grade:m.grade??'',bySubject:{}};
+    if(!byStudent[m.studentPortalId].bySubject[m.subject]) byStudent[m.studentPortalId].bySubject[m.subject]=[];
+    byStudent[m.studentPortalId].bySubject[m.subject].push((m.score/m.total)*100);
+  }
+  const result: RiskStudent[]=[];
+  for(const [portalId,data] of Object.entries(byStudent)){
+    const subjectAvgs=Object.entries(data.bySubject).map(([sub,pcts])=>({sub,avg:Math.round(pcts.reduce((a,b)=>a+b,0)/pcts.length)}));
+    if(!subjectAvgs.length) continue;
+    const overall=Math.round(subjectAvgs.reduce((a,s)=>a+s.avg,0)/subjectAvgs.length);
+    if(overall>=60) continue;
+    const band:RiskBand=overall<40?'critical':overall<50?'high':'moderate';
+    const lowest=subjectAvgs.sort((a,b)=>a.avg-b.avg)[0];
+    result.push({name:data.name,portalId,grade:data.grade,average:overall,band,subjectCount:subjectAvgs.length,lowestSubject:lowest.sub,lowestAvg:lowest.avg});
   }
   return result.sort((a,b)=>a.average-b.average);
 }
 
-const ALL_RISK = computeAtRisk();
-
-const BAND_CFG: Record<RiskBand,{label:string;color:string;bg:string}> = {
-  critical: {label:'Critical',  color:RED,   bg:'rgba(239,68,68,0.10)'},
-  high:     {label:'High Risk', color:AMBER, bg:'rgba(245,158,11,0.10)'},
-  moderate: {label:'Moderate',  color:'#6366F1', bg:'rgba(99,102,241,0.10)'},
-};
-
 export default function AtRiskPage() {
-  const [band, setBand] = useState<RiskBand|'all'>('all');
+  const [marks, setMarks]       = useState<Mark[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [band, setBand]         = useState<RiskBand|'all'>('all');
   const [selected, setSelected] = useState<RiskStudent|null>(null);
-  const [note, setNote] = useState('');
 
-  const filtered = band==='all' ? ALL_RISK : ALL_RISK.filter(r=>r.band===band);
-  const critCount = ALL_RISK.filter(r=>r.band==='critical').length;
-  const highCount = ALL_RISK.filter(r=>r.band==='high').length;
-  const modCount  = ALL_RISK.filter(r=>r.band==='moderate').length;
+  useEffect(()=>{
+    fetch('/api/marks?limit=5000').then(r=>r.json()).then(d=>{
+      setMarks(d.marks??[]);
+      setLoading(false);
+    });
+  },[]);
 
-  return (
+  if(loading){
+    return <div style={{padding:24,fontFamily:FB,background:BG,minHeight:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}><Loader2 size={24} className="animate-spin" style={{color:MUTED}}/></div>;
+  }
+
+  const ALL_RISK=computeAtRisk(marks);
+  const filtered=band==='all'?ALL_RISK:ALL_RISK.filter(r=>r.band===band);
+  const counts={all:ALL_RISK.length,critical:ALL_RISK.filter(r=>r.band==='critical').length,high:ALL_RISK.filter(r=>r.band==='high').length,moderate:ALL_RISK.filter(r=>r.band==='moderate').length};
+
+  return(
     <div style={{padding:24,fontFamily:FB,background:BG,minHeight:'100%'}}>
-      <div style={{marginBottom:22}}>
-        <h1 style={{fontFamily:FH,fontSize:20,fontWeight:800,color:TEXT,margin:0,letterSpacing:'-0.03em'}}>At-Risk Learners</h1>
-        <p style={{fontSize:12,color:FAINT,margin:'4px 0 0'}}>Students requiring immediate academic intervention</p>
+      <div style={{marginBottom:20}}>
+        <h2 style={{fontFamily:FH,fontSize:22,fontWeight:700,color:TEXT,margin:0,letterSpacing:'-0.02em'}}>At-Risk Students</h2>
+        <p style={{fontSize:13,color:MUTED,marginTop:4}}>Students averaging below 60% across their subjects.</p>
       </div>
 
-      {/* Stats */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
-        {[
-          {label:'Total At-Risk',  value:ALL_RISK.length,  color:TEXT},
-          {label:'Critical (<40%)',value:critCount,         color:RED},
-          {label:'High Risk (<50%)',value:highCount,        color:AMBER},
-          {label:'Moderate (<60%)',value:modCount,          color:'#6366F1'},
-        ].map(({label,value,color})=>(
-          <div key={label} style={{background:S1,border:`1px solid ${BORDER}`,borderRadius:14,padding:'14px 16px'}}>
-            <div style={{fontFamily:FB,fontSize:11,color:MUTED,marginBottom:6}}>{label}</div>
-            <div style={{fontFamily:FH,fontSize:28,fontWeight:800,color}}>{value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Filter */}
-      <div style={{display:'flex',gap:8,marginBottom:20}}>
-        {(['all','critical','high','moderate'] as const).map(b=>(
-          <button key={b} onClick={()=>setBand(b)}
-            style={{padding:'7px 16px',borderRadius:9,background:band===b?'rgba(255,255,255,0.10)':'transparent',border:`1px solid ${band===b?BORDER2:BORDER}`,color:band===b?TEXT:MUTED,fontFamily:FB,fontSize:12,fontWeight:band===b?600:400,cursor:'pointer',textTransform:'capitalize'}}>
-            {b==='all'?'All At-Risk':BAND_CFG[b].label}
-          </button>
-        ))}
-      </div>
-
-      <div style={{display:'grid',gridTemplateColumns:selected?'1fr 360px':'1fr',gap:16}}>
-        {/* List */}
-        <div style={{background:S1,border:`1px solid ${BORDER}`,borderRadius:18,overflow:'hidden'}}>
-          <div style={{padding:'13px 20px',borderBottom:`1px solid ${BORDER}`,fontFamily:FH,fontSize:14,fontWeight:700,color:TEXT}}>
-            {filtered.length} learner{filtered.length!==1?'s':''} {band!=='all'?`· ${BAND_CFG[band].label}`:''}
-          </div>
-          {filtered.length===0 ? (
-            <div style={{textAlign:'center',padding:'40px',color:FAINT,fontFamily:FB,fontSize:13}}>No learners in this category</div>
-          ) : filtered.map((r,i)=>{
-            const cfg=BAND_CFG[r.band];
-            const isSelected=selected?.student._id===r.student._id;
-            return (
-              <div key={r.student._id}
-                onClick={()=>setSelected(isSelected?null:r)}
-                style={{display:'flex',alignItems:'center',gap:14,padding:'14px 20px',borderTop:i>0?`1px solid rgba(255,255,255,0.04)`:'none',cursor:'pointer',background:isSelected?'rgba(255,255,255,0.04)':'transparent',transition:'background 0.15s'}}
-                onMouseEnter={e=>{if(!isSelected)(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)';}}
-                onMouseLeave={e=>{if(!isSelected)(e.currentTarget as HTMLElement).style.background='transparent';}}>
-                <div style={{width:36,height:36,borderRadius:'50%',background:`${cfg.color}18`,border:`1px solid ${cfg.color}33`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:FB,fontSize:11,fontWeight:700,color:cfg.color,flexShrink:0}}>
-                  {r.student.avatarInitials}
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3}}>
-                    <span style={{fontFamily:FB,fontSize:13,fontWeight:600,color:TEXT}}>{r.student.firstName} {r.student.lastName}</span>
-                    <span style={{fontFamily:FB,fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',padding:'2px 7px',borderRadius:5,background:cfg.bg,color:cfg.color}}>{cfg.label}</span>
-                    {r.trend==='declining' && <TrendingDown size={12} style={{color:RED}}/>}
-                  </div>
-                  <div style={{fontFamily:FB,fontSize:11,color:FAINT}}>
-                    Grade {r.student.grade}{r.student.classCode} · Avg: <span style={{color:cfg.color,fontWeight:600}}>{r.average}%</span> · Lowest: {r.lowestMark}% in {r.lowestAssessment}
-                  </div>
-                </div>
-                <div style={{fontFamily:FH,fontSize:22,fontWeight:800,color:cfg.color,flexShrink:0}}>{r.average}%</div>
-              </div>
-            );
-          })}
+      {ALL_RISK.length===0?(
+        <div style={{background:'#171717',border:`1px solid ${BORDER}`,borderRadius:16,padding:60,textAlign:'center'}}>
+          <Users size={36} style={{color:MUTED,marginBottom:12,opacity:0.5}}/>
+          <div style={{fontSize:15,fontWeight:600,color:TEXT}}>No at-risk students</div>
+          <div style={{fontSize:13,color:MUTED,marginTop:4}}>{marks.length===0?'No marks captured yet.':'All students are performing above 60%.'}</div>
         </div>
-
-        {/* Detail panel */}
-        {selected && (
-          <div style={{background:S1,border:`1px solid ${BORDER}`,borderRadius:18,padding:20,height:'fit-content',position:'sticky',top:24}}>
-            <div style={{fontFamily:FH,fontSize:16,fontWeight:700,color:TEXT,marginBottom:4}}>{selected.student.firstName} {selected.student.lastName}</div>
-            <div style={{fontFamily:FB,fontSize:12,color:MUTED,marginBottom:18}}>{selected.student.studentNumber} · Grade {selected.student.grade}{selected.student.classCode}</div>
-
-            {/* Mini stats */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:18}}>
-              {[
-                {label:'Current Average',value:`${selected.average}%`,color:BAND_CFG[selected.band].color},
-                {label:'Lowest Mark',value:`${selected.lowestMark}%`,color:RED},
-                {label:'Risk Level',value:BAND_CFG[selected.band].label,color:BAND_CFG[selected.band].color},
-                {label:'Trend',value:selected.trend==='declining'?'Declining':'Stable',color:selected.trend==='declining'?RED:GREEN},
-              ].map(({label,value,color})=>(
-                <div key={label} style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:12,padding:'12px 14px'}}>
-                  <div style={{fontFamily:FB,fontSize:10,color:FAINT,marginBottom:4}}>{label}</div>
-                  <div style={{fontFamily:FH,fontSize:15,fontWeight:700,color}}>{value}</div>
+      ):(
+        <>
+          <div className="portal-stats-grid" style={{marginBottom:20}}>
+            {(Object.entries(BAND_CFG) as [RiskBand,typeof BAND_CFG[RiskBand]][]).map(([key,cfg])=>(
+              <div key={key} style={{background:S2,border:`1px solid ${band===key?cfg.color+'40':BORDER}`,borderRadius:13,padding:'14px 16px',cursor:'pointer'}} onClick={()=>setBand(b=>b===key?'all':key)}>
+                <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+                  <span style={{fontSize:11,color:MUTED,fontWeight:500}}>{cfg.label}</span>
+                  <span style={{fontSize:10,color:cfg.color,fontWeight:600}}>{cfg.range}</span>
                 </div>
+                <div style={{fontFamily:FH,fontSize:26,fontWeight:700,color:counts[key]>0?cfg.color:TEXT,letterSpacing:'-0.02em'}}>{counts[key]}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:16,overflow:'hidden'}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 80px 80px 110px 100px',gap:12,padding:'11px 20px',borderBottom:`1px solid ${BORDER}`}}>
+              {['Student','Grade','Average','Lowest Subject','Band'].map(h=>(
+                <div key={h} style={{fontSize:10,fontWeight:700,color:FAINT,letterSpacing:'0.08em',textTransform:'uppercase'}}>{h}</div>
               ))}
             </div>
-
-            {/* Contact */}
-            <div style={{marginBottom:14}}>
-              <div style={{fontFamily:FB,fontSize:10,color:FAINT,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Parent Contact</div>
-              <div style={{display:'flex',gap:8}}>
-                <a href={`tel:${selected.student.parentPhone}`}
-                  style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:7,padding:'9px',borderRadius:10,background:'rgba(16,185,129,0.10)',border:'1px solid rgba(16,185,129,0.25)',color:GREEN,fontFamily:FB,fontSize:12,fontWeight:600,textDecoration:'none'}}>
-                  <Phone size={13}/> Call Parent
-                </a>
-                <a href={`mailto:${selected.student.parentEmail}`}
-                  style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:7,padding:'9px',borderRadius:10,background:'rgba(59,130,246,0.10)',border:'1px solid rgba(59,130,246,0.25)',color:'#3B82F6',fontFamily:FB,fontSize:12,fontWeight:600,textDecoration:'none'}}>
-                  <Mail size={13}/> Email
-                </a>
-              </div>
-            </div>
-
-            {/* Intervention note */}
-            <div style={{marginBottom:14}}>
-              <div style={{fontFamily:FB,fontSize:10,color:FAINT,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:6}}>Intervention Note</div>
-              <textarea value={note} onChange={e=>setNote(e.target.value)}
-                placeholder="Record intervention steps, parent discussions, support given…"
-                rows={3} style={{width:'100%',background:S2,border:`1px solid ${BORDER}`,borderRadius:10,padding:'10px 12px',color:TEXT,fontFamily:FB,fontSize:12,outline:'none',resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
-            </div>
-            <button style={{width:'100%',padding:'10px',borderRadius:10,background:'rgba(255,255,255,0.06)',border:`1px solid ${BORDER}`,color:TEXT,fontFamily:FB,fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7}}>
-              <FileText size={13}/> Save Note & Flag for HOD
-            </button>
+            {filtered.map((r,i)=>{
+              const cfg=BAND_CFG[r.band];
+              return(
+                <div key={r.portalId} onClick={()=>setSelected(s=>s?.portalId===r.portalId?null:r)}
+                  style={{display:'grid',gridTemplateColumns:'1fr 80px 80px 110px 100px',gap:12,padding:'13px 20px',borderBottom:i<filtered.length-1?`1px solid ${BORDER}`:'none',cursor:'pointer',background:selected?.portalId===r.portalId?S3:'transparent'}}
+                  onMouseEnter={e=>{if(selected?.portalId!==r.portalId)e.currentTarget.style.background=S3}}
+                  onMouseLeave={e=>{if(selected?.portalId!==r.portalId)e.currentTarget.style.background='transparent'}}>
+                  <div>
+                    <div style={{fontSize:13.5,fontWeight:600,color:TEXT}}>{r.name}</div>
+                    <div style={{fontSize:11,color:FAINT,marginTop:1}}>{r.portalId}</div>
+                  </div>
+                  <div style={{fontSize:13,color:MUTED,alignSelf:'center'}}>{r.grade}</div>
+                  <div style={{fontSize:14,fontWeight:700,color:cfg.color,alignSelf:'center'}}>{r.average}%</div>
+                  <div style={{alignSelf:'center'}}>
+                    <div style={{fontSize:12,color:TEXT}}>{r.lowestSubject}</div>
+                    <div style={{fontSize:11,color:RED}}>{r.lowestAvg}%</div>
+                  </div>
+                  <div style={{display:'flex',alignItems:'center',gap:5,padding:'4px 10px',borderRadius:20,background:cfg.bg,width:'fit-content',alignSelf:'center'}}>
+                    <AlertTriangle size={10} style={{color:cfg.color}}/>
+                    <span style={{fontSize:11,fontWeight:600,color:cfg.color}}>{cfg.label}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }

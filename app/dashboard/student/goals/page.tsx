@@ -1,170 +1,151 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Target, TrendingUp, CheckCircle2, AlertTriangle, Save } from 'lucide-react';
-import { GOALS, SUBJECTS, Goal } from '@/data/studentData';
+import { useCallback, useEffect, useState } from 'react';
+import { Target, TrendingUp, CheckCircle2, AlertTriangle, Save, Loader2 } from 'lucide-react';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
-const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
-const RED = '#EF4444'; const GREEN = '#10B981'; const AMBER = '#F59E0B';
-const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
+const BG='#0C0C0C',SURFACE='#161616',S2='#1E1E1E';
+const GOLD='#C9A84C',GOLD_DIM='rgba(201,168,76,0.10)',GOLD_B='rgba(201,168,76,0.22)';
+const BORDER='rgba(255,255,255,0.07)',TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
+const GREEN='#10B981',RED='#EF4444',AMBER='#F59E0B';
+const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
 
-function predictExamNeeded(currentMark: number, targetMark: number, examWeight = 0.4, termWeight = 0.6): number {
-  return Math.max(0, Math.min(100, Math.round((targetMark - currentMark * termWeight) / examWeight)));
-}
-
-function GoalCard({ goal, onUpdate }: { goal: Goal & { saved?: boolean }; onUpdate: (id: string, target: number) => void }) {
-  const [target, setTarget] = useState(goal.targetMark);
-  const [saved, setSaved] = useState(false);
-
-  const examNeeded = predictExamNeeded(goal.currentMark, target);
-  const progressPct = Math.min(100, Math.round((goal.currentMark / target) * 100));
-  const onTrack = goal.currentMark >= target * 0.85;
-  const sub = SUBJECTS.find(s => s.id === goal.subjectId);
-
-  const handleSave = () => {
-    onUpdate(goal.id, target);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  const riskColor = goal.currentMark < 50 ? RED : goal.currentMark < 60 ? AMBER : goal.currentMark < 70 ? '#F59E0B' : GREEN;
-
-  return (
-    <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '20px 22px' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: goal.color }} />
-            <span style={{ fontSize: 11, fontWeight: 700, color: goal.color, letterSpacing: '0.06em' }}>
-              {sub?.short}
-            </span>
-            {goal.currentMark < 60 && <AlertTriangle size={12} style={{ color: RED }} />}
-          </div>
-          <div style={{ fontFamily: F_HEADING, fontSize: 16, fontWeight: 700, color: TEXT, letterSpacing: '-0.01em' }}>{goal.subject}</div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: F_HEADING, fontSize: 26, fontWeight: 800, color: riskColor, letterSpacing: '-0.03em', lineHeight: 1 }}>{goal.currentMark}%</div>
-          <div style={{ fontSize: 10, color: MUTED, marginTop: 2 }}>current</div>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: MUTED, marginBottom: 6 }}>
-          <span>Progress to goal</span>
-          <span style={{ color: goal.currentMark >= target ? GREEN : GOLD }}>{goal.currentMark}% / {target}%</span>
-        </div>
-        <div style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${Math.min(progressPct, 100)}%`, background: goal.currentMark >= target ? GREEN : goal.color, borderRadius: 4, transition: 'width 1.1s ease' }} />
-        </div>
-      </div>
-
-      {/* Target input */}
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14 }}>
-        <div style={{ flex: 1 }}>
-          <label style={{ fontSize: 11, color: MUTED, marginBottom: 6, display: 'block' }}>Target %</label>
-          <input
-            type="number"
-            min={goal.currentMark}
-            max={100}
-            value={target}
-            onChange={e => setTarget(Math.min(100, Math.max(0, Number(e.target.value))))}
-            style={{ width: '100%', padding: '8px 12px', background: S2, border: `1px solid ${BORDER}`, borderRadius: 8, color: TEXT, fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: F_BODY, boxSizing: 'border-box' }}
-          />
-        </div>
-        <div style={{ flexShrink: 0, marginTop: 20 }}>
-          <button
-            onClick={handleSave}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: saved ? GREEN + '22' : GOLD_DIM, border: `1px solid ${saved ? GREEN + '44' : GOLD_B}`, borderRadius: 8, cursor: 'pointer', color: saved ? GREEN : GOLD, fontSize: 12, fontWeight: 600, transition: 'all .2s' }}
-          >
-            {saved ? <CheckCircle2 size={13} /> : <Save size={13} />}
-            {saved ? 'Saved!' : 'Save'}
-          </button>
-        </div>
-      </div>
-
-      {/* Prediction */}
-      <div style={{ background: S2, borderRadius: 10, padding: '12px 14px' }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: MUTED, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Target size={12} />
-          Exam Prediction
-        </div>
-        {goal.currentMark >= target ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle2 size={14} style={{ color: GREEN }} />
-            <span style={{ fontSize: 13, color: GREEN, fontWeight: 600 }}>Goal already reached — excellent work!</span>
-          </div>
-        ) : examNeeded > 100 ? (
-          <div style={{ fontSize: 13, color: RED, fontWeight: 500 }}>
-            Target of {target}% is unreachable at this stage — lower your target or focus on term work.
-          </div>
-        ) : (
-          <>
-            <div style={{ fontSize: 15, fontWeight: 700, color: TEXT }}>
-              You need <span style={{ color: examNeeded > 80 ? RED : examNeeded > 60 ? AMBER : GREEN }}>{examNeeded}%</span> in the exam
-            </div>
-            <div style={{ fontSize: 11, color: MUTED, marginTop: 3 }}>
-              to reach {target}% (exam weight: {Math.round(goal.examWeight * 100)}%, term weight: {Math.round(goal.termWeight * 100)}%)
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Motivation */}
-      <div style={{ marginTop: 10, fontSize: 12, color: MUTED, fontStyle: 'italic' }}>
-        {goal.currentMark >= target ? '🎉 Outstanding! Keep maintaining this standard.'
-          : goal.currentMark < 50 ? '⚠️ Critical — attend extra classes and contact your teacher.'
-          : goal.currentMark < 60 ? '🔶 You\'re close to passing. A focused study plan will get you there.'
-          : goal.currentMark < 70 ? '📈 Good progress. Consistent effort will push you to your goal.'
-          : '✅ You\'re on track — keep up the great work!'}
-      </div>
-    </div>
-  );
-}
+interface GoalEntry { subjectId:string; subjectCode:string; subjectName:string; subjectShort:string; color:string; targetMark:number; note:string|null; goalId:string|null; currentAvg:number|null; }
 
 export default function GoalsPage() {
-  const [goals, setGoals] = useState(GOALS);
+  const [goals, setGoals]   = useState<GoalEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState<string|null>(null);
+  const [toast, setToast]     = useState('');
+  const [edits, setEdits]     = useState<Record<string,{target:number;note:string}>>({});
 
-  const handleUpdate = (id: string, target: number) => {
-    setGoals(prev => prev.map(g => g.id === id ? { ...g, targetMark: target } : g));
+  const flash=(m:string)=>{ setToast(m); setTimeout(()=>setToast(''),4000); };
+
+  const load = useCallback(()=>{
+    fetch('/api/goals').then(r=>r.json()).then(d=>{
+      const g:GoalEntry[]=d.goals??[];
+      setGoals(g);
+      const e:Record<string,{target:number;note:string}>={};
+      for(const g2 of g) e[g2.subjectId]={target:g2.targetMark,note:g2.note??''};
+      setEdits(e);
+      setLoading(false);
+    });
+  },[]);
+
+  useEffect(()=>{ load(); },[load]);
+
+  const save = async (subjectId:string) => {
+    const ed=edits[subjectId];
+    if(!ed) return;
+    setSaving(subjectId);
+    const res=await fetch('/api/goals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subjectId,targetMark:ed.target,note:ed.note||null})});
+    setSaving(null);
+    if(res.ok){ flash('✓ Goal saved.'); load(); }
+    else flash('Could not save goal.');
   };
 
-  const onTrack = goals.filter(g => g.currentMark >= g.targetMark * 0.85).length;
+  if(loading){
+    return <div style={{padding:24,fontFamily:FB,background:BG,minHeight:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}><Loader2 size={24} className="animate-spin" style={{color:MUTED}}/></div>;
+  }
 
-  return (
-    <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%' }}>
-      {/* Header */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
-        <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 14, padding: 18 }}>
-          <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.65)' }}>Goals Set</div>
-          <div style={{ fontFamily: F_HEADING, fontSize: 28, fontWeight: 800, color: GOLD, letterSpacing: '-0.03em', marginTop: 4 }}>{goals.length}</div>
-        </div>
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 18 }}>
-          <div style={{ fontSize: 11, color: MUTED }}>On Track</div>
-          <div style={{ fontFamily: F_HEADING, fontSize: 28, fontWeight: 800, color: GREEN, letterSpacing: '-0.03em', marginTop: 4 }}>{onTrack}</div>
-        </div>
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 18 }}>
-          <div style={{ fontSize: 11, color: MUTED }}>Need Attention</div>
-          <div style={{ fontFamily: F_HEADING, fontSize: 28, fontWeight: 800, color: RED, letterSpacing: '-0.03em', marginTop: 4 }}>{goals.length - onTrack}</div>
-        </div>
+  if(goals.length===0){
+    return(
+      <div style={{padding:24,fontFamily:FB,background:BG,minHeight:'100%'}}>
+        <h2 style={{fontFamily:FH,fontSize:22,fontWeight:700,color:TEXT,margin:'0 0 8px',letterSpacing:'-0.02em'}}>Goals</h2>
+        <p style={{fontSize:13,color:MUTED}}>You are not enrolled in any subjects yet. Goals will appear here once subjects are assigned.</p>
+      </div>
+    );
+  }
+
+  const achieved=goals.filter(g=>g.currentAvg!==null&&g.currentAvg>=(edits[g.subjectId]?.target??g.targetMark)).length;
+  const onTrack=goals.filter(g=>g.currentAvg!==null&&g.currentAvg>=(edits[g.subjectId]?.target??g.targetMark)*0.9&&g.currentAvg<(edits[g.subjectId]?.target??g.targetMark)).length;
+  const needsWork=goals.filter(g=>g.currentAvg!==null&&g.currentAvg<(edits[g.subjectId]?.target??g.targetMark)*0.9).length;
+
+  return(
+    <div style={{padding:24,fontFamily:FB,background:BG,minHeight:'100%'}}>
+      <div style={{marginBottom:20}}>
+        <h2 style={{fontFamily:FH,fontSize:22,fontWeight:700,color:TEXT,margin:0,letterSpacing:'-0.02em'}}>Academic Goals</h2>
+        <p style={{fontSize:13,color:MUTED,marginTop:4}}>Set target marks and track your progress per subject.</p>
       </div>
 
-      {/* Goal cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
-        {goals.map(g => <GoalCard key={g.id} goal={g} onUpdate={handleUpdate} />)}
+      {toast&&<div style={{marginBottom:16,padding:'11px 16px',borderRadius:10,background:toast.startsWith('✓')?'rgba(16,185,129,0.10)':'rgba(245,158,11,0.10)',border:`1px solid ${toast.startsWith('✓')?'rgba(16,185,129,0.30)':'rgba(245,158,11,0.30)'}`,fontSize:13,color:toast.startsWith('✓')?GREEN:AMBER}}>{toast}</div>}
+
+      <div className="portal-stats-grid" style={{marginBottom:24}}>
+        {[
+          {label:'Achieved',value:achieved,color:GREEN,icon:CheckCircle2},
+          {label:'On Track',value:onTrack,  color:GOLD,  icon:TrendingUp},
+          {label:'Needs Work',value:needsWork,color:RED,icon:AlertTriangle},
+          {label:'Total Subjects',value:goals.length,color:TEXT,icon:Target},
+        ].map(({label,value,color,icon:Icon})=>(
+          <div key={label} style={{background:SURFACE,border:`1px solid ${BORDER}`,borderRadius:13,padding:'14px 16px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+              <span style={{fontSize:11,color:MUTED,fontWeight:500}}>{label}</span><Icon size={14} style={{color}}/>
+            </div>
+            <div style={{fontFamily:FH,fontSize:26,fontWeight:700,color:value>0?color:TEXT,letterSpacing:'-0.02em'}}>{value}</div>
+          </div>
+        ))}
       </div>
 
-      {/* Add goal for other subjects */}
-      <div style={{ marginTop: 20, padding: '16px 20px', background: SURFACE, border: `1px dashed ${BORDER}`, borderRadius: 14, textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: MUTED }}>
-          Set goals for your remaining subjects — English HL, IsiZulu, Life Orientation — to track all your progress.
-        </div>
-        <div style={{ fontSize: 11, color: FAINT, marginTop: 4 }}>
-          Weekly reminders will be sent to keep you on track.
-        </div>
+      <div style={{display:'flex',flexDirection:'column',gap:14}}>
+        {goals.map(g=>{
+          const ed=edits[g.subjectId]??{target:g.targetMark,note:g.note??''};
+          const target=ed.target;
+          const current=g.currentAvg;
+          const pct=current!==null?Math.round((current/target)*100):null;
+          const achieved=current!==null&&current>=target;
+          const barColor=current===null?'rgba(255,255,255,0.10)':achieved?GREEN:current>=target*0.9?GOLD:current>=target*0.7?AMBER:RED;
+          return(
+            <div key={g.subjectId} style={{background:SURFACE,border:`1px solid ${BORDER}`,borderRadius:16,padding:'18px 20px'}}>
+              <div style={{display:'flex',alignItems:'flex-start',gap:12,marginBottom:14}}>
+                <div style={{width:4,height:44,borderRadius:2,background:g.color,flexShrink:0,marginTop:2}}/>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:15,fontWeight:700,color:TEXT}}>{g.subjectName}</div>
+                  <div style={{fontSize:11,color:MUTED,marginTop:1}}>{g.subjectShort}</div>
+                </div>
+                {current!==null&&(
+                  <div style={{textAlign:'right'}}>
+                    <div style={{fontSize:11,color:MUTED}}>Current</div>
+                    <div style={{fontFamily:FH,fontSize:22,fontWeight:700,color:barColor,letterSpacing:'-0.02em'}}>{Math.round(current)}%</div>
+                  </div>
+                )}
+              </div>
+
+              {current!==null&&(
+                <div style={{marginBottom:14}}>
+                  <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+                    <span style={{fontSize:11,color:MUTED}}>Progress to goal</span>
+                    <span style={{fontSize:11,fontWeight:600,color:barColor}}>{Math.min(pct!,100)}%</span>
+                  </div>
+                  <div style={{height:8,borderRadius:4,background:'rgba(255,255,255,0.05)',overflow:'hidden'}}>
+                    <div style={{height:'100%',width:`${Math.min(pct!,100)}%`,borderRadius:4,background:barColor,transition:'width 0.8s ease'}}/>
+                  </div>
+                  {achieved&&<div style={{fontSize:11,color:GREEN,marginTop:5,fontWeight:600}}>✓ Goal achieved!</div>}
+                </div>
+              )}
+              {current===null&&(
+                <div style={{fontSize:12,color:FAINT,marginBottom:14}}>No marks captured yet — your progress appears once assessments are entered.</div>
+              )}
+
+              <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+                <div style={{flex:1,minWidth:140}}>
+                  <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.06em',marginBottom:4}}>TARGET MARK (%)</div>
+                  <input type="number" min={0} max={100} value={ed.target}
+                    onChange={e=>setEdits(p=>({...p,[g.subjectId]:{...ed,target:Number(e.target.value)}}))}
+                    style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:9,color:TEXT,fontFamily:FB,fontSize:14,fontWeight:700,padding:'8px 12px',outline:'none',width:'100%',boxSizing:'border-box'}}/>
+                </div>
+                <div style={{flex:2,minWidth:200}}>
+                  <div style={{fontSize:10,color:FAINT,fontWeight:600,letterSpacing:'0.06em',marginBottom:4}}>NOTE (optional)</div>
+                  <input value={ed.note} onChange={e=>setEdits(p=>({...p,[g.subjectId]:{...ed,note:e.target.value}}))}
+                    placeholder="e.g. Focus on algebra"
+                    style={{background:S2,border:`1px solid ${BORDER}`,borderRadius:9,color:TEXT,fontFamily:FB,fontSize:13,padding:'8px 12px',outline:'none',width:'100%',boxSizing:'border-box'}}/>
+                </div>
+                <button onClick={()=>save(g.subjectId)} disabled={saving===g.subjectId}
+                  style={{display:'flex',alignItems:'center',gap:6,padding:'9px 16px',borderRadius:9,background:GOLD,border:'none',color:'#000',fontFamily:FH,fontSize:12,fontWeight:700,cursor:saving===g.subjectId?'default':'pointer',opacity:saving===g.subjectId?0.6:1,marginTop:16,flexShrink:0}}>
+                  {saving===g.subjectId?<Loader2 size={12} className="animate-spin"/>:<Save size={12}/>}Save
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

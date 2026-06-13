@@ -241,3 +241,20 @@ model Goal {
 
   @@unique([studentId, subjectId])
 }
+
+// ─── Past Papers ──────────────────────────────────────────────────────────────
+
+model PastPaper {
+  id          String   @id @default(cuid())
+  subject     String
+  subjectCode String   @default("")
+  grade       String
+  year        Int
+  month       String
+  type        String   @default("Exam")
+  language    String   @default("English")
+  fileName    String
+  fileUrl     String
+  fileSize    Int?
+  uploadedAt  DateTime @default(now())
+}

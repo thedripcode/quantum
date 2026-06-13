@@ -9,7 +9,7 @@ import {
   LayoutDashboard, BarChart2, ClipboardList, Calendar,
   CheckSquare, BookOpen, Brain, Bell, MessageSquare,
   Award, Target, User, Users, LogOut, ChevronLeft, Menu,
-  AlertTriangle,
+  AlertTriangle, FileText,
 } from 'lucide-react';
 import { useStudentData } from '@/lib/useStudentData';
 
@@ -233,6 +233,7 @@ const NAV = [
     section: 'Tools',
     items: [
       { label: 'SIDI',        href: '/dashboard/student/sidi',         Icon: Brain,           badge: null,  gold: false },
+      { label: 'Past Papers', href: '/dashboard/student/papers',       Icon: FileText,        badge: null,  gold: false },
       { label: 'Notices',    href: '/dashboard/student/notices',      Icon: Bell,            badge: '2',   gold: false },
       { label: 'Messages',   href: '/dashboard/student/messages',     Icon: MessageSquare,   badge: '1',   gold: false },
       { label: 'Achievements',href: '/dashboard/student/achievements',Icon: Award,           badge: null,  gold: false },

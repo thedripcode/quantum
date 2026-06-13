@@ -139,6 +139,7 @@ const NAV = [
   { section: 'Management', items: [
     { label: 'Notices',          href: '/admin/notices',          Icon: Bell,            badge: null, gold: false },
     { label: 'Messages',         href: '/admin/messages',         Icon: MessageSquare,   badge: null, gold: false },
+    { label: 'Past Papers',      href: '/admin/papers',           Icon: FileText,        badge: null, gold: false },
     { label: 'Reports',          href: '/admin/reports',          Icon: BookOpen,        badge: null, gold: false },
   ]},
   { section: 'System', items: [

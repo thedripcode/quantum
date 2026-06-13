@@ -1,22 +1,50 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
+
+export const dynamic = 'force-dynamic';
+
+const STUDENT_SYSTEM = `You are SIDI - Sidelile Intelligent Digital Intelligence - the AI study companion for students at Sidelile High School in KwaZulu-Natal, South Africa.
+
+You help students with:
+- Explaining concepts from the South African CAPS curriculum (Mathematics, Physical Sciences, English, IsiZulu, Life Orientation, History, Geography, etc.)
+- Answering questions about past exam papers and their solutions
+- Generating study notes and summaries aligned to CAPS
+- Providing exam tips and study strategies
+- Working through problems step by step
+- Encouraging and motivating students
+
+Guidelines:
+- Be warm, encouraging, and age-appropriate for high school students (Grade 8-12)
+- Use South African curriculum terminology (CAPS, matric, NSC, DoE, etc.)
+- When solving maths or science problems, show full working
+- Keep answers clear and structured with headings when helpful
+- Always be positive and build student confidence`;
+
+const ADMIN_SYSTEM = `You are SIDI - the AI assistant for Sidelile High School's admin team in KwaZulu-Natal, South Africa. You help with:
+- Drafting parent emails and school notices
+- Stream placement recommendations based on student marks
+- Writing rejection or approval messages for applications
+- School policy and CAPS curriculum questions
+- Any general admin support
+
+Keep responses concise, professional, and appropriate for a South African high school context.`;
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
-    const { system, messages } = await req.json();
+    const { messages, system: customSystem } = await req.json();
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json({ error: 'messages array is required.' }, { status: 400 });
+    }
+
+    const systemPrompt = customSystem ||
+      (session.user.role === 'student' ? STUDENT_SYSTEM : ADMIN_SYSTEM);
+
     const apiKey = process.env.ANTHROPIC_API_KEY;
-
-    if (!apiKey) {
-      // Demo mode: return canned responses when no API key
-      const last = messages[messages.length - 1]?.content?.toLowerCase() ?? '';
-      let reply = "I'm SIDI, your Sidelile admin assistant. I can help draft emails, write notices, recommend streams, and more. (Set ANTHROPIC_API_KEY to enable full AI responses.)";
-
-      if (last.includes('reject')) reply = "Subject: Application Outcome — Sidelile High School\n\nDear Parent/Guardian,\n\nThank you for your interest in Sidelile High School. After careful review of your application, we regret to inform you that we are unable to offer your child a place at this time.\n\nReason: The academic average does not meet our minimum entry requirement of 60%.\n\nWe encourage you to explore other schooling options and wish your child every success.\n\nKind regards,\nThe Admissions Office\nSidelile High School";
-      else if (last.includes('welcome') || last.includes('approval')) reply = "Subject: Welcome to Sidelile High School!\n\nDear Parent/Guardian,\n\nWe are delighted to confirm that your child has been accepted at Sidelile High School for the 2025 academic year.\n\nPlease find the following details:\n• Student Number: [Auto-generated]\n• Grade: [Grade]\n• Class: [Class]\n• Start Date: Monday, 13 January 2025\n\nPlease bring the following documents on the first day:\n✓ Certified copy of birth certificate\n✓ Previous school report\n✓ 2 passport photographs\n\nWe look forward to welcoming your child to the Sidelile family!\n\nWarm regards,\nSchool Admin\nSidelile High School";
-      else if (last.includes('notice') || last.includes('exam')) reply = "NOTICE: EXAMINATION TIMETABLE — TERM 3 2025\n\nDear Learners and Parents,\n\nPlease note the following examination schedule for Term 3:\n\n• Grade 12: 3 November – 21 November 2025\n• Grade 11: 10 November – 28 November 2025\n• Grades 8–10: 17 November – 4 December 2025\n\nAll learners must:\n1. Arrive 15 minutes before each paper\n2. Bring their student card and stationery\n3. Switch off all mobile devices\n\nStudy guides are available from the library.\n\nGood luck to all our learners!\n\nMs. T. Mthembu\nDeputy Principal";
-      else if (last.includes('stream')) reply = "Stream Placement Recommendations:\n\n• Pure Sciences (10A): Maths ≥ 70% AND Science ≥ 70%\n• Applied Sciences (10B): Maths ≥ 60% AND Science ≥ 60%\n• Commerce (10C): Maths ≥ 55% and interest in business\n• Humanities (10D): English strong, Social Sciences preferred\n• General (10E): Below 60% average, supportive environment\n\nFor borderline cases, consider:\n- Student's stated preference\n- Teacher recommendations\n- Class capacity\n- Student's work ethic and attitude";
-      else if (last.includes('newsletter')) reply = "SIDELILE HIGH SCHOOL PARENT NEWSLETTER\nTerm 3 · September 2025\n\nDear Sidelile Family,\n\nTerm 3 has been an exciting period of academic growth and school community activities.\n\n📚 ACADEMIC UPDATE\nOur school average stands at 71% — up from 68% last term. We are especially proud of our Grade 12 learners who are preparing for final examinations.\n\n🏆 ACHIEVEMENTS\n• 3 learners selected for provincial mathematics olympiad\n• U16 soccer team reached the district finals\n\n📋 REMINDERS\n• Term 4 fees due: 31 October 2025\n• Grade 9 stream selection closes: 20 October 2025\n• Prize Giving Ceremony: 28 November at 18:00\n\nThank you for your continued partnership in education.\n\nMr. T. Mthembu\nPrincipal, Sidelile High School";
-
-      return NextResponse.json({ content: reply });
+    if (!apiKey || apiKey === 'PASTE_YOUR_KEY_HERE') {
+      return NextResponse.json({ content: demoResponse(messages, session.user.role ?? 'student') });
     }
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -27,18 +55,41 @@ export async function POST(req: NextRequest) {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
-        system,
-        messages,
+        system: systemPrompt,
+        messages: messages.map((m: { role: string; content: string }) => ({
+          role: m.role,
+          content: m.content,
+        })),
       }),
     });
 
     const data = await res.json();
-    const content = data.content?.[0]?.text ?? 'No response received.';
+    if (!res.ok) {
+      console.error('Anthropic API error:', data);
+      return NextResponse.json({ error: data.error?.message || 'AI service error.' }, { status: 500 });
+    }
+
+    const content = data.content?.[0]?.text ?? '';
     return NextResponse.json({ content });
-  } catch (err) {
-    console.error('SIDI API error:', err);
-    return NextResponse.json({ content: 'Error processing request.' }, { status: 500 });
+  } catch (err: unknown) {
+    console.error('Sidi API error:', err);
+    return NextResponse.json({ error: 'Sidi is unavailable right now.' }, { status: 500 });
   }
+}
+
+function demoResponse(messages: { role: string; content: string }[], role: string): string {
+  const last = messages[messages.length - 1]?.content?.toLowerCase() ?? '';
+  if (role === 'student') {
+    if (last.includes('quadratic') || last.includes('maths') || last.includes('math')) {
+      return 'Great question! For quadratic equations ax^2 + bx + c = 0, use the quadratic formula:\n\nx = (-b +/- sqrt(b^2-4ac)) / 2a\n\nSteps:\n1. Identify a, b, and c\n2. Calculate the discriminant: D = b^2-4ac\n3. Substitute into the formula\n\nIf D > 0: two real roots | D = 0: one repeated root | D < 0: no real roots.\n\n(Add your ANTHROPIC_API_KEY to .env.local to unlock full AI responses!)';
+    }
+    if (last.includes('note') || last.includes('summar')) {
+      return 'Here is a summary of the topic you requested.\n\nKey Concepts:\n- Concept 1: [definition]\n- Concept 2: [definition]\n- Concept 3: [definition]\n\nExam Tips:\n- Always show your working\n- Read the question twice before answering\n- Check your units in science\n\n(Add your ANTHROPIC_API_KEY to .env.local to unlock full AI responses!)';
+    }
+    return 'Hi! I\'m SIDI, your study companion at Sidelile High School. I can help you with CAPS curriculum topics, past paper questions, study notes, and exam tips. Ask me anything!\n\n(Add your ANTHROPIC_API_KEY to .env.local to unlock full AI responses.)';
+  }
+  if (last.includes('reject')) return 'Subject: Application Outcome\n\nDear Parent/Guardian,\n\nAfter careful review, we regret we cannot offer your child a place at this time.\n\nKind regards,\nAdmissions Office, Sidelile High School';
+  return 'I\'m SIDI, your admin assistant. I can help draft emails, write notices, recommend stream placements, and more.\n\n(Add your ANTHROPIC_API_KEY to .env.local to unlock full AI responses.)';
 }

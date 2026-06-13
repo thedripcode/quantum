@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Brain, BookOpen, ClipboardList, FileText, MessageSquare,
   ChevronRight, ChevronLeft, RotateCcw, Check, X,
-  Timer, Star, Zap, Trophy, ArrowRight, Sparkles,
+  Timer, Star, Zap, Trophy, ArrowRight, Sparkles, Send,
   Inbox, Clock, CalendarCheck, AlertTriangle,
 } from 'lucide-react';
 import { STUDENT, SUBJECTS } from '@/data/studentData';
@@ -399,32 +399,52 @@ function NotesMode({ subject }: { subject: string }) {
   const topics = SUBJECT_TOPICS[subject] ?? SUBJECT_TOPICS.MATH;
   const [selectedTopic, setSelectedTopic] = useState(topics[0]);
   const [loading, setLoading] = useState(false);
-  const [generated, setGenerated] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
 
-  const generate = () => {
-    setLoading(true); setGenerated(false);
-    setTimeout(() => { setLoading(false); setGenerated(true); }, 1800);
+  const generate = async () => {
+    setLoading(true); setNoteContent('');
+    try {
+      const res = await fetch('/api/sidi', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          messages: [{
+            role:'user',
+            content:`Generate comprehensive CAPS-aligned study notes for Grade 10-12 students on the topic: "${selectedTopic}". Include key concepts, formulas or definitions, worked examples, and exam tips. Format with clear headings and bullet points.`,
+          }],
+        }),
+      });
+      const data = await res.json();
+      setNoteContent(data.content || 'Could not generate notes. Please try again.');
+    } catch {
+      setNoteContent('Error generating notes. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const SAMPLE_NOTES: Record<string, string> = {
-    'Quadratic Functions': `# Quadratic Functions — Grade 11 Notes\n\n## What is a Quadratic Function?\nA quadratic function has the form **f(x) = ax² + bx + c** where a ≠ 0.\n\n## Key Features\n- **Vertex**: The turning point, at x = −b/(2a)\n- **Axis of symmetry**: x = −b/(2a)\n- **y-intercept**: When x = 0, y = c\n- **x-intercepts (roots)**: Solve ax² + bx + c = 0\n\n## The Discriminant (Δ)\nΔ = b² − 4ac\n- Δ > 0 → **two distinct real roots**\n- Δ = 0 → **one repeated root** (parabola touches x-axis)\n- Δ < 0 → **no real roots** (parabola does not cross x-axis)\n\n## Exam Tips\n✓ Always identify a, b, c before substituting into the formula\n✓ Check: if a > 0, parabola opens upward (minimum); if a < 0, opens downward (maximum)\n✓ When asked to "sketch", show x-intercepts, y-intercept, vertex and axis of symmetry`,
-    'Newton\'s Laws': `# Newton\'s Three Laws of Motion\n\n## First Law (Law of Inertia)\n*An object will remain at rest or in uniform motion unless acted upon by a net external force.*\n\n## Second Law\n**Fnet = ma**\n- F = net force (N)\n- m = mass (kg)\n- a = acceleration (m·s⁻²)\n\n## Third Law\n*For every action there is an equal and opposite reaction.*\nForces always act in pairs on different objects.\n\n## Common Exam Mistakes\n✗ Confusing mass (kg) and weight (N)\n✓ Weight = mg (where g = 9.8 m·s⁻²)\n✗ Forgetting to draw a free-body diagram first\n✓ Always define a positive direction before solving`,
-  };
-
-  const noteContent = SAMPLE_NOTES[selectedTopic] ?? `# ${selectedTopic}\n\nDetailed study notes for ${selectedTopic} — covering key concepts, worked examples, and exam tips aligned to the CAPS curriculum for Grade ${STUDENT.grade}.`;
+  const renderContent = (text: string) =>
+    text.split('\n').map((line, i) => {
+      if (line.startsWith('# '))  return <h2 key={i} style={{ fontFamily:FH, fontSize:20, fontWeight:800, color:TEXT, margin:'0 0 16px', letterSpacing:'-0.02em' }}>{line.slice(2)}</h2>;
+      if (line.startsWith('## ')) return <h3 key={i} style={{ fontFamily:FH, fontSize:15, fontWeight:700, color:TEXT, margin:'20px 0 8px', letterSpacing:'-0.01em' }}>{line.slice(3)}</h3>;
+      if (line.startsWith('### ')) return <h4 key={i} style={{ fontFamily:FH, fontSize:13, fontWeight:700, color:TEXT, margin:'14px 0 6px' }}>{line.slice(4)}</h4>;
+      if (line.startsWith('- **') || line.startsWith('* **')) return <div key={i} style={{ paddingLeft:16, borderLeft:'2px solid rgba(255,255,255,0.08)', marginBottom:4, color:MUTED, fontFamily:FB, fontSize:13 }}>{line.slice(2)}</div>;
+      if (line.startsWith('- ') || line.startsWith('* ')) return <div key={i} style={{ paddingLeft:16, borderLeft:'2px solid rgba(255,255,255,0.08)', marginBottom:4, color:MUTED, fontFamily:FB, fontSize:13 }}>{line.slice(2)}</div>;
+      if (line === '') return <br key={i} />;
+      return <p key={i} style={{ margin:'0 0 6px', color:MUTED, fontFamily:FB, fontSize:13, lineHeight:1.7 }}>{line.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
+    });
 
   return (
     <div>
       <div style={{ display:'flex', gap:10, marginBottom:20, flexWrap:'wrap' }}>
         {topics.map(t => (
-          <button key={t} onClick={() => { setSelectedTopic(t); setGenerated(false); }}
+          <button key={t} onClick={() => { setSelectedTopic(t); setNoteContent(''); }}
             style={{ padding:'7px 14px', borderRadius:8, background: selectedTopic===t ? 'rgba(255,255,255,0.10)' : 'transparent', border:`1px solid ${selectedTopic===t ? BORDER2 : BORDER}`, color: selectedTopic===t ? TEXT : MUTED, fontFamily:FB, fontSize:12, fontWeight:600, cursor:'pointer', transition:'all 0.15s' }}>
             {t}
           </button>
         ))}
       </div>
 
-      {!generated ? (
+      {!noteContent ? (
         <div style={{ background:S2, border:`1px solid ${BORDER}`, borderRadius:16, padding:'48px 40px', textAlign:'center' }}>
           <Sparkles size={36} style={{ color:'#10B981', marginBottom:16 }} />
           <div style={{ fontFamily:FH, fontSize:18, fontWeight:700, color:TEXT, marginBottom:8 }}>Generate Study Notes</div>
@@ -439,19 +459,10 @@ function NotesMode({ subject }: { subject: string }) {
       ) : (
         <div style={{ background:S2, border:`1px solid ${BORDER}`, borderRadius:16, padding:'28px 32px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-            <div style={{ fontFamily:FB, fontSize:11, fontWeight:600, color:'#10B981', letterSpacing:'0.10em', textTransform:'uppercase' }}>AI-Generated · CAPS Aligned · Grade {STUDENT.grade}</div>
-            <button onClick={() => setGenerated(false)} style={{ background:'none', border:'none', color:FAINT, cursor:'pointer', fontFamily:FB, fontSize:12 }}>Regenerate</button>
+            <div style={{ fontFamily:FB, fontSize:11, fontWeight:600, color:'#10B981', letterSpacing:'0.10em', textTransform:'uppercase' }}>AI-Generated · CAPS Aligned</div>
+            <button onClick={() => setNoteContent('')} style={{ background:'none', border:'none', color:FAINT, cursor:'pointer', fontFamily:FB, fontSize:12 }}>Regenerate</button>
           </div>
-          <div style={{ fontFamily:FB, fontSize:14, color:MUTED, lineHeight:1.9, whiteSpace:'pre-line' }}>
-            {noteContent.split('\n').map((line, i) => {
-              if (line.startsWith('# ')) return <h2 key={i} style={{ fontFamily:FH, fontSize:20, fontWeight:800, color:TEXT, margin:'0 0 16px', letterSpacing:'-0.02em' }}>{line.slice(2)}</h2>;
-              if (line.startsWith('## ')) return <h3 key={i} style={{ fontFamily:FH, fontSize:15, fontWeight:700, color:TEXT, margin:'20px 0 8px', letterSpacing:'-0.01em' }}>{line.slice(3)}</h3>;
-              if (line.startsWith('✓') || line.startsWith('✗')) return <div key={i} style={{ color: line.startsWith('✓') ? '#10B981' : '#EF4444', fontWeight:500 }}>{line}</div>;
-              if (line.startsWith('- ')) return <div key={i} style={{ paddingLeft:16, borderLeft:'2px solid rgba(255,255,255,0.08)', marginBottom:4 }}>{line.slice(2)}</div>;
-              if (line === '') return <br key={i} />;
-              return <p key={i} style={{ margin:'0 0 6px' }}>{line.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
-            })}
-          </div>
+          <div style={{ lineHeight:1.9 }}>{renderContent(noteContent)}</div>
         </div>
       )}
       <style>{`@keyframes spin { to { transform:rotate(360deg); } }`}</style>
@@ -460,23 +471,40 @@ function NotesMode({ subject }: { subject: string }) {
 }
 
 function ChatMode() {
-  const [msgs, setMsgs] = useState([
-    { role:'assistant', text:'Hey Thabo 👋 I\'m SIDI — your AI study companion. What subject or topic do you need help with today?' }
+  const [msgs, setMsgs] = useState<{role:'user'|'assistant'; text:string}[]>([
+    { role:'assistant', text:'Hi! I\'m SIDI, your AI study companion at Sidelile High School. I can help you with any CAPS subject — maths problems, science concepts, essay writing, past paper questions, and more. What would you like to study today?' }
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput]   = useState('');
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  const send = () => {
-    if (!input.trim()) return;
-    const userMsg = input.trim();
-    setMsgs(m => [...m, { role:'user', text:userMsg }]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }); }, [msgs, loading]);
+
+  const send = async (text?: string) => {
+    const userText = (text ?? input).trim();
+    if (!userText || loading) return;
+    const userMsg = { role: 'user' as const, text: userText };
+    setMsgs(m => [...m, userMsg]);
     setInput('');
-    setTimeout(() => {
-      setMsgs(m => [...m, { role:'assistant', text:`Great question about "${userMsg}"! In demo mode, I'm giving a sample response. When connected to the Claude API, I'll give you a detailed, personalised answer based on your Grade ${STUDENT.grade} curriculum and current marks.` }]);
-    }, 900);
+    setLoading(true);
+    try {
+      const res = await fetch('/api/sidi', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ messages: [...msgs, userMsg].map(m => ({ role:m.role, content:m.text })) }),
+      });
+      const data = await res.json();
+      setMsgs(m => [...m, { role:'assistant', text: data.content || data.error || 'Sorry, I could not process that.' }]);
+    } catch {
+      setMsgs(m => [...m, { role:'assistant', text:'Sorry, I\'m having trouble connecting right now. Please try again.' }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const QUICK = ['Explain quadratic equations','How does photosynthesis work?','Tips for essay writing','What is Newton\'s First Law?','Summarise the Cold War'];
+
   return (
-    <div style={{ display:'flex', flexDirection:'column', height:460 }}>
+    <div style={{ display:'flex', flexDirection:'column', height:480 }}>
       <div style={{ flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:12, padding:'4px 0', marginBottom:14 }}>
         {msgs.map((m, i) => (
           <div key={i} style={{ display:'flex', justifyContent: m.role==='user' ? 'flex-end' : 'flex-start' }}>
@@ -485,23 +513,46 @@ function ChatMode() {
                 <Sparkles size={12} style={{ color:TEXT }} />
               </div>
             )}
-            <div style={{ maxWidth:'75%', padding:'12px 16px', borderRadius: m.role==='user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px', background: m.role==='user' ? 'rgba(255,255,255,0.08)' : S2, border:`1px solid ${BORDER}`, fontFamily:FB, fontSize:13, color: m.role==='user' ? TEXT : MUTED, lineHeight:1.6 }}>
+            <div style={{ maxWidth:'78%', padding:'12px 16px', borderRadius: m.role==='user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px', background: m.role==='user' ? 'rgba(255,255,255,0.08)' : S2, border:`1px solid ${BORDER}`, fontFamily:FB, fontSize:13, color: m.role==='user' ? TEXT : MUTED, lineHeight:1.65, whiteSpace:'pre-wrap' }}>
               {m.text}
             </div>
           </div>
         ))}
+        {loading && (
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(255,255,255,0.08)', border:`1px solid ${BORDER2}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <Sparkles size={12} style={{ color:TEXT }} />
+            </div>
+            <div style={{ padding:'12px 16px', borderRadius:'18px 18px 18px 4px', background:S2, border:`1px solid ${BORDER}`, display:'flex', gap:4 }}>
+              {[0,0.2,0.4].map((d,i) => (
+                <span key={i} style={{ width:6, height:6, borderRadius:'50%', background:MUTED, animation:`bounce 1.2s ease ${d}s infinite`, display:'block' }} />
+              ))}
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
       </div>
+      {msgs.length <= 1 && (
+        <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:10 }}>
+          {QUICK.map(s => (
+            <button key={s} onClick={() => send(s)} style={{ fontFamily:FB, fontSize:11, padding:'5px 12px', borderRadius:9999, background:S2, border:`1px solid ${BORDER}`, color:MUTED, cursor:'pointer' }}>
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
       <div style={{ display:'flex', gap:10 }}>
-        <input
-          value={input} onChange={e => setInput(e.target.value)}
+        <textarea
+          value={input} rows={2} onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } }}
           placeholder="Ask SIDI anything about your studies…"
-          style={{ flex:1, background:S2, border:`1px solid ${BORDER}`, borderRadius:12, padding:'12px 16px', fontFamily:FB, fontSize:13, color:TEXT, outline:'none' }}
+          style={{ flex:1, background:S2, border:`1px solid ${BORDER}`, borderRadius:12, padding:'10px 14px', fontFamily:FB, fontSize:13, color:TEXT, outline:'none', resize:'none' }}
         />
-        <button onClick={send} style={{ width:44, height:44, borderRadius:12, background:'rgba(255,255,255,0.08)', border:`1px solid ${BORDER2}`, color:TEXT, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-          <ArrowRight size={16} />
+        <button onClick={() => send()} disabled={loading} style={{ width:44, background:'rgba(255,255,255,0.08)', border:`1px solid ${BORDER2}`, borderRadius:12, color:TEXT, cursor: loading ? 'default':'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <Send size={15} />
         </button>
       </div>
+      <style>{`@keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }`}</style>
     </div>
   );
 }
@@ -813,9 +864,6 @@ function MyWorkMode() {
 
   return null;
 }
-
-// Import missing icon for submit button
-import { Send } from 'lucide-react';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function navBtn(disabled: boolean): React.CSSProperties {

@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
         <AdminTopBar onMenuClick={() => setMobileOpen(true)} />
-        <main style={{ flex: 1, overflowY: 'auto' }}>
+        <main className="portal-main-content" style={{ flex: 1, overflowY: 'auto' }}>
           {children}
         </main>
       </div>

@@ -83,8 +83,8 @@ export default function ParentAttendancePage() {
       )}
 
       {/* Records list */}
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 1fr', padding: '10px 16px', borderBottom: `1px solid ${BORDER}`, gap: 8 }}>
+      <div className="table-scroll" style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+        <div style={{ minWidth: 480, display: 'grid', gridTemplateColumns: '1fr 110px 1fr', padding: '10px 16px', borderBottom: `1px solid ${BORDER}`, gap: 8 }}>
           {['Date', 'Status', 'Note'].map(h => (
             <span key={h} style={{ fontSize: 10, fontWeight: 600, color: FAINT, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{h}</span>
           ))}
@@ -97,7 +97,7 @@ export default function ParentAttendancePage() {
           const s = STATUS_MAP[r.status] ?? STATUS_MAP.present;
           const { Icon } = s;
           return (
-            <div key={r.id} style={{ display: 'grid', gridTemplateColumns: '1fr 110px 1fr', padding: '10px 16px', borderBottom: `1px solid rgba(255,255,255,0.03)`, gap: 8, alignItems: 'center' }}>
+            <div key={r.id} style={{ minWidth: 480, display: 'grid', gridTemplateColumns: '1fr 110px 1fr', padding: '10px 16px', borderBottom: `1px solid rgba(255,255,255,0.03)`, gap: 8, alignItems: 'center' }}>
               <span style={{ fontSize: 12, color: TEXT }}>{new Date(r.date).toLocaleDateString('en-ZA', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 8px', borderRadius: 6, background: s.bg, width: 'fit-content' }}>
                 <Icon size={11} style={{ color: s.color }} />

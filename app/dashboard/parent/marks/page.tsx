@@ -98,20 +98,20 @@ export default function ParentMarksPage() {
       </div>
 
       {/* Marks table */}
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 100px 70px 80px', padding: '10px 16px', borderBottom: `1px solid ${BORDER}`, gap: 8 }}>
+      <div className="table-scroll" style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+        <div style={{ minWidth: 520, display: 'grid', gridTemplateColumns: '1fr 110px 100px 70px 80px', padding: '10px 16px', borderBottom: `1px solid ${BORDER}`, gap: 8 }}>
           {['Task', 'Subject', 'Type', 'Term', 'Result'].map(h => (
             <span key={h} style={{ fontSize: 10, fontWeight: 600, color: FAINT, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{h}</span>
           ))}
         </div>
         {loading ? (
-          <div style={{ padding: 32, textAlign: 'center', fontSize: 13, color: MUTED }}>Loading…</div>
+          <div style={{ minWidth: 520, padding: 32, textAlign: 'center', fontSize: 13, color: MUTED }}>Loading…</div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: 32, textAlign: 'center', fontSize: 13, color: MUTED }}>No marks found.</div>
+          <div style={{ minWidth: 520, padding: 32, textAlign: 'center', fontSize: 13, color: MUTED }}>No marks found.</div>
         ) : filtered.map(m => {
           const lv = capsLevel(m.pct);
           return (
-            <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1fr 110px 100px 70px 80px', padding: '11px 16px', borderBottom: `1px solid rgba(255,255,255,0.03)`, gap: 8, alignItems: 'center' }}>
+            <div key={m.id} style={{ minWidth: 520, display: 'grid', gridTemplateColumns: '1fr 110px 100px 70px 80px', padding: '11px 16px', borderBottom: `1px solid rgba(255,255,255,0.03)`, gap: 8, alignItems: 'center' }}>
               <span style={{ fontSize: 13, color: TEXT }}>{m.task}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: m.subjectColor }} />

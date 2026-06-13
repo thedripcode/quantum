@@ -38,7 +38,7 @@ const Aside = styled.aside<{ $collapsed: boolean; $mobileOpen: boolean }>`
   overflow: hidden;
   z-index: 40;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1023px) {
     position: fixed;
     top: 0;
     left: 0;

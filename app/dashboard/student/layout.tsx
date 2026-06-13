@@ -22,7 +22,7 @@ export default function StudentDashboardLayout({ children }: { children: React.R
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
         <StudentPortalTopBar onMenuClick={() => setMobileOpen(true)} />
-        <main style={{ flex: 1, overflowY: 'auto' }}>
+        <main className="portal-main-content" style={{ flex: 1, overflowY: 'auto' }}>
           {children}
         </main>
       </div>

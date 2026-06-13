@@ -158,7 +158,15 @@
   gap: 8px;
 }
 
-@media (max-width: 768px) {
+/* ── Scrollable table wrapper ─── */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Mobile responsiveness (< 1024px — matches sidebar overlay breakpoint) ── */
+@media (max-width: 1023px) {
+  /* Grids collapse to single column */
   .portal-stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -166,21 +174,58 @@
   }
 
   .portal-main-grid,
-  .portal-sidebar-grid {
-    grid-template-columns: 1fr;
-  }
-
+  .portal-sidebar-grid,
   .portal-notice-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Hide topbar search bar */
   .admin-topbar-search {
     display: none;
   }
 
-  /* Reduce portal page padding on mobile */
+  /* Reduce page padding */
   .portal-page-body {
     padding: 16px 14px !important;
+  }
+}
+
+/* ── Portal page content — responsive padding override ── */
+@media (max-width: 1023px) {
+  /* Reduce horizontal padding on all portal pages */
+  .portal-main-content > div {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    padding-top: 18px !important;
+  }
+
+  /* Make any horizontally-fixed grid inside pages use auto-fit */
+  .portal-main-content .subjects-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ── Small phones (< 640px) ── */
+@media (max-width: 639px) {
+  .portal-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* Tighten padding further */
+  .portal-page-body {
+    padding: 12px 12px !important;
+  }
+
+  /* Stack stat cards 2 per row on tiny screens */
+  .stat-cards-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Hide non-essential columns in tables */
+  .hide-mobile {
+    display: none !important;
   }
 }
 

@@ -33,7 +33,7 @@ const Aside = styled.aside<{ $col: boolean; $mobileOpen: boolean }>`
   transition: width 0.28s cubic-bezier(0.33,1,0.68,1);
   overflow: hidden; z-index: 40;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1023px) {
     position: fixed;
     top: 0; left: 0; bottom: 0;
     height: 100dvh;

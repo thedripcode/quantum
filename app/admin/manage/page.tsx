@@ -299,7 +299,7 @@ export default function AdminManagePage() {
                 return (
                   <div key={u.id} style={{ borderRadius: 10, border: `1px solid ${isEditing ? GOLD_B : BORDER}`, overflow: 'hidden' }}>
                     {/* Main row */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: S2, opacity: u.active ? 1 : 0.45 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: S2, opacity: u.active ? 1 : 0.45, flexWrap: 'wrap' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13.5, fontWeight: 500, color: TEXT }}>
                           {u.name} {!u.active && <span style={{ fontSize: 10, color: RED }}>(inactive)</span>}

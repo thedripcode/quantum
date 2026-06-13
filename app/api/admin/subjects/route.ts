@@ -20,17 +20,18 @@ export async function GET() {
   return NextResponse.json({
     subjects: subjects.map(s => ({
       id: s.id, code: s.code, name: s.name, short: s.short, color: s.color, room: s.room,
+      grades: s.grades ?? '',
       teacherName: s.teacher?.name ?? null, teacherPortalId: s.teacher?.portalId ?? null,
       enrollments: s._count.enrollments, marks: s._count.marks,
     })),
   });
 }
 
-// Create a subject (and enroll all students)
+// Create a subject
 export async function POST(req: NextRequest) {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    const { code, name, short, color, room, teacherPortalId } = await req.json();
+    const { code, name, short, color, room, teacherPortalId, grades } = await req.json();
     if (!code?.trim() || !name?.trim() || !short?.trim()) {
       return NextResponse.json({ error: 'Code, name and short label are required.' }, { status: 400 });
     }
@@ -50,14 +51,9 @@ export async function POST(req: NextRequest) {
         short: short.trim().toUpperCase(),
         color: color || '#3B82F6',
         room: room?.trim() || null,
+        grades: Array.isArray(grades) ? grades.join(',') : (grades ?? ''),
         teacherId,
       },
-    });
-
-    const students = await prisma.user.findMany({ where: { role: 'student' }, select: { id: true } });
-    await prisma.enrollment.createMany({
-      data: students.map(st => ({ studentId: st.id, subjectId: subject.id })),
-      skipDuplicates: true,
     });
 
     return NextResponse.json({ success: true, subjectId: subject.id });

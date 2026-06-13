@@ -91,6 +91,7 @@ model User {
   role          String    @default("student")  // student | teacher | parent | admin
   portalId      String?   @unique              // e.g. STU2024001 or TCH001
   grade         String?                        // Grade 10 / 11 / 12 (students only)
+  stream        String?                        // A / B / C / D — class section within a grade
   active        Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -114,6 +115,7 @@ model Subject {
   short     String                        // e.g. 'MATH'
   color     String  @default("#3B82F6")
   room      String?
+  grades    String  @default("")          // comma-separated grades: "Grade 10,Grade 11,Grade 12"
   teacherId String?
   teacher   User?   @relation("SubjectTeacher", fields: [teacherId], references: [id])
 

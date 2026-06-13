@@ -15,7 +15,7 @@ async function requireAdmin() {
 export async function GET() {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const users = await prisma.user.findMany({
-    select: { id: true, name: true, email: true, role: true, portalId: true, grade: true, active: true, createdAt: true },
+    select: { id: true, name: true, email: true, role: true, portalId: true, grade: true, stream: true, active: true, createdAt: true },
     orderBy: [{ role: 'asc' }, { name: 'asc' }],
   });
   return NextResponse.json({ users });
@@ -25,7 +25,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    const { name, email, password, role, grade } = await req.json();
+    const { name, email, password, role, grade, stream } = await req.json();
     if (!name?.trim() || !email?.trim() || !password || !role) {
       return NextResponse.json({ error: 'Name, email, password and role are required.' }, { status: 400 });
     }
@@ -49,19 +49,11 @@ export async function POST(req: NextRequest) {
         password: await bcrypt.hash(password, 12),
         role,
         portalId,
-        grade: role === 'student' ? (grade || null) : null,
+        grade:  role === 'student' ? (grade || null)  : null,
+        stream: role === 'student' ? (stream || null) : null,
         active: true,
       },
     });
-
-    // Enroll new students in all subjects automatically
-    if (role === 'student') {
-      const subjects = await prisma.subject.findMany({ select: { id: true } });
-      await prisma.enrollment.createMany({
-        data: subjects.map(s => ({ studentId: user.id, subjectId: s.id })),
-        skipDuplicates: true,
-      });
-    }
 
     return NextResponse.json({ success: true, portalId: user.portalId });
   } catch (err) {
@@ -70,17 +62,18 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Toggle active / update grade
+// Toggle active / update grade / stream
 export async function PATCH(req: NextRequest) {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    const { id, active, grade } = await req.json();
+    const { id, active, grade, stream } = await req.json();
     if (!id) return NextResponse.json({ error: 'id is required.' }, { status: 400 });
     await prisma.user.update({
       where: { id },
       data: {
-        ...(active !== undefined ? { active: !!active } : {}),
-        ...(grade !== undefined ? { grade } : {}),
+        ...(active  !== undefined ? { active: !!active }   : {}),
+        ...(grade   !== undefined ? { grade }              : {}),
+        ...(stream  !== undefined ? { stream }             : {}),
       },
     });
     return NextResponse.json({ success: true });

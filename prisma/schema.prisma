@@ -90,6 +90,7 @@ model User {
   password      String?           // bcrypt hash — null for OAuth-only users
   role          String    @default("student")  // student | teacher | parent | admin
   portalId      String?   @unique              // e.g. STU2024001 or TCH001
+  schoolEmail   String?   @unique              // e.g. STU2024001@sidelile.edu.za
   grade         String?                        // Grade 10 / 11 / 12 (students only)
   stream        String?                        // A / B / C / D — class section within a grade
   active        Boolean   @default(true)

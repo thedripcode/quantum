@@ -15,7 +15,7 @@ async function requireAdmin() {
 export async function GET() {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const users = await prisma.user.findMany({
-    select: { id: true, name: true, email: true, role: true, portalId: true, grade: true, stream: true, active: true, createdAt: true },
+    select: { id: true, name: true, email: true, role: true, portalId: true, schoolEmail: true, grade: true, stream: true, active: true, createdAt: true },
     orderBy: [{ role: 'asc' }, { name: 'asc' }],
   });
   return NextResponse.json({ users });
@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
       ? `${prefix}${String(count + 1).padStart(3, '0')}`
       : `${prefix}${year}${String(count + 1).padStart(3, '0')}`;
 
+    const schoolEmail = `${portalId.toLowerCase()}@sidelile.edu.za`;
+
     const user = await prisma.user.create({
       data: {
         name: name.trim(),
@@ -49,13 +51,14 @@ export async function POST(req: NextRequest) {
         password: await bcrypt.hash(password, 12),
         role,
         portalId,
+        schoolEmail,
         grade:  role === 'student' ? (grade || null)  : null,
         stream: role === 'student' ? (stream || null) : null,
         active: true,
       },
     });
 
-    return NextResponse.json({ success: true, portalId: user.portalId });
+    return NextResponse.json({ success: true, portalId: user.portalId, schoolEmail: user.schoolEmail });
   } catch (err) {
     console.error('Admin create user error:', err);
     return NextResponse.json({ error: 'Could not create user.' }, { status: 500 });

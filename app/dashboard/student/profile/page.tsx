@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Edit2, Save, X, Camera, User, BookOpen, Heart, Phone } from 'lucide-react';
+import { Edit2, Save, X, Camera, User, BookOpen, Heart, Phone, Copy, Check } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useStudentData } from '@/lib/useStudentData';
 
@@ -43,15 +43,31 @@ function Section({ icon, title, children }: { icon: React.ReactNode; title: stri
   );
 }
 
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button onClick={copy} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.20)', color: copied ? '#10B981' : GOLD, fontSize: 11, fontWeight: 600, cursor: 'pointer', marginLeft: 8, fontFamily: F_BODY }}>
+      {copied ? <><Check size={10} /> Copied</> : <><Copy size={10} /> Copy</>}
+    </button>
+  );
+}
+
 export default function ProfilePage() {
   const { data: session } = useSession();
   const { data: studentData } = useStudentData();
   const SUBJECTS = studentData.subjects;
 
-  const fullName = session?.user?.name ?? '…';
-  const portalId = (session?.user as any)?.portalId ?? '—';
-  const grade    = (session?.user as any)?.grade ?? '—';
-  const initials = fullName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
+  const fullName   = session?.user?.name ?? '…';
+  const portalId   = (session?.user as any)?.portalId ?? '—';
+  const grade      = (session?.user as any)?.grade ?? '—';
+  const stream     = (session?.user as any)?.stream ?? '';
+  const schoolEmail = portalId !== '—' ? `${portalId.toLowerCase()}@sidelile.edu.za` : '—';
+  const initials   = fullName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
 
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -88,15 +104,22 @@ export default function ProfilePage() {
         </div>
 
         {/* Info */}
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontFamily: F_HEADING, fontSize: 24, fontWeight: 800, color: TEXT, margin: '0 0 4px', letterSpacing: '-0.03em' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h2 style={{ fontFamily: F_HEADING, fontSize: 24, fontWeight: 800, color: TEXT, margin: '0 0 6px', letterSpacing: '-0.03em' }}>
             {fullName}
           </h2>
-          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, color: MUTED }}>{grade}</span>
-            <span style={{ fontSize: 13, color: MUTED }}>·</span>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 8 }}>
+            <span style={{ fontSize: 13, color: MUTED }}>{grade}{stream ? ` ${stream}` : ''}</span>
+            <span style={{ fontSize: 13, color: FAINT }}>·</span>
             <span style={{ fontSize: 13, color: MUTED }}>{portalId}</span>
           </div>
+          {/* School email badge */}
+          {schoolEmail !== '—' && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 8 }}>
+              <span style={{ fontSize: 12, color: GOLD, fontWeight: 600, fontFamily: F_BODY }}>{schoolEmail}</span>
+              <CopyButton value={schoolEmail} />
+            </div>
+          )}
         </div>
 
         {/* Edit button */}
@@ -136,7 +159,8 @@ export default function ProfilePage() {
       {/* Academic Details */}
       <Section icon={<BookOpen size={14} />} title="Academic Details">
         <InfoRow label="Student Number" value={portalId} editable={false} />
-        <InfoRow label="Grade" value={grade} editable={false} />
+        <InfoRow label="School Email" value={schoolEmail} editable={false} />
+        <InfoRow label="Grade" value={`${grade}${stream ? ` ${stream}` : ''}`} editable={false} />
         <InfoRow label="Subjects" value={SUBJECTS.map(s => s.short).join(', ')} editable={false} />
       </Section>
 

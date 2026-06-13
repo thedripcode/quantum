@@ -9,7 +9,7 @@ import {
   LayoutDashboard, BarChart2, ClipboardList, Calendar,
   CheckSquare, BookOpen, Brain, Bell, MessageSquare,
   Award, Target, User, Users, LogOut, ChevronLeft, Menu,
-  AlertTriangle, FileText,
+  AlertTriangle, FileText, ScrollText,
 } from 'lucide-react';
 import { useStudentData } from '@/lib/useStudentData';
 
@@ -223,6 +223,7 @@ const NAV = [
     section: 'Academic',
     items: [
       { label: 'My Marks',   href: '/dashboard/student/marks',        Icon: BarChart2,       badge: null,  gold: false },
+      { label: 'Report Card', href: '/dashboard/student/report',      Icon: ScrollText,      badge: null,  gold: true  },
       { label: 'Assignments',href: '/dashboard/student/assignments',   Icon: ClipboardList,   badge: '3',   gold: false },
       { label: 'Timetable',  href: '/dashboard/student/timetable',    Icon: Calendar,        badge: null,  gold: false },
       { label: 'Attendance', href: '/dashboard/student/attendance',   Icon: CheckSquare,     badge: null,  gold: false },

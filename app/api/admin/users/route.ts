@@ -69,15 +69,16 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    const { id, active, grade, stream } = await req.json();
+    const { id, active, grade, stream, linkedStudentId } = await req.json();
     if (!id) return NextResponse.json({ error: 'id is required.' }, { status: 400 });
     await prisma.user.update({
       where: { id },
       data: {
-        ...(active  !== undefined ? { active: !!active }   : {}),
-        ...(grade   !== undefined ? { grade }              : {}),
-        ...(stream  !== undefined ? { stream }             : {}),
-      },
+        ...(active          !== undefined ? { active: !!active }   : {}),
+        ...(grade           !== undefined ? { grade }              : {}),
+        ...(stream          !== undefined ? { stream }             : {}),
+        ...(linkedStudentId !== undefined ? { linkedStudentId: linkedStudentId || null } : {}),
+      } as any,
     });
     return NextResponse.json({ success: true });
   } catch (err) {

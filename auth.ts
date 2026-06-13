@@ -10,6 +10,7 @@ declare module 'next-auth' {
     role: UserRole;
     portalId?: string | null;
     grade?: string | null;
+    linkedStudentId?: string | null;
   }
   interface Session {
     user: {
@@ -19,6 +20,7 @@ declare module 'next-auth' {
       role: UserRole;
       portalId?: string | null;
       grade?: string | null;
+      linkedStudentId?: string | null;
     };
   }
 }
@@ -72,12 +74,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!valid) return null;
 
         return {
-          id:       user.id,
-          name:     user.name,
-          email:    user.email,
-          role:     user.role as UserRole,
-          portalId: user.portalId,
-          grade:    user.grade,
+          id:              user.id,
+          name:            user.name,
+          email:           user.email,
+          role:            user.role as UserRole,
+          portalId:        user.portalId,
+          grade:           user.grade,
+          linkedStudentId: (user as any).linkedStudentId ?? null,
         };
       },
     }),
@@ -108,6 +111,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (path.startsWith('/dashboard/student') && !['student','parent','admin'].includes(role ?? '')) {
         return Response.redirect(new URL('/student-portal', nextUrl));
       }
+      if (path.startsWith('/dashboard/parent') && role !== 'parent' && role !== 'admin') {
+        return Response.redirect(new URL('/parent-portal', nextUrl));
+      }
 
       return true;
     },
@@ -115,9 +121,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // Persist role + portalId into the JWT
     async jwt({ token, user }) {
       if (user) {
-        token.role     = user.role;
-        token.portalId = user.portalId;
-        token.grade    = user.grade;
+        token.role            = user.role;
+        token.portalId        = user.portalId;
+        token.grade           = user.grade;
+        token.linkedStudentId = user.linkedStudentId;
       }
       return token;
     },
@@ -125,10 +132,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // Expose role + portalId on the session object (available client-side)
     async session({ session, token }) {
       if (session.user) {
-        session.user.id       = token.sub as string;
-        session.user.role     = token.role as UserRole;
-        session.user.portalId = token.portalId as string | null | undefined;
-        session.user.grade    = token.grade as string | null | undefined;
+        session.user.id              = token.sub as string;
+        session.user.role            = token.role as UserRole;
+        session.user.portalId        = token.portalId as string | null | undefined;
+        session.user.grade           = token.grade as string | null | undefined;
+        session.user.linkedStudentId = token.linkedStudentId as string | null | undefined;
       }
       return session;
     },

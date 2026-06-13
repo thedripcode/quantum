@@ -45,6 +45,8 @@ export default function AdminManagePage() {
   const [editingId, setEditingId]     = useState<string | null>(null);
   const [editGrade, setEditGrade]     = useState('Grade 8');
   const [editStream, setEditStream]   = useState('A');
+  const [linkingParentId, setLinkingParentId] = useState<string | null>(null);
+  const [linkStudentId, setLinkStudentId]     = useState<string>('');
   const loadUsers = useCallback(() => fetch('/api/admin/users').then(r => r.json()).then(d => setUsers(d.users ?? [])), []);
 
   // ── Subjects ──
@@ -127,6 +129,16 @@ export default function AdminManagePage() {
     const d = await api('/api/admin/users', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: u.id, active: !u.active }) });
     if (d) { flash(`✓ ${u.name} ${u.active ? 'deactivated' : 'reactivated'}.`); loadUsers(); }
   };
+  const linkParentToStudent = async (parentUser: any) => {
+    const d = await api('/api/admin/users', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: parentUser.id, linkedStudentId: linkStudentId }) });
+    if (d) {
+      const student = users.find(u => u.id === linkStudentId);
+      flash(`✓ ${parentUser.name} linked to ${student?.name ?? 'student'}.`);
+      setLinkingParentId(null);
+      loadUsers();
+    }
+  };
+
   const deleteUser = async (u: any) => {
     if (!confirm(`Delete ${u.name} (${u.portalId})? Their marks and attendance are removed too.`)) return;
     const d = await api(`/api/admin/users?id=${u.id}`, { method: 'DELETE' });
@@ -214,6 +226,7 @@ export default function AdminManagePage() {
   ];
 
   const teachers = users.filter(u => u.role === 'teacher');
+  const students = users.filter(u => u.role === 'student');
 
   return (
     <div style={{ padding: 24, fontFamily: FB, background: BG, minHeight: '100%' }}>
@@ -309,11 +322,38 @@ export default function AdminManagePage() {
                           {isEditing ? '✕ Cancel' : '✎ Class'}
                         </button>
                       )}
+                      {u.role === 'parent' && (
+                        <button
+                          onClick={() => {
+                            if (linkingParentId === u.id) { setLinkingParentId(null); return; }
+                            setLinkStudentId('');
+                            setLinkingParentId(u.id);
+                          }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer', background: linkingParentId === u.id ? GOLD_DIM : 'rgba(201,168,76,0.06)', border: `1px solid ${linkingParentId === u.id ? GOLD_B : 'rgba(201,168,76,0.20)'}`, color: GOLD, fontSize: 11.5, fontWeight: 600, flexShrink: 0 }}>
+                          {linkingParentId === u.id ? '✕ Cancel' : '🔗 Link Student'}
+                        </button>
+                      )}
                       <button onClick={() => toggleUser(u)} style={{ ...delBtn, background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.25)', color: AMBER }}>
                         <Power size={12} />{u.active ? 'Deactivate' : 'Activate'}
                       </button>
                       <button onClick={() => deleteUser(u)} style={delBtn}><Trash2 size={12} />Delete</button>
                     </div>
+
+                    {/* Inline parent-link editor */}
+                    {linkingParentId === u.id && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: GOLD_DIM, borderTop: `1px solid ${GOLD_B}`, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 12, color: GOLD, fontWeight: 600, flexShrink: 0 }}>Link to student:</span>
+                        <select value={linkStudentId} onChange={e => setLinkStudentId(e.target.value)}
+                          style={{ ...inp, flex: 1, minWidth: 200, cursor: 'pointer', borderColor: GOLD_B, background: S3 }}>
+                          <option value="" style={{ background: S2 }}>— Remove link —</option>
+                          {students.map(s => <option key={s.id} value={s.id} style={{ background: S2 }}>{s.name} ({s.portalId}){s.grade ? ` · ${s.grade}` : ''}</option>)}
+                        </select>
+                        <button onClick={() => linkParentToStudent(u)} disabled={busy}
+                          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 9, background: GOLD, border: 'none', color: '#000', fontFamily: FH, fontSize: 13, fontWeight: 700, cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1, flexShrink: 0 }}>
+                          {busy ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Save Link
+                        </button>
+                      </div>
+                    )}
 
                     {/* Inline class editor */}
                     {isEditing && (

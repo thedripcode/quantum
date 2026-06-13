@@ -42,6 +42,9 @@ export default function AdminManagePage() {
   // ── People ──
   const [users, setUsers] = useState<any[]>([]);
   const [uForm, setUForm] = useState({ name: '', email: '', password: '', role: 'student', grade: 'Grade 8', stream: 'A' });
+  const [editingId, setEditingId]     = useState<string | null>(null);
+  const [editGrade, setEditGrade]     = useState('Grade 8');
+  const [editStream, setEditStream]   = useState('A');
   const loadUsers = useCallback(() => fetch('/api/admin/users').then(r => r.json()).then(d => setUsers(d.users ?? [])), []);
 
   // ── Subjects ──
@@ -115,6 +118,10 @@ export default function AdminManagePage() {
     const body = { ...uForm, stream: uForm.role === 'student' ? uForm.stream : undefined };
     const d = await api('/api/admin/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (d) { flash(`✓ Created — portal ID ${d.portalId}`); setUForm({ name: '', email: '', password: '', role: 'student', grade: 'Grade 8', stream: 'A' }); loadUsers(); }
+  };
+  const saveClass = async (u: any) => {
+    const d = await api('/api/admin/users', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: u.id, grade: editGrade, stream: editStream }) });
+    if (d) { flash(`✓ ${u.name} moved to ${editGrade} ${editStream}.`); setEditingId(null); loadUsers(); }
   };
   const toggleUser = async (u: any) => {
     const d = await api('/api/admin/users', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: u.id, active: !u.active }) });
@@ -274,20 +281,61 @@ export default function AdminManagePage() {
             <h3 style={{ fontFamily: FH, fontSize: 15, fontWeight: 600, color: TEXT, margin: '0 0 16px' }}>All Users ({users.length})</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {users.map(u => {
-                const streamTag = u.grade && u.stream ? ` ${u.stream}` : '';
-                const classLabel = u.grade ? `${u.grade}${streamTag}` : null;
+                const classLabel = u.grade ? `${u.grade}${u.stream ? ' ' + u.stream : ''}` : null;
+                const isEditing  = editingId === u.id;
                 return (
-                  <div key={u.id} style={{ ...row, opacity: u.active ? 1 : 0.45 }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 500, color: TEXT }}>
-                        {u.name} {!u.active && <span style={{ fontSize: 10, color: RED }}>(inactive)</span>}
+                  <div key={u.id} style={{ borderRadius: 10, border: `1px solid ${isEditing ? GOLD_B : BORDER}`, overflow: 'hidden' }}>
+                    {/* Main row */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: S2, opacity: u.active ? 1 : 0.45 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 500, color: TEXT }}>
+                          {u.name} {!u.active && <span style={{ fontSize: 10, color: RED }}>(inactive)</span>}
+                        </div>
+                        <div style={{ fontSize: 11, color: FAINT }}>
+                          {u.portalId} · {u.role}
+                          {classLabel && <span style={{ color: GOLD, fontWeight: 600 }}> · {classLabel}</span>}
+                          {' · '}{u.email}
+                        </div>
                       </div>
-                      <div style={{ fontSize: 11, color: FAINT }}>{u.portalId} · {u.role}{classLabel ? ` · ${classLabel}` : ''} · {u.email}</div>
+                      {u.role === 'student' && (
+                        <button
+                          onClick={() => {
+                            if (isEditing) { setEditingId(null); return; }
+                            setEditGrade(u.grade ?? 'Grade 8');
+                            setEditStream(u.stream ?? 'A');
+                            setEditingId(u.id);
+                          }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer', background: isEditing ? GOLD_DIM : 'rgba(201,168,76,0.06)', border: `1px solid ${isEditing ? GOLD_B : 'rgba(201,168,76,0.20)'}`, color: GOLD, fontSize: 11.5, fontWeight: 600, flexShrink: 0 }}>
+                          {isEditing ? '✕ Cancel' : '✎ Class'}
+                        </button>
+                      )}
+                      <button onClick={() => toggleUser(u)} style={{ ...delBtn, background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.25)', color: AMBER }}>
+                        <Power size={12} />{u.active ? 'Deactivate' : 'Activate'}
+                      </button>
+                      <button onClick={() => deleteUser(u)} style={delBtn}><Trash2 size={12} />Delete</button>
                     </div>
-                    <button onClick={() => toggleUser(u)} style={{ ...delBtn, background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.25)', color: AMBER }}>
-                      <Power size={12} />{u.active ? 'Deactivate' : 'Activate'}
-                    </button>
-                    <button onClick={() => deleteUser(u)} style={delBtn}><Trash2 size={12} />Delete</button>
+
+                    {/* Inline class editor */}
+                    {isEditing && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: GOLD_DIM, borderTop: `1px solid ${GOLD_B}`, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 12, color: GOLD, fontWeight: 600, flexShrink: 0 }}>Assign class:</span>
+                        <select value={editGrade} onChange={e => setEditGrade(e.target.value)}
+                          style={{ ...inp, width: 130, cursor: 'pointer', borderColor: GOLD_B, background: S3 }}>
+                          {ALL_GRADES.map(g => <option key={g} style={{ background: S2 }}>{g}</option>)}
+                        </select>
+                        <select value={editStream} onChange={e => setEditStream(e.target.value)}
+                          style={{ ...inp, width: 100, cursor: 'pointer', borderColor: GOLD_B, background: S3 }}>
+                          {STREAMS.map(s => <option key={s} style={{ background: S2 }}>Stream {s}</option>)}
+                        </select>
+                        <button onClick={() => saveClass(u)} disabled={busy}
+                          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 9, background: GOLD, border: 'none', color: '#000', fontFamily: FH, fontSize: 13, fontWeight: 700, cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1, flexShrink: 0 }}>
+                          {busy ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Save
+                        </button>
+                        <span style={{ fontSize: 11, color: 'rgba(201,168,76,0.60)' }}>
+                          → {editGrade} {editStream}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 );
               })}

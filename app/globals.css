@@ -125,6 +125,65 @@
   }
 }
 
+/* ── Portal responsive grid helpers ──────────────────────────────────────── */
+.portal-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.portal-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+}
+
+.portal-sidebar-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+}
+
+.portal-notice-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.admin-topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .portal-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .portal-main-grid,
+  .portal-sidebar-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-notice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-topbar-search {
+    display: none;
+  }
+
+  /* Reduce portal page padding on mobile */
+  .portal-page-body {
+    padding: 16px 14px !important;
+  }
+}
+
 @layer utilities {
   /* Scrollbar */
   .scrollbar-thin::-webkit-scrollbar       { width: 4px; }

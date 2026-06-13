@@ -109,7 +109,7 @@ export default function StudentDashboardPage() {
       )}
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+      <div className="portal-stats-grid">
         {[
           { label: 'Overall Average', value: OVERALL_AVERAGE > 0 ? `${OVERALL_AVERAGE}%` : '—', sub: `${SUBJECTS.length} subjects`, icon: <TrendingUp size={16} style={{ color: GOLD }} />, accent: GOLD },
           { label: 'Attendance', value: overallAttendance.total > 0 ? `${overallAttendance.percentage}%` : '—', sub: overallAttendance.total > 0 ? `${overallAttendance.attended} / ${overallAttendance.total} days` : 'No records yet', icon: <BookOpen size={16} style={{ color: '#10B981' }} />, accent: '#10B981' },
@@ -128,7 +128,7 @@ export default function StudentDashboardPage() {
       </div>
 
       {/* Main grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
+      <div className="portal-main-grid">
         {/* Left: subjects + assignments */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 

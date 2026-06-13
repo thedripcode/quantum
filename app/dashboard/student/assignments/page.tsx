@@ -134,7 +134,7 @@ export default function AssignmentsPage() {
   return (
     <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%' }}>
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 22 }}>
+      <div className="portal-stats-grid" style={{ marginBottom: 22 }}>
         {[
           { label: 'Overdue', value: counts.overdue, color: RED },
           { label: 'Pending', value: counts.pending, color: AMBER },

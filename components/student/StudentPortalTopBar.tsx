@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { Bell, Search, X, ChevronDown, Check, User, Settings, LogOut } from 'lucide-react';
+import { Bell, Search, X, ChevronDown, Check, User, Settings, LogOut, Menu } from 'lucide-react';
 import { NOTICES, MESSAGES } from '@/data/studentData';
 
 const BG      = '#0C0C0C';
@@ -27,7 +27,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/student/parent-view':  'Parent View',
 };
 
-export default function StudentPortalTopBar() {
+export default function StudentPortalTopBar({ onMenuClick }: { onMenuClick?: () => void }) {
   const pathname = usePathname();
   const { data: session } = useSession();
 
@@ -89,6 +89,15 @@ export default function StudentPortalTopBar() {
       borderBottom: `1px solid ${BORDER}`, flexShrink: 0,
       position: 'sticky', top: 0, zIndex: 30,
     }}>
+
+      {/* Hamburger — mobile only */}
+      <button
+        onClick={onMenuClick}
+        className="flex lg:hidden"
+        style={{ width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: MUTED, flexShrink: 0 }}
+      >
+        <Menu size={18} />
+      </button>
 
       {/* Title */}
       <div style={{ flex: 1 }}>

@@ -188,7 +188,7 @@ export default function AdminManagePage() {
 
       {/* ── PEOPLE ── */}
       {tab === 'people' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 16, alignItems: 'start' }}>
+        <div className="portal-notice-grid">
           <div style={card}>
             <h3 style={{ fontFamily: FH, fontSize: 15, fontWeight: 600, color: TEXT, margin: '0 0 16px' }}>Add Person</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -235,7 +235,7 @@ export default function AdminManagePage() {
 
       {/* ── SUBJECTS ── */}
       {tab === 'subjects' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 16, alignItems: 'start' }}>
+        <div className="portal-notice-grid">
           <div style={card}>
             <h3 style={{ fontFamily: FH, fontSize: 15, fontWeight: 600, color: TEXT, margin: '0 0 16px' }}>Add Subject</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

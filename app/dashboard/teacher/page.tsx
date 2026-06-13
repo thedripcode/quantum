@@ -64,7 +64,7 @@ export default function TeacherDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+      <div className="portal-stats-grid">
         {[
           { label: 'Learners',        value: loading ? '…' : String(students.length),                       sub: 'enrolled',                    Icon: Users,     color: '#C4B5FD' },
           { label: 'Subjects',        value: loading ? '…' : String(subjects.length),                        sub: 'on offer',                    Icon: BookOpen,  color: '#60A5FA' },
@@ -95,7 +95,7 @@ export default function TeacherDashboardPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20 }}>
+      <div className="portal-sidebar-grid">
         {/* Recent marks */}
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '18px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>

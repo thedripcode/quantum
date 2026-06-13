@@ -84,7 +84,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat cards — 4 col */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="portal-stats-grid">
         {stats.map(s => {
           const Icon = s.icon;
           return (
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick action cards — 4 col */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 26 }}>
+      <div className="portal-stats-grid" style={{ marginBottom: 26 }}>
         {quickActions.map(a => {
           const Icon = a.icon;
           return (
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Bottom two-col layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
+      <div className="portal-main-grid">
 
         {/* LEFT — recent applications + grade overview */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>

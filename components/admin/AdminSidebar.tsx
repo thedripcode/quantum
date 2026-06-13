@@ -25,13 +25,23 @@ const goldPulse = keyframes`
   50%      { box-shadow: 0 0 0 6px rgba(201,168,76,0.12); }
 `;
 
-const Aside = styled.aside<{ $col: boolean }>`
+const Aside = styled.aside<{ $col: boolean; $mobileOpen: boolean }>`
   width: ${p => p.$col ? '64px' : '240px'};
   flex-shrink: 0; height: 100vh; position: sticky; top: 0;
   background: ${BG}; border-right: 1px solid ${BORDER};
   display: flex; flex-direction: column;
   transition: width 0.28s cubic-bezier(0.33,1,0.68,1);
   overflow: hidden; z-index: 40;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    height: 100dvh;
+    width: 240px !important;
+    transform: ${p => p.$mobileOpen ? 'translateX(0)' : 'translateX(-100%)'};
+    transition: transform 0.3s cubic-bezier(0.33,1,0.68,1);
+    z-index: 50;
+  }
 `;
 
 const Brand = styled.div<{ $col: boolean }>`
@@ -139,7 +149,7 @@ const NAV = [
   ]},
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ mobileOpen = false, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const router   = useRouter();
   const [col, setCol] = useState(false);
@@ -148,7 +158,7 @@ export default function AdminSidebar() {
     href === '/admin' ? pathname === href : pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <Aside $col={col}>
+    <Aside $col={col} $mobileOpen={mobileOpen}>
       <Brand $col={col}>
         <BrandDot><Shield size={13} /></BrandDot>
         {!col && (
@@ -177,7 +187,7 @@ export default function AdminSidebar() {
               const a = isA(href);
               return (
                 <NI key={href} $a={a} $g={gold} $col={col}
-                  onClick={() => router.push(href)} title={col ? label : undefined}>
+                  onClick={() => { router.push(href); onClose?.(); }} title={col ? label : undefined}>
                   <Icon size={15} strokeWidth={a ? 2 : 1.6} style={{ flexShrink: 0 }} />
                   {!col && <NLabel>{label}</NLabel>}
                   {!col && badge && <Bdg>{badge}</Bdg>}

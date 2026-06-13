@@ -24,7 +24,7 @@ const TEXT       = '#FFFFFF';
 const MUTED      = 'rgba(255,255,255,0.45)';
 const FAINT      = 'rgba(255,255,255,0.22)';
 
-const Aside = styled.aside<{ $collapsed: boolean }>`
+const Aside = styled.aside<{ $collapsed: boolean; $mobileOpen: boolean }>`
   width: ${({ $collapsed }) => ($collapsed ? '64px' : '240px')};
   flex-shrink: 0;
   height: 100vh;
@@ -37,6 +37,18 @@ const Aside = styled.aside<{ $collapsed: boolean }>`
   transition: width 0.28s cubic-bezier(0.33,1,0.68,1);
   overflow: hidden;
   z-index: 40;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100dvh;
+    width: 240px !important;
+    transform: ${({ $mobileOpen }) => $mobileOpen ? 'translateX(0)' : 'translateX(-100%)'};
+    transition: transform 0.3s cubic-bezier(0.33,1,0.68,1);
+    z-index: 50;
+  }
 `;
 
 const Brand = styled.div<{ $collapsed: boolean }>`
@@ -237,7 +249,7 @@ const NAV = [
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function StudentPortalSidebar() {
+export default function StudentPortalSidebar({ mobileOpen = false, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
   const pathname   = usePathname();
   const router     = useRouter();
   const { data: session } = useSession();
@@ -256,7 +268,7 @@ export default function StudentPortalSidebar() {
       : pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <Aside $collapsed={collapsed}>
+    <Aside $collapsed={collapsed} $mobileOpen={mobileOpen}>
       {/* Brand */}
       <Brand $collapsed={collapsed}>
         <BrandDot>S</BrandDot>
@@ -307,7 +319,7 @@ export default function StudentPortalSidebar() {
                   $active={active}
                   $gold={gold}
                   $collapsed={collapsed}
-                  onClick={() => router.push(href)}
+                  onClick={() => { router.push(href); onClose?.(); }}
                   title={collapsed ? label : undefined}
                 >
                   <Icon size={15} strokeWidth={active ? 2 : 1.6} style={{ flexShrink: 0 }} />

@@ -127,7 +127,7 @@ export default function AttendancePage() {
   return (
     <div style={{ padding: 24, fontFamily: F_BODY, background: BG, minHeight: '100%' }}>
       {/* Summary stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+      <div className="portal-stats-grid">
         <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 14, padding: 18, display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ position: 'relative' }}>
             <Donut pct={overall.percentage} color={GOLD} size={64} />
@@ -159,7 +159,7 @@ export default function AttendancePage() {
       </div>
 
       {/* Main grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
+      <div className="portal-main-grid">
         {/* Left: recent register + absence notes */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           {/* Recent register */}

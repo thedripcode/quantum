@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import styled from 'styled-components';
-import { Bell, Search, X, Shield, ChevronDown } from 'lucide-react';
+import { Bell, Search, X, Shield, ChevronDown, Menu } from 'lucide-react';
 
 const BG = '#0C0C0C';
 const SURFACE = '#161616';
@@ -99,7 +99,7 @@ const NOTIFS = [
   { id: 4, text: 'Grade 12A term report ready',        time: 'Yesterday',read: true  },
 ];
 
-export default function AdminTopBar() {
+export default function AdminTopBar({ onMenuClick }: { onMenuClick?: () => void }) {
   const pathname = usePathname();
   const [notifOpen, setNotifOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -125,13 +125,22 @@ export default function AdminTopBar() {
 
   return (
     <Header>
+      {/* Hamburger — mobile only */}
+      <button
+        onClick={onMenuClick}
+        className="flex lg:hidden"
+        style={{ width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: MUTED, flexShrink: 0 }}
+      >
+        <Menu size={18} />
+      </button>
+
       <PageInfo>
         <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.02em' }}>{title}</h1>
         <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>Term 3 · 2025 · Sidelile High School</p>
       </PageInfo>
 
-      {/* Search */}
-      <SearchWrap>
+      {/* Search — hidden on mobile */}
+      <SearchWrap className="admin-topbar-search">
         <Search size={13} style={{ color: FAINT, flexShrink: 0 }} />
         <SearchInput value={search} onChange={e => setSearch(e.target.value)} placeholder="Search students, teachers…" />
         {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: FAINT, display: 'flex' }}><X size={12} /></button>}

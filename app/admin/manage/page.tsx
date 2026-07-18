@@ -6,11 +6,11 @@ import {
   Trash2, Plus, Save, Loader2, Power, Link2, CheckSquare, Square,
 } from 'lucide-react';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E'; const S3 = '#232323';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.10)'; const GOLD_B = 'rgba(201,168,76,0.30)';
+const BG = '#081420'; const SURFACE = '#0E1E30'; const S2 = '#14283E'; const S3 = '#182E46';
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.10)'; const GOLD_B = 'rgba(96,165,250,0.30)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.25)';
 const GREEN = '#10B981'; const RED = '#EF4444'; const AMBER = '#F59E0B'; const BLUE = '#3B82F6';
-const FH = "'Bricolage Grotesque', sans-serif"; const FB = "'Inter', sans-serif";
+const FH = "'Roboto Condensed', sans-serif"; const FB = "'Inter', sans-serif";
 
 const inp: React.CSSProperties = { background: S2, border: `1px solid ${BORDER}`, borderRadius: 9, color: TEXT, fontFamily: FB, fontSize: 13, padding: '9px 12px', outline: 'none', width: '100%', boxSizing: 'border-box' };
 const lbl: React.CSSProperties = { fontSize: 11, color: MUTED, fontWeight: 600, display: 'block', marginBottom: 6, letterSpacing: '0.05em' };
@@ -318,7 +318,7 @@ export default function AdminManagePage() {
                             setEditStream(u.stream ?? 'A');
                             setEditingId(u.id);
                           }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer', background: isEditing ? GOLD_DIM : 'rgba(201,168,76,0.06)', border: `1px solid ${isEditing ? GOLD_B : 'rgba(201,168,76,0.20)'}`, color: GOLD, fontSize: 11.5, fontWeight: 600, flexShrink: 0 }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer', background: isEditing ? GOLD_DIM : 'rgba(96,165,250,0.06)', border: `1px solid ${isEditing ? GOLD_B : 'rgba(96,165,250,0.20)'}`, color: GOLD, fontSize: 11.5, fontWeight: 600, flexShrink: 0 }}>
                           {isEditing ? '✕ Cancel' : '✎ Class'}
                         </button>
                       )}
@@ -329,7 +329,7 @@ export default function AdminManagePage() {
                             setLinkStudentId('');
                             setLinkingParentId(u.id);
                           }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer', background: linkingParentId === u.id ? GOLD_DIM : 'rgba(201,168,76,0.06)', border: `1px solid ${linkingParentId === u.id ? GOLD_B : 'rgba(201,168,76,0.20)'}`, color: GOLD, fontSize: 11.5, fontWeight: 600, flexShrink: 0 }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer', background: linkingParentId === u.id ? GOLD_DIM : 'rgba(96,165,250,0.06)', border: `1px solid ${linkingParentId === u.id ? GOLD_B : 'rgba(96,165,250,0.20)'}`, color: GOLD, fontSize: 11.5, fontWeight: 600, flexShrink: 0 }}>
                           {linkingParentId === u.id ? '✕ Cancel' : '🔗 Link Student'}
                         </button>
                       )}
@@ -371,7 +371,7 @@ export default function AdminManagePage() {
                           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 9, background: GOLD, border: 'none', color: '#000', fontFamily: FH, fontSize: 13, fontWeight: 700, cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1, flexShrink: 0 }}>
                           {busy ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Save
                         </button>
-                        <span style={{ fontSize: 11, color: 'rgba(201,168,76,0.60)' }}>
+                        <span style={{ fontSize: 11, color: 'rgba(96,165,250,0.60)' }}>
                           → {editGrade} {editStream}
                         </span>
                       </div>

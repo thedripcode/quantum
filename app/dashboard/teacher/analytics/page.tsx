@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { BarChart,Bar,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer,Cell,LineChart,Line } from 'recharts';
 import { Loader2, TrendingUp, Users, Award, AlertTriangle } from 'lucide-react';
 
-const BG='#0C0C0C',S2='#171717',S3='#1E1E1E';
+const BG='#081420',S2='#0F2032',S3='#14283E';
 const BORDER='rgba(255,255,255,0.07)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
-const GOLD='#C9A84C',GREEN='#10B981',RED='#EF4444',AMBER='#F59E0B',BLUE='#3B82F6';
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
+const GOLD='#60a5fa',GREEN='#10B981',RED='#EF4444',AMBER='#F59E0B',BLUE='#3B82F6';
 
 const tipStyle={contentStyle:{background:S3,border:'1px solid rgba(255,255,255,0.10)',borderRadius:10,fontSize:12,color:TEXT}};
 const axisProps={fill:MUTED,fontSize:11};

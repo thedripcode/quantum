@@ -683,7 +683,7 @@ export const MESSAGES: Message[] = [
     from: 'Admin — Sidelile',
     fromRole: 'admin',
     fromInitials: 'SA',
-    fromColor: '#C9A84C',
+    fromColor: '#60a5fa',
     subject: 'Portal Maintenance — Saturday 14 September',
     preview: 'Please note that the student portal will be undergoing maintenance...',
     body: 'Dear Thabo,\n\nPlease note that the Sidelile student portal will be offline for scheduled maintenance on Saturday 14 September from 08:00 to 14:00.\n\nAll data will be preserved. If you have urgent queries, email support@sidelile.edu.za.\n\nThank you for your understanding.',

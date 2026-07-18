@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Eye, X, AlertTriangle, TrendingUp } from 'lucide-react';
 import { STUDENT, SUBJECTS, OVERALL_AVERAGE, AT_RISK_SUBJECTS, NOTICES, MESSAGES, OVERALL_ATTENDANCE } from '@/data/studentData';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
+const BG = '#081420'; const SURFACE = '#0E1E30'; const S2 = '#14283E';
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.08)'; const GOLD_B = 'rgba(96,165,250,0.22)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
 const RED = '#EF4444'; const GREEN = '#10B981';
-const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
+const F_HEADING = "'Roboto Condensed', sans-serif"; const F_BODY = "'Inter', sans-serif";
 
 export default function ParentViewPage() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function ParentViewPage() {
       <div style={{ background: GOLD_DIM, borderBottom: `1px solid ${GOLD_B}`, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <Eye size={16} style={{ color: GOLD }} />
         <span style={{ fontSize: 13, fontWeight: 600, color: GOLD }}>You are viewing what your parent sees</span>
-        <span style={{ fontSize: 12, color: 'rgba(201,168,76,0.65)', marginLeft: 4 }}>— This shows the limited parent portal view</span>
+        <span style={{ fontSize: 12, color: 'rgba(96,165,250,0.65)', marginLeft: 4 }}>— This shows the limited parent portal view</span>
         <button
           onClick={() => router.push('/dashboard/student')}
           style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: GOLD, border: 'none', borderRadius: 8, cursor: 'pointer', color: '#000', fontSize: 12, fontWeight: 700 }}

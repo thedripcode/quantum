@@ -4,10 +4,10 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Search, X } from 'lucide-react';
 import { STUDENTS, TEACHERS } from '@/lib/teacher/mockData';
 
-const BG='#0C0C0C',S1='#111111',S2='#171717',S3='#1E1E1E';
+const BG='#081420',S1='#0C1A2B',S2='#0F2032',S3='#14283E';
 const BORDER='rgba(255,255,255,0.07)',BORDER2='rgba(255,255,255,0.12)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
 
 interface Contact { id:string; name:string; initials:string; role:string; color:string; }
 interface Msg { id:string; from:'me'|'them'; text:string; time:string; }

@@ -110,12 +110,8 @@ const Page = styled.div`
   overflow: hidden;
   padding: 40px 20px;
 
-  /* Deep blue gradient background */
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(29,78,216,0.45) 0%, transparent 55%),
-    radial-gradient(ellipse at 80% 20%, rgba(37,99,235,0.30) 0%, transparent 50%),
-    radial-gradient(ellipse at 60% 90%, rgba(14,165,233,0.20) 0%, transparent 45%),
-    #071237;
+  /* Educare paper background */
+  background: #F6F7F4;
 `;
 
 const SymbolEl = styled.span<{
@@ -129,14 +125,13 @@ const SymbolEl = styled.span<{
   font-family: 'Georgia', 'Times New Roman', serif;
   font-style: italic;
   font-weight: 700;
-  color: rgba(147,197,253, ${p => p.$opacity});
+  color: rgba(10,30,46, ${p => p.$opacity});
   line-height: 1;
   pointer-events: none;
   user-select: none;
   --r: ${p => p.$rot}deg;
   transform: rotate(${p => p.$rot}deg);
   animation: ${p => FLOAT_ANIMS[p.$animIdx % 3]} ${p => 5 + (p.$delay % 3)}s ease-in-out ${p => p.$delay}s infinite;
-  text-shadow: 0 0 40px rgba(96,165,250,0.18);
 `;
 
 /* Subtle grid overlay */
@@ -144,8 +139,8 @@ const Grid = styled.div`
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(10,30,46,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,30,46,0.03) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
 `;
@@ -164,28 +159,24 @@ const BackLink = styled(Link)`
   font-family: ${F.body};
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.38);
+  color: rgba(10,30,46,0.50);
   text-decoration: none;
   margin-bottom: 28px;
   transition: color 0.2s ease;
 
-  &:hover { color: rgba(255,255,255,0.80); }
+  &:hover { color: rgba(10,30,46,0.90); }
 `;
 
 const Card = styled(motion.div)`
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 28px;
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
+  background: #ffffff;
+  border: 1px solid rgba(10,30,46,0.12);
+  border-radius: 10px;
   padding: 44px 40px 36px;
-  box-shadow:
-    0 48px 120px rgba(0,0,0,0.60),
-    0 0 0 1px rgba(255,255,255,0.06) inset;
+  box-shadow: 0 24px 64px rgba(10,30,46,0.10);
 
   @media (max-width: 480px) {
     padding: 36px 28px 28px;
-    border-radius: 20px;
+    border-radius: 8px;
   }
 `;
 
@@ -193,9 +184,8 @@ const Card = styled(motion.div)`
 const BadgeRing = styled.div`
   width: 64px;
   height: 64px;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  background: #0a1e2e;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -216,7 +206,7 @@ const FieldLabel = styled.label`
   font-weight: 600;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.45);
+  color: rgba(10,30,46,0.55);
 `;
 
 const InputWrap = styled.div`
@@ -229,7 +219,7 @@ const InputIcon = styled.div`
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  color: rgba(255,255,255,0.28);
+  color: rgba(10,30,46,0.35);
   display: flex;
   align-items: center;
 `;
@@ -237,24 +227,23 @@ const InputIcon = styled.div`
 const StyledInput = styled.input`
   width: 100%;
   padding: 13px 14px 13px 42px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.10);
-  color: #ffffff;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(10,30,46,0.18);
+  color: #0a1e2e;
   font-family: ${F.body};
   font-size: 13.5px;
-  font-weight: 300;
+  font-weight: 400;
   outline: none;
   transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
   -webkit-appearance: none;
 
-  &::placeholder { color: rgba(255,255,255,0.22); }
+  &::placeholder { color: rgba(10,30,46,0.30); }
 
   &:focus {
-    border-color: rgba(96,165,250,0.60);
-    background: rgba(96,165,250,0.07);
-    box-shadow: 0 0 0 3px rgba(96,165,250,0.14);
+    border-color: rgba(30,58,138,0.70);
+    box-shadow: 0 0 0 3px rgba(30,58,138,0.12);
   }
 `;
 
@@ -266,22 +255,22 @@ const EyeBtn = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: rgba(255,255,255,0.28);
+  color: rgba(10,30,46,0.35);
   display: flex;
   align-items: center;
   padding: 0;
   transition: color 0.2s ease;
 
-  &:hover { color: rgba(255,255,255,0.70); }
+  &:hover { color: rgba(10,30,46,0.75); }
 `;
 
 /* ── Checkbox ── */
 const CheckBox = styled.div<{ $checked: boolean }>`
   width: 18px;
   height: 18px;
-  border-radius: 6px;
-  background: ${p => p.$checked ? 'rgba(96,165,250,0.90)' : 'rgba(255,255,255,0.06)'};
-  border: 1px solid ${p => p.$checked ? 'rgba(96,165,250,0.90)' : 'rgba(255,255,255,0.16)'};
+  border-radius: 4px;
+  background: ${p => p.$checked ? '#1e3a8a' : '#ffffff'};
+  border: 1px solid ${p => p.$checked ? '#1e3a8a' : 'rgba(10,30,46,0.25)'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -297,12 +286,12 @@ const CheckBox = styled.div<{ $checked: boolean }>`
 const SubmitBtn = styled(motion.button)`
   width: 100%;
   padding: 14px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  border-radius: 6px;
+  background: #1e3a8a;
   border: none;
   color: #ffffff;
   font-family: ${F.heading};
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
   cursor: pointer;
@@ -311,8 +300,8 @@ const SubmitBtn = styled(motion.button)`
   justify-content: center;
   gap: 8px;
   transition: opacity 0.2s ease;
-  box-shadow: 0 4px 24px rgba(37,99,235,0.40);
 
+  &:hover { opacity: 0.90; }
   &:disabled { opacity: 0.55; cursor: default; }
 `;
 
@@ -327,7 +316,7 @@ const Divider = styled.div`
     font-family: ${F.body};
     font-size: 12px;
     font-weight: 400;
-    color: rgba(255,255,255,0.28);
+    color: rgba(10,30,46,0.40);
     white-space: nowrap;
   }
 
@@ -335,7 +324,7 @@ const Divider = styled.div`
     content: '';
     flex: 1;
     height: 1px;
-    background: rgba(255,255,255,0.10);
+    background: rgba(10,30,46,0.10);
   }
 `;
 
@@ -352,10 +341,10 @@ const SocialBtn = styled.button`
   justify-content: center;
   gap: 8px;
   padding: 11px 16px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.72);
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(10,30,46,0.18);
+  color: rgba(10,30,46,0.75);
   font-family: ${F.body};
   font-size: 13px;
   font-weight: 500;
@@ -363,9 +352,9 @@ const SocialBtn = styled.button`
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background: rgba(255,255,255,0.10);
-    border-color: rgba(255,255,255,0.20);
-    color: #ffffff;
+    background: #F6F7F4;
+    border-color: rgba(10,30,46,0.30);
+    color: #0a1e2e;
   }
 `;
 
@@ -373,14 +362,14 @@ const SocialBtn = styled.button`
 const SwitchRow = styled.div`
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid rgba(10,30,46,0.08);
   text-align: center;
   font-family: ${F.body};
   font-size: 13px;
-  color: rgba(255,255,255,0.34);
+  color: rgba(10,30,46,0.50);
 
   a {
-    color: rgba(147,197,253,0.90);
+    color: #1e3a8a;
     font-weight: 600;
     text-decoration: none;
     transition: opacity 0.2s ease;
@@ -397,7 +386,7 @@ const SSLNote = styled.div`
   margin-top: 16px;
   font-family: ${F.body};
   font-size: 11px;
-  color: rgba(255,255,255,0.18);
+  color: rgba(10,30,46,0.30);
 `;
 
 /* ── Google SVG ── */
@@ -518,7 +507,7 @@ export default function LoginForm({ type }: LoginFormProps) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 20 }}>
               <BadgeRing>
                 {badgeErr ? (
-                  <GraduationCap size={28} strokeWidth={1.5} style={{ color: 'rgba(147,197,253,0.80)' }} />
+                  <GraduationCap size={28} strokeWidth={1.5} style={{ color: '#ffffff' }} />
                 ) : (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
@@ -526,13 +515,13 @@ export default function LoginForm({ type }: LoginFormProps) {
                     alt="Sidelile crest"
                     width={48}
                     height={48}
-                    style={{ objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(96,165,250,0.40))' }}
+                    style={{ objectFit: 'contain' }}
                     onError={() => setBadgeErr(true)}
                   />
                 )}
               </BadgeRing>
-              <div style={{ width: 1, height: 40, background: 'rgba(255,255,255,0.10)' }} />
-              <BadgeRing style={{ fontSize: 28 }}>
+              <div style={{ width: 1, height: 40, background: 'rgba(10,30,46,0.12)' }} />
+              <BadgeRing style={{ fontSize: 28, background: '#F6F7F4', border: '1px solid rgba(10,30,46,0.12)' }}>
                 {cfg.emoji}
               </BadgeRing>
             </div>
@@ -541,7 +530,7 @@ export default function LoginForm({ type }: LoginFormProps) {
             <div style={{
               fontFamily: F.body, fontSize: 10, fontWeight: 700,
               letterSpacing: '0.26em', textTransform: 'uppercase',
-              color: 'rgba(147,197,253,0.65)', marginBottom: 8,
+              color: '#1e3a8a', marginBottom: 8,
             }}>
               Sidelile High School
             </div>
@@ -549,17 +538,17 @@ export default function LoginForm({ type }: LoginFormProps) {
             {/* Title */}
             <h1 style={{
               fontFamily: F.heading,
-              fontSize: 'clamp(22px, 3vw, 28px)',
-              fontWeight: 800, color: '#ffffff',
-              letterSpacing: '-0.03em', lineHeight: 1.15,
+              fontSize: 'clamp(24px, 3vw, 30px)',
+              fontWeight: 800, color: '#0a1e2e',
+              letterSpacing: '-0.01em', lineHeight: 1.15,
               margin: '0 0 8px',
             }}>
               {cfg.title}
             </h1>
 
             <p style={{
-              fontFamily: F.body, fontSize: 13.5, fontWeight: 300,
-              color: 'rgba(255,255,255,0.42)', maxWidth: 300,
+              fontFamily: F.body, fontSize: 13.5, fontWeight: 400,
+              color: 'rgba(10,30,46,0.55)', maxWidth: 300,
               margin: '0 auto', lineHeight: 1.60,
             }}>
               {cfg.subtitle}
@@ -611,13 +600,13 @@ export default function LoginForm({ type }: LoginFormProps) {
                 <CheckBox $checked={remember} onClick={() => setRemember(v => !v)}>
                   {remember && '✓'}
                 </CheckBox>
-                <span style={{ fontFamily: F.body, fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
+                <span style={{ fontFamily: F.body, fontSize: 13, color: 'rgba(10,30,46,0.55)' }}>
                   Remember me
                 </span>
               </label>
               <Link
                 href="/reset-password"
-                style={{ fontFamily: F.body, fontSize: 13, fontWeight: 600, color: 'rgba(147,197,253,0.85)', textDecoration: 'none' }}
+                style={{ fontFamily: F.body, fontSize: 13, fontWeight: 600, color: '#1e3a8a', textDecoration: 'none' }}
               >
                 Forgot password?
               </Link>
@@ -631,10 +620,10 @@ export default function LoginForm({ type }: LoginFormProps) {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8,
                   padding: '12px 14px', borderRadius: 10,
-                  background: 'rgba(239,68,68,0.09)',
-                  border: '1px solid rgba(239,68,68,0.24)',
+                  background: 'rgba(220,38,38,0.06)',
+                  border: '1px solid rgba(220,38,38,0.25)',
                   fontFamily: F.body, fontSize: 13,
-                  color: 'rgba(252,165,165,0.95)',
+                  color: '#b91c1c',
                 }}
               >
                 <Shield size={14} strokeWidth={1.5} style={{ flexShrink: 0 }} />
@@ -699,7 +688,7 @@ export default function LoginForm({ type }: LoginFormProps) {
         {/* ── Copyright ── */}
         <p style={{
           textAlign: 'center', fontFamily: F.body,
-          fontSize: 11, color: 'rgba(255,255,255,0.18)',
+          fontSize: 11, color: 'rgba(10,30,46,0.35)',
           marginTop: 20,
         }}>
           © {new Date().getFullYear()} Sidelile High School · All rights reserved.

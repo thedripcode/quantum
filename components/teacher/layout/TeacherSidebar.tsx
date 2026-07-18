@@ -110,7 +110,7 @@ interface ContentProps {
   onToggleCollapse: () => void;
 }
 
-const PURPLE = '#7C3AED';
+const PURPLE = '#93c5fd';
 
 function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) {
   const pathname    = usePathname();
@@ -137,7 +137,7 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
         'flex flex-col h-full text-white transition-all duration-300 relative',
         collapsed ? 'w-16' : 'w-64',
       )}
-      style={{ background: '#060f1a', borderRight: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ background: '#0a1e2e', borderRight: '1px solid rgba(255,255,255,0.06)' }}
     >
       {/* ── Logo ── */}
       <div className={cn(
@@ -150,7 +150,7 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
         {badgeErr ? (
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.28)' }}
+            style={{ background: 'rgba(147,197,253,0.14)', border: '1px solid rgba(147,197,253,0.30)' }}
           >
             <GraduationCap className="w-5 h-5" style={{ color: PURPLE }} />
           </div>
@@ -160,14 +160,14 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
             src="/images/sidelile-badge.jpg"
             alt="Sidelile crest"
             width={36} height={36}
-            style={{ objectFit: 'contain', flexShrink: 0, filter: 'drop-shadow(0 0 6px rgba(124,58,237,0.35))' }}
+            style={{ objectFit: 'contain', flexShrink: 0, filter: 'drop-shadow(0 0 6px rgba(147,197,253,0.35))' }}
             onError={() => setBadgeErr(true)}
           />
         )}
         {!collapsed && (
           <div className="min-w-0">
             <p className="font-bold text-[13px] leading-none tracking-wide text-white truncate">Sidelile HS</p>
-            <p className="text-[10px] mt-0.5 truncate" style={{ color: 'rgba(124,58,237,0.80)' }}>Teacher Portal</p>
+            <p className="text-[10px] mt-0.5 truncate" style={{ color: 'rgba(147,197,253,0.85)' }}>Teacher Portal</p>
           </div>
         )}
       </div>
@@ -181,7 +181,7 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
           >
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 text-white"
-              style={{ background: PURPLE }}
+              style={{ background: "#ffffff", color: "#0a1e2e" }}
             >
               {teacher.avatarInitials}
             </div>
@@ -193,7 +193,7 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
                   <span
                     key={c._id}
                     className="text-[9px] px-1.5 py-0.5 rounded font-semibold"
-                    style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa' }}
+                    style={{ background: 'rgba(147,197,253,0.14)', color: '#bfdbfe' }}
                   >
                     Gr {c.grade}{c.section}
                   </span>
@@ -206,7 +206,7 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
         <div className="flex justify-center py-3 flex-shrink-0">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white"
-            style={{ background: PURPLE }}
+            style={{ background: "#ffffff", color: "#0a1e2e" }}
           >
             {teacher.avatarInitials}
           </div>
@@ -241,7 +241,7 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
                   )}
                   style={
                     active
-                      ? { background: 'rgba(124,58,237,0.18)', color: '#fff', boxShadow: 'inset 0 0 0 1px rgba(124,58,237,0.35)' }
+                      ? { background: '#ffffff', color: '#0a1e2e', fontWeight: 600 }
                       : disabled
                         ? { color: 'rgba(255,255,255,0.25)', cursor: 'not-allowed' }
                         : { color: 'rgba(255,255,255,0.55)' }
@@ -262,7 +262,7 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
                       {!disabled && count > 0 && (
                         <span
                           className="text-[10px] min-w-[18px] h-[18px] px-1 rounded-full font-bold flex items-center justify-center text-white"
-                          style={{ background: PURPLE }}
+                          style={{ background: '#1e3a8a' }}
                         >
                           {count > 99 ? '99+' : count}
                         </span>
@@ -275,7 +275,7 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
                   {collapsed && !disabled && count > 0 && (
                     <span
                       className="absolute -top-1 -right-1 w-4 h-4 text-[8px] rounded-full font-bold flex items-center justify-center text-white"
-                      style={{ background: PURPLE }}
+                      style={{ background: "#1e3a8a" }}
                     >
                       {count}
                     </span>
@@ -311,14 +311,14 @@ function SidebarContent({ collapsed, onClose, onToggleCollapse }: ContentProps) 
                         <>
                           <span className="flex-1 text-[13px] font-medium truncate">{item.label}</span>
                           {count > 0 && (
-                            <span className="text-[10px] min-w-[18px] h-[18px] px-1 rounded-full font-bold flex items-center justify-center text-white" style={{ background: PURPLE }}>
+                            <span className="text-[10px] min-w-[18px] h-[18px] px-1 rounded-full font-bold flex items-center justify-center text-white" style={{ background: "#1e3a8a" }}>
                               {count > 99 ? '99+' : count}
                             </span>
                           )}
                         </>
                       )}
                       {collapsed && count > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 text-[8px] rounded-full font-bold flex items-center justify-center text-white" style={{ background: PURPLE }}>
+                        <span className="absolute -top-1 -right-1 w-4 h-4 text-[8px] rounded-full font-bold flex items-center justify-center text-white" style={{ background: "#1e3a8a" }}>
                           {count}
                         </span>
                       )}

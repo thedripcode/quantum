@@ -6,12 +6,12 @@ import { signOut } from 'next-auth/react';
 import { Menu, LogOut, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
-const BG     = '#0C0C0C';
+const BG     = '#081420';
 const BORDER = 'rgba(255,255,255,0.07)';
 const MUTED  = 'rgba(255,255,255,0.45)';
 const TEXT   = '#FFFFFF';
-const SURFACE = '#161616';
-const GOLD   = '#C9A84C';
+const SURFACE = '#0E1E30';
+const GOLD   = '#60a5fa';
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard/parent':            'Dashboard',
@@ -60,7 +60,7 @@ export default function ParentTopBar({ onMenuClick }: { onMenuClick?: () => void
 
       {/* Title */}
       <div style={{ flex: 1 }}>
-        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.02em' }}>{title}</h1>
+        <h1 style={{ fontFamily: "'Roboto Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.02em' }}>{title}</h1>
         <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>Parent Portal · Sidelile High School</p>
       </div>
 
@@ -70,7 +70,7 @@ export default function ParentTopBar({ onMenuClick }: { onMenuClick?: () => void
           onClick={() => setAvatarOpen(v => !v)}
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px 4px 4px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: 10 }}
         >
-          <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(201,168,76,0.15)', border: '1.5px solid rgba(201,168,76,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: GOLD }}>
+          <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(96,165,250,0.15)', border: '1.5px solid rgba(96,165,250,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: GOLD }}>
             {initials}
           </div>
           <div style={{ textAlign: 'left' }} className="hidden sm:block">

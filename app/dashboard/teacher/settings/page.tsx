@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { Save, Check, User, Bell, Palette, Lock } from 'lucide-react';
 import { TEACHERS, CURRENT_TEACHER_ID } from '@/lib/teacher/mockData';
 
-const BG='#0C0C0C',S1='#111111',S2='#171717';
+const BG='#081420',S1='#0C1A2B',S2='#0F2032';
 const BORDER='rgba(255,255,255,0.07)',BORDER2='rgba(255,255,255,0.12)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
 
 const TEACHER = TEACHERS.find(t=>t._id===CURRENT_TEACHER_ID)!;
 

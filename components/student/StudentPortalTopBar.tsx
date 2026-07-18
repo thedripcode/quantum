@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { Bell, Search, X, ChevronDown, Check, User, Settings, LogOut, Menu } from 'lucide-react';
 import { NOTICES, MESSAGES } from '@/data/studentData';
 
-const BG      = '#0C0C0C';
+const BG      = '#081420';
 const BORDER  = 'rgba(255,255,255,0.07)';
 const MUTED   = 'rgba(255,255,255,0.45)';
 const WHITE   = '#FFFFFF';
@@ -68,7 +68,7 @@ export default function StudentPortalTopBar({ onMenuClick }: { onMenuClick?: () 
   /* ── shared dropdown style ── */
   const drop: React.CSSProperties = {
     position: 'absolute', right: 0, top: 40, zIndex: 100,
-    background: '#111111', border: `1px solid rgba(255,255,255,0.10)`,
+    background: '#0C1A2B', border: `1px solid rgba(255,255,255,0.10)`,
     borderRadius: 14, overflow: 'hidden',
     boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
   };
@@ -101,7 +101,7 @@ export default function StudentPortalTopBar({ onMenuClick }: { onMenuClick?: () 
 
       {/* Title */}
       <div style={{ flex: 1 }}>
-        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: WHITE, margin: 0 }}>
+        <h1 style={{ fontFamily: "'Roboto Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: WHITE, margin: 0 }}>
           {pageTitle}
         </h1>
         <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>

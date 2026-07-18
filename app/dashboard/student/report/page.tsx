@@ -6,14 +6,14 @@ import { useStudentData } from '@/lib/useStudentData';
 import { Printer, Download, ChevronDown } from 'lucide-react';
 
 // ─── Colour tokens (screen only — print styles override) ─────────────────────
-const BG     = '#0C0C0C';
-const S1     = '#111111';
-const GOLD   = '#C9A84C';
-const GOLD_B = 'rgba(201,168,76,0.22)';
+const BG     = '#081420';
+const S1     = '#0C1A2B';
+const GOLD   = '#60a5fa';
+const GOLD_B = 'rgba(96,165,250,0.22)';
 const BORDER = 'rgba(255,255,255,0.08)';
 const TEXT   = '#FFFFFF';
 const MUTED  = 'rgba(255,255,255,0.50)';
-const FH     = "'Bricolage Grotesque', sans-serif";
+const FH     = "'Roboto Condensed', sans-serif";
 const FB     = "'Inter', sans-serif";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export default function ReportCardPage() {
           .promo-badge  { border: 1px solid #ccc !important; }
           .school-header { background: #1a1a2e !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .school-header * { color: #fff !important; }
-          .gold-bar { background: #C9A84C !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .gold-bar { background: #60a5fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
         @page { size: A4; margin: 14mm; }
       `}</style>
@@ -116,7 +116,7 @@ export default function ReportCardPage() {
             </div>
             <button
               onClick={() => window.print()}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 10, background: 'rgba(201,168,76,0.10)', border: `1px solid ${GOLD_B}`, color: GOLD, fontFamily: FB, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 10, background: 'rgba(96,165,250,0.10)', border: `1px solid ${GOLD_B}`, color: GOLD, fontFamily: FB, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
             >
               <Printer size={14} /> Print / Save PDF
             </button>

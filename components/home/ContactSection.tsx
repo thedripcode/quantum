@@ -94,11 +94,11 @@ export default function ContactSection() {
             const Icon = item.icon;
             return (
               <ContactItem key={item.label} variants={itemIn}>
-                <div style={{ width: 36, height: 36, borderRadius: R.full, background: `rgba(201,168,76,0.12)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 36, height: 36, borderRadius: R.full, background: `rgba(96,165,250,0.12)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Icon style={{ width: 16, height: 16, color: C.gold }} />
                 </div>
                 <div>
-                  <p style={{ fontFamily: F.body, fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.7)', margin: '0 0 3px' }}>
+                  <p style={{ fontFamily: F.body, fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.7)', margin: '0 0 3px' }}>
                     {item.label}
                   </p>
                   {item.href ? (
@@ -137,7 +137,7 @@ export default function ContactSection() {
           transition={{ duration: 0.8, ease: E.smooth }}
         >
           {/* Grid lines */}
-          <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: `linear-gradient(rgba(201,168,76,1) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,1) 1px, transparent 1px)`, backgroundSize: '44px 44px', opacity: 0.06 }} />
+          <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: `linear-gradient(rgba(96,165,250,1) 1px, transparent 1px), linear-gradient(90deg, rgba(96,165,250,1) 1px, transparent 1px)`, backgroundSize: '44px 44px', opacity: 0.06 }} />
           {/* Roads */}
           <div aria-hidden style={{ position: 'absolute', inset: 0, opacity: 0.2 }}>
             <div style={{ position: 'absolute', top: '48%', left: 0, right: 0, height: 2, background: C.gold }} />
@@ -146,10 +146,10 @@ export default function ContactSection() {
           {/* Pin */}
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <motion.div animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut' }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ width: 52, height: 52, borderRadius: R.full, background: C.gold, border: `4px solid ${C.navyDark}`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 12px 40px rgba(201,168,76,0.4)` }}>
+              <div style={{ width: 52, height: 52, borderRadius: R.full, background: C.gold, border: `4px solid ${C.navyDark}`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 12px 40px rgba(96,165,250,0.4)` }}>
                 <MapPin style={{ width: 24, height: 24, color: C.navy }} />
               </div>
-              <div style={{ marginTop: 10, padding: '6px 16px', borderRadius: R.md, background: 'rgba(10,30,46,0.92)', border: `1px solid rgba(201,168,76,0.25)`, fontFamily: F.body, fontSize: 12, fontWeight: 600, color: C.white, whiteSpace: 'nowrap' }}>
+              <div style={{ marginTop: 10, padding: '6px 16px', borderRadius: R.md, background: 'rgba(10,30,46,0.92)', border: `1px solid rgba(96,165,250,0.25)`, fontFamily: F.body, fontSize: 12, fontWeight: 600, color: C.white, whiteSpace: 'nowrap' }}>
                 Sidelile High School
               </div>
             </motion.div>

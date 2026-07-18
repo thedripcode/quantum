@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { CheckCircle2, XCircle, Clock, MinusCircle } from 'lucide-react';
 import { useStudentData, type StudentData } from '@/lib/useStudentData';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
+const BG = '#081420'; const SURFACE = '#0E1E30'; const S2 = '#14283E';
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.08)'; const GOLD_B = 'rgba(96,165,250,0.20)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
 const GREEN = '#10B981'; const RED = '#EF4444'; const AMBER = '#F59E0B';
-const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
+const F_HEADING = "'Roboto Condensed', sans-serif"; const F_BODY = "'Inter', sans-serif";
 
 type Rec = StudentData['attendanceRecords'][number];
 
@@ -134,9 +134,9 @@ export default function AttendancePage() {
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: GOLD }}>{overall.total > 0 ? `${Math.round(overall.percentage)}%` : '—'}</div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.70)', fontWeight: 500 }}>Overall</div>
+            <div style={{ fontSize: 11, color: 'rgba(96,165,250,0.70)', fontWeight: 500 }}>Overall</div>
             <div style={{ fontFamily: F_HEADING, fontSize: 20, fontWeight: 700, color: GOLD, letterSpacing: '-0.02em' }}>{overall.attended}/{overall.total}</div>
-            <div style={{ fontSize: 10, color: 'rgba(201,168,76,0.50)' }}>days attended</div>
+            <div style={{ fontSize: 10, color: 'rgba(96,165,250,0.50)' }}>days attended</div>
           </div>
         </div>
         {[

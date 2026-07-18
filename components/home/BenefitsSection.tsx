@@ -57,7 +57,7 @@ const Card = styled(motion.div)`
   cursor: default;
 
   &:hover {
-    border-color: rgba(201,168,76,0.4);
+    border-color: rgba(96,165,250,0.4);
     transform: translateY(-4px);
     background: rgba(255,255,255,0.06);
   }

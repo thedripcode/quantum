@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Send, Inbox, Loader2, MessageSquare, ChevronLeft, Trash2 } from 'lucide-react';
 
-const BG='#0C0C0C',SURFACE='#161616',S2='#1E1E1E';
-const GOLD='#C9A84C',GOLD_DIM='rgba(201,168,76,0.10)',GOLD_B='rgba(201,168,76,0.22)';
+const BG='#081420',SURFACE='#0E1E30',S2='#14283E';
+const GOLD='#60a5fa',GOLD_DIM='rgba(96,165,250,0.10)',GOLD_B='rgba(96,165,250,0.22)';
 const BORDER='rgba(255,255,255,0.07)',TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
 const GREEN='#10B981',BLUE='#3B82F6';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
 
 const inp=(extra?:React.CSSProperties):React.CSSProperties=>({background:S2,border:`1px solid ${BORDER}`,borderRadius:9,color:TEXT,fontFamily:FB,fontSize:13,padding:'9px 12px',outline:'none',width:'100%',boxSizing:'border-box' as const,...extra});
 
@@ -114,9 +114,9 @@ export default function MessagesPage() {
           <div style={{background:SURFACE,border:`1px solid ${BORDER}`,borderRadius:16,overflow:'hidden'}}>
             {msgs.map((m,i)=>(
               <div key={m.id} onClick={()=>markRead(m)}
-                style={{display:'flex',alignItems:'flex-start',gap:12,padding:'15px 20px',borderBottom:i<msgs.length-1?`1px solid ${BORDER}`:'none',cursor:'pointer',background:!m.readAt?'rgba(201,168,76,0.04)':'transparent'}}
+                style={{display:'flex',alignItems:'flex-start',gap:12,padding:'15px 20px',borderBottom:i<msgs.length-1?`1px solid ${BORDER}`:'none',cursor:'pointer',background:!m.readAt?'rgba(96,165,250,0.04)':'transparent'}}
                 onMouseEnter={e=>e.currentTarget.style.background=S2}
-                onMouseLeave={e=>e.currentTarget.style.background=!m.readAt?'rgba(201,168,76,0.04)':'transparent'}>
+                onMouseLeave={e=>e.currentTarget.style.background=!m.readAt?'rgba(96,165,250,0.04)':'transparent'}>
                 <div style={{width:8,height:8,borderRadius:4,background:!m.readAt?GOLD:'transparent',marginTop:5,flexShrink:0}}/>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{display:'flex',justifyContent:'space-between',gap:8}}>

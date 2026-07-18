@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle2, Clock, FileCheck, Loader2, Save, ChevronDown, ChevronUp } from 'lucide-react';
 
-const BG = '#0C0C0C'; const S2 = '#171717'; const S3 = '#1E1E1E';
+const BG = '#081420'; const S2 = '#0F2032'; const S3 = '#14283E';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF';
 const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
-const FH = "'Bricolage Grotesque', sans-serif"; const FB = "'Inter', sans-serif";
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
+const FH = "'Roboto Condensed', sans-serif"; const FB = "'Inter', sans-serif";
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.08)'; const GOLD_B = 'rgba(96,165,250,0.22)';
 const GREEN = '#10B981'; const AMBER = '#F59E0B'; const BLUE = '#3B82F6'; const RED = '#EF4444';
 
 interface Submission {

@@ -4,17 +4,17 @@ import { useMemo } from 'react';
 import { Star, Lock, Zap, BookOpen, Award, TrendingUp, Shield, Target } from 'lucide-react';
 import { useStudentData } from '@/lib/useStudentData';
 
-const BG='#0C0C0C',SURFACE='#161616',S2='#1E1E1E';
-const GOLD='#C9A84C',GOLD_DIM='rgba(201,168,76,0.10)',GOLD_B='rgba(201,168,76,0.25)';
+const BG='#081420',SURFACE='#0E1E30',S2='#14283E';
+const GOLD='#60a5fa',GOLD_DIM='rgba(96,165,250,0.10)',GOLD_B='rgba(96,165,250,0.25)';
 const BORDER='rgba(255,255,255,0.07)',TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
 const GREEN='#10B981',BLUE='#3B82F6',PURPLE='#8B5CF6',RED='#EF4444',AMBER='#F59E0B';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
 
 const RARITY_CONFIG={
   common:   {label:'Common',   color:'#9CA3AF',glow:'rgba(156,163,175,0.15)'},
   rare:     {label:'Rare',     color:BLUE,      glow:'rgba(59,130,246,0.20)'},
   epic:     {label:'Epic',     color:PURPLE,    glow:'rgba(139,92,246,0.22)'},
-  legendary:{label:'Legendary',color:GOLD,      glow:'rgba(201,168,76,0.25)'},
+  legendary:{label:'Legendary',color:GOLD,      glow:'rgba(96,165,250,0.25)'},
 };
 
 interface Achievement { id:string; title:string; description:string; category:string; rarity:keyof typeof RARITY_CONFIG; unlocked:boolean; icon:React.ElementType; }

@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 import styled from 'styled-components';
 import { Bell, Search, X, Shield, ChevronDown, Menu } from 'lucide-react';
 
-const BG = '#0C0C0C';
-const SURFACE = '#161616';
-const S2 = '#1E1E1E';
-const GOLD = '#C9A84C';
-const GOLD_B = 'rgba(201,168,76,0.22)';
+const BG = '#081420';
+const SURFACE = '#0E1E30';
+const S2 = '#14283E';
+const GOLD = '#60a5fa';
+const GOLD_B = 'rgba(96,165,250,0.22)';
 const BORDER = 'rgba(255,255,255,0.07)';
 const TEXT = '#FFFFFF';
 const MUTED = 'rgba(255,255,255,0.45)';
@@ -50,7 +50,7 @@ const Dropdown = styled.div`
 
 const NotifItem = styled.div<{ $unread: boolean }>`
   padding: 10px 16px; cursor: pointer;
-  background: ${p => p.$unread ? 'rgba(201,168,76,0.05)' : 'transparent'};
+  background: ${p => p.$unread ? 'rgba(96,165,250,0.05)' : 'transparent'};
   border-top: 1px solid rgba(255,255,255,0.04);
   &:first-child { border-top: none; }
   &:hover { background: rgba(255,255,255,0.04); }
@@ -135,7 +135,7 @@ export default function AdminTopBar({ onMenuClick }: { onMenuClick?: () => void 
       </button>
 
       <PageInfo>
-        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.02em' }}>{title}</h1>
+        <h1 style={{ fontFamily: "'Roboto Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.02em' }}>{title}</h1>
         <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>Term 3 · 2025 · Sidelile High School</p>
       </PageInfo>
 

@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import { Upload, FileText, Trash2, Download, Search, Filter, Plus } from "lucide-react";
 import Link from "next/link";
 
-const BG = "#0C0C0C", S1 = "#111111", S2 = "#171717", S3 = "#1E1E1E";
-const GOLD = "#C9A84C", GOLD_DIM = "rgba(201,168,76,0.10)", GOLD_B = "rgba(201,168,76,0.22)";
+const BG = "#081420", S1 = "#0C1A2B", S2 = "#0F2032", S3 = "#14283E";
+const GOLD = "#60a5fa", GOLD_DIM = "rgba(96,165,250,0.10)", GOLD_B = "rgba(96,165,250,0.22)";
 const BORDER = "rgba(255,255,255,0.07)", BORDER2 = "rgba(255,255,255,0.12)";
 const TEXT = "#FFFFFF", MUTED = "rgba(255,255,255,0.50)", FAINT = "rgba(255,255,255,0.22)";
-const FH = "'Bricolage Grotesque', sans-serif", FB = "'Inter', sans-serif";
+const FH = "'Roboto Condensed', sans-serif", FB = "'Inter', sans-serif";
 
 const GRADES   = ["Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"];
 const MONTHS   = ["January","March","June","September","November"];

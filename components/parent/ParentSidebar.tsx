@@ -9,17 +9,17 @@ import {
   User, LogOut, ChevronLeft, Menu,
 } from 'lucide-react';
 
-const BG      = '#0C0C0C';
-const SURFACE = '#111111';
-const BORDER  = 'rgba(255,255,255,0.07)';
+const BG      = '#0a1e2e';
+const SURFACE = 'rgba(255,255,255,0.06)';
+const BORDER  = 'rgba(255,255,255,0.12)';
 const TEXT    = '#FFFFFF';
-const MUTED   = 'rgba(255,255,255,0.45)';
-const FAINT   = 'rgba(255,255,255,0.22)';
-const GOLD    = '#C9A84C';
-const GOLD_DIM = 'rgba(201,168,76,0.08)';
-const GOLD_B   = 'rgba(201,168,76,0.22)';
-const ACCENT_DIM = 'rgba(255,255,255,0.06)';
-const ACCENT_B   = 'rgba(255,255,255,0.10)';
+const MUTED   = 'rgba(255,255,255,0.60)';
+const FAINT   = 'rgba(255,255,255,0.32)';
+const GOLD    = '#93c5fd';
+const GOLD_DIM = 'rgba(147,197,253,0.10)';
+const GOLD_B   = 'rgba(147,197,253,0.25)';
+const ACCENT_DIM = 'rgba(255,255,255,0.08)';
+const ACCENT_B   = 'rgba(255,255,255,0.12)';
 
 const Brand = styled.div<{ $collapsed: boolean }>`
   height: 60px;
@@ -78,10 +78,15 @@ const NavItem = styled.div<{ $active: boolean; $collapsed: boolean }>`
   transition: background 0.15s, color 0.15s;
   white-space: nowrap;
   justify-content: ${({ $collapsed }) => ($collapsed ? 'center' : 'flex-start')};
-  background: ${({ $active }) => $active ? ACCENT_DIM : 'transparent'};
-  color: ${({ $active }) => $active ? TEXT : MUTED};
-  border: 1px solid ${({ $active }) => $active ? ACCENT_B : 'transparent'};
-  &:hover { background: ${ACCENT_DIM}; color: ${TEXT}; }
+  /* Educare portal style — active item is a white pill with navy text */
+  background: ${({ $active }) => $active ? '#ffffff' : 'transparent'};
+  color: ${({ $active }) => $active ? '#0a1e2e' : MUTED};
+  border: 1px solid transparent;
+  font-weight: ${({ $active }) => $active ? 600 : 500};
+  &:hover {
+    background: ${({ $active }) => $active ? '#ffffff' : ACCENT_DIM};
+    color: ${({ $active }) => $active ? '#0a1e2e' : TEXT};
+  }
 `;
 
 const NavLabel = styled.span`
@@ -149,7 +154,7 @@ function ParentSidebarContent({
         <BrandDot>P</BrandDot>
         {!collapsed && (
           <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
-            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: TEXT, letterSpacing: '-0.01em' }}>SIDELILE</div>
+            <div style={{ fontFamily: "'Roboto Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: TEXT, letterSpacing: '-0.01em' }}>SIDELILE</div>
             <div style={{ fontSize: 8.5, color: MUTED, letterSpacing: '0.12em', marginTop: 1 }}>PARENT PORTAL</div>
           </div>
         )}

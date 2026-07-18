@@ -14,15 +14,15 @@ import {
 import { useStudentData } from '@/lib/useStudentData';
 
 // ─── Tokens ──────────────────────────────────────────────────────────────────
-const BG         = '#0C0C0C';
-const SURFACE    = '#111111';
+const BG         = '#0a1e2e';
+const SURFACE    = 'rgba(255,255,255,0.06)';
 const ACCENT     = 'rgba(255,255,255,0.90)';
-const ACCENT_DIM = 'rgba(255,255,255,0.06)';
-const ACCENT_B   = 'rgba(255,255,255,0.10)';
-const BORDER     = 'rgba(255,255,255,0.07)';
+const ACCENT_DIM = 'rgba(255,255,255,0.08)';
+const ACCENT_B   = 'rgba(255,255,255,0.12)';
+const BORDER     = 'rgba(255,255,255,0.12)';
 const TEXT       = '#FFFFFF';
-const MUTED      = 'rgba(255,255,255,0.45)';
-const FAINT      = 'rgba(255,255,255,0.22)';
+const MUTED      = 'rgba(255,255,255,0.60)';
+const FAINT      = 'rgba(255,255,255,0.32)';
 
 const Aside = styled.aside<{ $collapsed: boolean; $mobileOpen: boolean }>`
   width: ${({ $collapsed }) => ($collapsed ? '64px' : '240px')};
@@ -159,13 +159,15 @@ const NavItem = styled.div<{ $active: boolean; $gold?: boolean; $collapsed: bool
   justify-content: ${({ $collapsed }) => ($collapsed ? 'center' : 'flex-start')};
   position: relative;
 
-  background: ${({ $active }) => $active ? ACCENT_DIM : 'transparent'};
-  color:      ${({ $active }) => $active ? TEXT : MUTED};
-  border: 1px solid ${({ $active }) => $active ? ACCENT_B : 'transparent'};
+  /* Educare portal style — active item is a white pill with navy text */
+  background: ${({ $active }) => $active ? '#ffffff' : 'transparent'};
+  color:      ${({ $active }) => $active ? '#0a1e2e' : MUTED};
+  border: 1px solid transparent;
+  font-weight: ${({ $active }) => $active ? 600 : 500};
 
   &:hover {
-    background: ${ACCENT_DIM};
-    color: ${TEXT};
+    background: ${({ $active }) => $active ? '#ffffff' : ACCENT_DIM};
+    color: ${({ $active }) => $active ? '#0a1e2e' : TEXT};
   }
 `;
 
@@ -287,7 +289,7 @@ function SidebarContent({ collapsed, setCollapsed, onClose }: { collapsed: boole
         <BrandDot>S</BrandDot>
         {!collapsed && (
           <BrandText>
-            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: TEXT, letterSpacing: '-0.01em' }}>SIDELILE</div>
+            <div style={{ fontFamily: "'Roboto Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: TEXT, letterSpacing: '-0.01em' }}>SIDELILE</div>
             <div style={{ fontSize: 8.5, color: MUTED, letterSpacing: '0.12em', marginTop: 1 }}>STUDENT PORTAL</div>
           </BrandText>
         )}

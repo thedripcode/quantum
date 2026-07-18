@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { Search, X, Send } from 'lucide-react';
 
-const BG = '#0C0C0C', SURFACE = '#161616', S2 = '#1E1E1E', S3 = '#272727';
-const GOLD = '#C9A84C', GOLD_DIM = 'rgba(201,168,76,0.10)', GOLD_B = 'rgba(201,168,76,0.22)';
+const BG = '#081420', SURFACE = '#0E1E30', S2 = '#14283E', S3 = '#1A3049';
+const GOLD = '#60a5fa', GOLD_DIM = 'rgba(96,165,250,0.10)', GOLD_B = 'rgba(96,165,250,0.22)';
 const BORDER = 'rgba(255,255,255,0.07)', TEXT = '#FFFFFF', MUTED = 'rgba(255,255,255,0.50)', FAINT = 'rgba(255,255,255,0.22)';
 const GREEN = '#10B981', RED = '#EF4444', AMBER = '#F59E0B', BLUE = '#3B82F6';
-const FH = "'Bricolage Grotesque', sans-serif", FB = "'Inter', sans-serif";
+const FH = "'Roboto Condensed', sans-serif", FB = "'Inter', sans-serif";
 
 type Contact = {
   id: string;

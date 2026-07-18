@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check, Clock, X, AlertTriangle, Save, Loader2, RefreshCw } from 'lucide-react';
 
-const BG='#0C0C0C',S2='#171717';
+const BG='#081420',S2='#0F2032';
 const BORDER='rgba(255,255,255,0.07)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
 const GREEN='#10B981',AMBER='#F59E0B',RED='#EF4444',INDIGO='#6366F1';
 
 type AttStatus = 'present'|'late'|'absent'|'excused';
@@ -95,7 +95,7 @@ export default function AttendancePage() {
           <RefreshCw size={13}/>Load Saved
         </button>
         <button onClick={saveAll} disabled={saving||gradeStudents.length===0}
-          style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,background:'#C9A84C',border:'none',color:'#000',fontFamily:FH,fontSize:13,fontWeight:700,cursor:saving?'default':'pointer',opacity:saving?0.6:1,marginLeft:'auto'}}>
+          style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,background:'#60a5fa',border:'none',color:'#000',fontFamily:FH,fontSize:13,fontWeight:700,cursor:saving?'default':'pointer',opacity:saving?0.6:1,marginLeft:'auto'}}>
           {saving?<Loader2 size={13} className="animate-spin"/>:<Save size={13}/>}{saving?'Saving…':'Save Register'}
         </button>
       </div>

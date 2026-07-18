@@ -9,7 +9,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0C0C0C' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#081420' }}>
       <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       {/* Mobile backdrop */}

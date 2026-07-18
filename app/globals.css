@@ -6,56 +6,56 @@
 
 @layer base {
 
-  /* ── DARK MODE (default) ─────────────────────────── */
+  /* ── LIGHT MODE (default — Educare paper & navy) ── */
   :root {
-    --bg:              #0C0C0C;
-    --surface:         #161616;
-    --surface-2:       #1E1E1E;
-    --surface-3:       #272727;
-    --text:            #FFFFFF;
-    --text-muted:      rgba(255,255,255,0.55);
-    --text-faint:      rgba(255,255,255,0.28);
-    --accent:          #FFFFFF;
-    --accent-subtle:   rgba(255,255,255,0.06);
-    --border:          rgba(255,255,255,0.08);
-    --border-strong:   rgba(255,255,255,0.18);
-    --btn-bg:          #FFFFFF;
-    --btn-color:       #0C0C0C;
-    --nav-bg:          rgba(22,22,22,0.88);
-    --nav-border:      rgba(255,255,255,0.10);
-    --stat-num:        #FFFFFF;
-    --pill-border:     rgba(255,255,255,0.22);
-    --pill-text:       rgba(255,255,255,0.72);
-  }
-
-  /* ── LIGHT MODE ──────────────────────────────────── */
-  html.light {
     --bg:              #FFFFFF;
-    --surface:         #F5F5F5;
-    --surface-2:       #EBEBEB;
-    --surface-3:       #E0E0E0;
+    --surface:         #F6F7F4;
+    --surface-2:       #EDEFEA;
+    --surface-3:       #E2E5DE;
     --text:            #0a1e2e;
-    --text-muted:      rgba(10,30,46,0.58);
-    --text-faint:      rgba(10,30,46,0.32);
-    --accent:          #0a1e2e;
-    --accent-subtle:   rgba(10,30,46,0.05);
-    --border:          rgba(10,30,46,0.08);
-    --border-strong:   rgba(10,30,46,0.25);
-    --btn-bg:          #0a1e2e;
+    --text-muted:      rgba(10,30,46,0.60);
+    --text-faint:      rgba(10,30,46,0.34);
+    --accent:          #1e3a8a;
+    --accent-subtle:   rgba(30,58,138,0.06);
+    --border:          rgba(10,30,46,0.12);
+    --border-strong:   rgba(10,30,46,0.28);
+    --btn-bg:          #1e3a8a;
     --btn-color:       #FFFFFF;
-    --nav-bg:          rgba(245,245,245,0.92);
+    --nav-bg:          #FFFFFF;
     --nav-border:      rgba(10,30,46,0.12);
     --stat-num:        #0a1e2e;
     --pill-border:     rgba(10,30,46,0.25);
     --pill-text:       rgba(10,30,46,0.65);
   }
 
+  /* ── DARK MODE (ink navy) ────────────────────────── */
+  html.dark {
+    --bg:              #07101C;
+    --surface:         #0C1826;
+    --surface-2:       #122336;
+    --surface-3:       #1A2E46;
+    --text:            #FFFFFF;
+    --text-muted:      rgba(255,255,255,0.58);
+    --text-faint:      rgba(255,255,255,0.30);
+    --accent:          #93c5fd;
+    --accent-subtle:   rgba(147,197,253,0.08);
+    --border:          rgba(255,255,255,0.10);
+    --border-strong:   rgba(255,255,255,0.20);
+    --btn-bg:          #FFFFFF;
+    --btn-color:       #07101C;
+    --nav-bg:          #0C1826;
+    --nav-border:      rgba(255,255,255,0.10);
+    --stat-num:        #FFFFFF;
+    --pill-border:     rgba(255,255,255,0.22);
+    --pill-text:       rgba(255,255,255,0.72);
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
 
   html { scroll-behavior: smooth; }
 
-  /* Offset anchor targets so fixed 68px navbar doesn't cover them */
-  section[id] { scroll-margin-top: 80px; }
+  /* Header is static (scrolls away) — small breathing room on anchor jumps */
+  section[id] { scroll-margin-top: 24px; }
 
   body {
     font-family: 'Inter', sans-serif;
@@ -66,9 +66,9 @@
   }
 
   h1, h2, h3, h4 {
-    font-family: 'Bricolage Grotesque', sans-serif;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
+    font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
+    letter-spacing: -0.01em;
+    line-height: 1.04;
   }
 
   img { display: block; max-width: 100%; }
@@ -96,14 +96,14 @@
     border: 1px solid rgba(255,255,255,0.12);
   }
 
-  /* ── Card base (used in teacher portal) ── */
+  /* ── Card base (used in teacher portal) — flat Educare look ── */
   .card {
-    @apply bg-white rounded-2xl shadow-card border border-slate-100 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300;
+    @apply bg-white rounded-lg border border-slate-200 dark:bg-slate-900 dark:border-slate-700 transition-all duration-300;
   }
 
   /* ── Form inputs (teacher portal) ── */
   .form-input {
-    @apply w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all text-sm;
+    @apply w-full px-4 py-3 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-school-blue-700 focus:border-transparent transition-all text-sm;
   }
 
   .form-label {

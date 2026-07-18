@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { BookOpen, PenLine, Trash2 } from 'lucide-react';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
+const BG = '#081420'; const SURFACE = '#0E1E30'; const S2 = '#14283E';
 const PURPLE = '#7C3AED'; const PURPLE_DIM = 'rgba(124,58,237,0.10)'; const PURPLE_B = 'rgba(124,58,237,0.25)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.25)';
 const GREEN = '#10B981'; const RED = '#EF4444'; const AMBER = '#F59E0B';
-const FH = "'Bricolage Grotesque', sans-serif"; const FB = "'Inter', sans-serif";
+const FH = "'Roboto Condensed', sans-serif"; const FB = "'Inter', sans-serif";
 
 interface MarkRow {
   id: string; studentName: string; studentPortalId: string;

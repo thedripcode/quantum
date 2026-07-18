@@ -28,7 +28,7 @@ export const HARD = {
 } as const;
 
 export const F = {
-  heading: "'Bricolage Grotesque', sans-serif",
+  heading: "'Roboto Condensed', 'Arial Narrow', sans-serif",
   body:    "'Inter', sans-serif",
 } as const;
 
@@ -51,7 +51,10 @@ export const C = {
   white:        '#FFFFFF',
   navy:         '#0a1e2e',
   navyDark:     '#061320',
-  gold:         '#C9A84C',
+  paper:        '#F6F7F4',
+  royal:        '#1e3a8a',
+  // Legacy token name — now a sky-blue accent (no gold in the navy/white scheme)
+  gold:         '#60a5fa',
   textPrimary:  '#0a1e2e',
   textSecondary:'#374151',
   textMuted:    '#6B7280',

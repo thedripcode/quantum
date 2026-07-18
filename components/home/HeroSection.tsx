@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { F, R } from '@/styles/theme';
-import { E } from '@/styles/theme';
+import { F, E } from '@/styles/theme';
 
 // ─── Local video (copied to public/) ──────────────────────────────────────────
 const VIDEO_SRC = '/videos/hero-bg.mp4';
@@ -67,14 +66,12 @@ const fadeUp = {
 // ─── Styled ───────────────────────────────────────────────────────────────────
 const Wrap = styled.section`
   position: relative;
-  min-height: 100vh;
+  /* Header is static now — hero fills most of the remaining viewport */
+  min-height: clamp(560px, 82vh, 900px);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
   overflow: hidden;
   background: #090909;
-  /* Push content below the 68px fixed navbar */
-  padding-top: 68px;
 `;
 
 const VideoBg = styled.video`
@@ -113,10 +110,10 @@ const Grain = styled.div`
 const Content = styled.div`
   position: relative;
   z-index: 3;
-  text-align: center;
-  max-width: 880px;
+  text-align: left;
+  max-width: 1400px;
   width: 100%;
-  padding: 80px 28px 100px;
+  padding: 120px clamp(20px, 4vw, 64px) 88px;
   margin: 0 auto;
 `;
 
@@ -206,16 +203,16 @@ export default function HeroSection() {
               initial="hidden" animate="visible" exit="exit"
               style={{
                 display: 'inline-block',
-                border: '1px solid rgba(255,255,255,0.22)',
-                color: 'rgba(255,255,255,0.72)',
-                padding: '6px 18px',
-                borderRadius: R.full,
-                fontFamily: F.body,
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: '0.12em',
+                background: '#1e3a8a',
+                color: '#ffffff',
+                padding: '7px 16px',
+                borderRadius: 3,
+                fontFamily: F.heading,
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: '0.10em',
                 textTransform: 'uppercase',
-                marginBottom: 32,
+                marginBottom: 28,
               }}
             >
               {label}
@@ -224,12 +221,12 @@ export default function HeroSection() {
             {/* Headline — clip-reveal per line */}
             <h1 style={{
               fontFamily: F.heading,
-              fontSize: 'clamp(48px, 7.5vw, 100px)',
+              fontSize: 'clamp(52px, 8vw, 112px)',
               fontWeight: 800,
               color: '#FFFFFF',
-              letterSpacing: '-0.03em',
-              lineHeight: 1.03,
-              margin: '0 0 24px',
+              letterSpacing: '-0.01em',
+              lineHeight: 1.02,
+              margin: '0 0 22px',
             }}>
               {lines.map((line, i) => (
                 <LineMask key={i}>
@@ -254,9 +251,9 @@ export default function HeroSection() {
                 fontFamily: F.body,
                 fontSize: 17,
                 fontWeight: 300,
-                color: 'rgba(255,255,255,0.60)',
+                color: 'rgba(255,255,255,0.68)',
                 maxWidth: 520,
-                margin: '0 auto 40px',
+                margin: '0 0 36px',
                 lineHeight: 1.65,
               }}
             >
@@ -270,7 +267,7 @@ export default function HeroSection() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'flex-start',
                 gap: 12,
                 flexWrap: 'wrap',
               }}
@@ -283,9 +280,9 @@ export default function HeroSection() {
                   href={cta1.href}
                   style={{
                     display: 'inline-flex', alignItems: 'center',
-                    fontFamily: F.heading, fontSize: 15, fontWeight: 600,
-                    background: '#FFFFFF', color: '#0C0C0C',
-                    padding: '14px 34px', borderRadius: R.full, textDecoration: 'none',
+                    fontFamily: F.heading, fontSize: 15, fontWeight: 700,
+                    background: '#FFFFFF', color: '#0a1e2e',
+                    padding: '14px 34px', borderRadius: 6, textDecoration: 'none',
                   }}
                 >
                   {cta1.label}
@@ -302,8 +299,8 @@ export default function HeroSection() {
                     display: 'inline-flex', alignItems: 'center',
                     fontFamily: F.body, fontSize: 15, fontWeight: 400,
                     color: 'rgba(255,255,255,0.68)',
-                    padding: '14px 34px', borderRadius: R.full,
-                    border: '1px solid rgba(255,255,255,0.22)',
+                    padding: '14px 34px', borderRadius: 6,
+                    border: '1px solid rgba(255,255,255,0.30)',
                     textDecoration: 'none',
                     transition: 'border-color 0.2s ease, color 0.2s ease',
                   }}

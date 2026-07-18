@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown, AlertTriangle, Users, ChevronRight } from 'lucide-react';
 import { useStudentData } from '@/lib/useStudentData';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
+const BG = '#081420'; const SURFACE = '#0E1E30'; const S2 = '#14283E';
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.08)'; const GOLD_B = 'rgba(96,165,250,0.20)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
 const RED = '#EF4444'; const GREEN = '#10B981';
-const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
+const F_HEADING = "'Roboto Condensed', sans-serif"; const F_BODY = "'Inter', sans-serif";
 
 function Ring({ pct, color, size = 56 }: { pct: number; color: string; size?: number }) {
   const [m, setM] = useState(false);
@@ -42,7 +42,7 @@ export default function SubjectsPage() {
       {/* Overview strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
         <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 13, padding: 16 }}>
-          <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.65)', fontWeight: 500 }}>Total Subjects</div>
+          <div style={{ fontSize: 11, color: 'rgba(96,165,250,0.65)', fontWeight: 500 }}>Total Subjects</div>
           <div style={{ fontFamily: F_HEADING, fontSize: 28, fontWeight: 700, color: GOLD, letterSpacing: '-0.02em', marginTop: 4 }}>{SUBJECTS.length}</div>
         </div>
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 13, padding: 16 }}>

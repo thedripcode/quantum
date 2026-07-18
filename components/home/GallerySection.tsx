@@ -70,7 +70,7 @@ const Tile = styled(motion.div)<{ $tall?: boolean }>`
 const GoldOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(201,168,76,0.15);
+  background: rgba(96,165,250,0.15);
   opacity: 0;
   transition: opacity 0.3s ease;
 

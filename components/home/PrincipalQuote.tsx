@@ -42,7 +42,7 @@ export default function PrincipalQuote() {
 
           {/* Avatar */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
-            <div style={{ width: 60, height: 60, borderRadius: R.full, border: `2px solid ${C.gold}`, background: `rgba(201,168,76,0.10)`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+            <div style={{ width: 60, height: 60, borderRadius: R.full, border: `2px solid ${C.gold}`, background: `rgba(96,165,250,0.10)`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
               <span style={{ fontFamily: F.heading, fontSize: 18, fontWeight: 700, color: C.gold }}>SN</span>
             </div>
             <div style={{ fontFamily: F.heading, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>

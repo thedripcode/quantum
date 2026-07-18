@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Download, FileText, Users, ClipboardList, BarChart2, Check } from 'lucide-react';
 import { STUDENTS, SCHOOL_CLASSES } from '@/lib/teacher/mockData';
 
-const BG='#0C0C0C',S1='#111111',S2='#171717';
+const BG='#081420',S1='#0C1A2B',S2='#0F2032';
 const BORDER='rgba(255,255,255,0.07)',BORDER2='rgba(255,255,255,0.12)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
 
 const DOC_TYPES = [
-  { id:'report-cards',  label:'Individual Report Cards',   desc:'One page per learner with marks, attendance and teacher comment', icon:FileText,     color:'#C9A84C' },
+  { id:'report-cards',  label:'Individual Report Cards',   desc:'One page per learner with marks, attendance and teacher comment', icon:FileText,     color:'#60a5fa' },
   { id:'class-results', label:'Class Results Summary',     desc:'Full class mark sheet with averages and grade distribution',        icon:BarChart2,    color:'#3B82F6' },
   { id:'class-list',    label:'Class Register',            desc:'Printable register with learner names, numbers and contact info',   icon:Users,        color:'#10B981' },
   { id:'assessment',    label:'Assessment Mark Sheet',     desc:'Blank or pre-filled assessment recording sheet',                    icon:ClipboardList,color:'#8B5CF6' },

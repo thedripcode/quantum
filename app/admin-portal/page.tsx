@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Shield, Eye, EyeOff, Lock, User } from 'lucide-react';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
-const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
-const RED = '#EF4444';
-const FH = "'Bricolage Grotesque', sans-serif"; const FB = "'Inter', sans-serif";
+const BG = '#F6F7F4'; const SURFACE = '#FFFFFF'; const S2 = '#F6F7F4';
+const GOLD = '#1e3a8a'; const GOLD_DIM = 'rgba(30,58,138,0.06)'; const GOLD_B = 'rgba(30,58,138,0.22)';
+const BORDER = 'rgba(10,30,46,0.12)'; const TEXT = '#0a1e2e'; const MUTED = 'rgba(10,30,46,0.55)'; const FAINT = 'rgba(10,30,46,0.38)';
+const RED = '#DC2626';
+const FH = "'Roboto Condensed', 'Arial Narrow', sans-serif"; const FB = "'Inter', sans-serif";
 
 export default function AdminPortalPage() {
   const router = useRouter();
@@ -44,18 +44,18 @@ export default function AdminPortalPage() {
   return (
     <div style={{ minHeight: '100vh', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: FB, padding: 24 }}>
       {/* Background pattern */}
-      <div style={{ position: 'fixed', inset: 0, background: `radial-gradient(ellipse at 60% 20%, rgba(201,168,76,0.06) 0%, transparent 60%)`, pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', inset: 0, background: `radial-gradient(ellipse at 60% 20%, rgba(30,58,138,0.05) 0%, transparent 60%)`, pointerEvents: 'none' }} />
 
       <div style={{ width: '100%', maxWidth: 400, position: 'relative' }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: GOLD, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', fontSize: 22, fontWeight: 800, color: '#000', fontFamily: FH }}>A</div>
+          <div style={{ width: 56, height: 56, borderRadius: 8, background: '#0a1e2e', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', fontSize: 22, fontWeight: 800, color: '#fff', fontFamily: FH }}>A</div>
           <h1 style={{ fontFamily: FH, fontSize: 22, fontWeight: 800, color: TEXT, margin: 0, letterSpacing: '-0.03em' }}>SIDELILE</h1>
           <p style={{ fontSize: 11, color: MUTED, letterSpacing: '0.14em', marginTop: 4, textTransform: 'uppercase' }}>Admin Portal</p>
         </div>
 
         {/* Card */}
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 20, padding: 32 }}>
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: 32, boxShadow: '0 24px 64px rgba(10,30,46,0.10)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
             <Shield size={14} style={{ color: GOLD }} />
             <span style={{ fontSize: 12, fontWeight: 600, color: GOLD }}>Secure Admin Access</span>
@@ -104,10 +104,10 @@ export default function AdminPortalPage() {
           <button
             onClick={handleLogin}
             disabled={loading}
-            style={{ width: '100%', padding: '12px', background: loading ? 'rgba(201,168,76,0.5)' : GOLD, border: 'none', borderRadius: 11, color: '#000', fontSize: 14, fontWeight: 700, cursor: loading ? 'default' : 'pointer', fontFamily: FB, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            style={{ width: '100%', padding: '12px', background: loading ? 'rgba(30,58,138,0.55)' : GOLD, border: 'none', borderRadius: 6, color: '#fff', fontSize: 14.5, fontWeight: 700, cursor: loading ? 'default' : 'pointer', fontFamily: FH, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             {loading ? (
               <>
-                <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(0,0,0,0.3)', borderTopColor: '#000', animation: 'spin 0.6s linear infinite' }} />
+                <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.35)', borderTopColor: '#fff', animation: 'spin 0.6s linear infinite' }} />
                 Signing in…
               </>
             ) : 'Sign In to Admin Portal'}

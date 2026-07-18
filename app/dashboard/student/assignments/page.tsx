@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { AlertTriangle, CheckCircle2, Clock, FileCheck, Filter, Send, Loader2 } from 'lucide-react';
 import { useStudentData, invalidateStudentData, type RealAssignment as Assignment } from '@/lib/useStudentData';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
+const BG = '#081420'; const SURFACE = '#0E1E30'; const S2 = '#14283E';
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.08)'; const GOLD_B = 'rgba(96,165,250,0.20)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
 const RED = '#EF4444'; const GREEN = '#10B981'; const AMBER = '#F59E0B';
-const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
+const F_HEADING = "'Roboto Condensed', sans-serif"; const F_BODY = "'Inter', sans-serif";
 
 type Filter = 'all' | 'pending' | 'overdue' | 'submitted' | 'graded';
 
@@ -72,23 +72,23 @@ function AssignmentCard({ a, onSubmit }: { a: Assignment; onSubmit: (id: string)
         <div style={{ borderTop: `1px solid ${BORDER}`, padding: '14px 18px', background: S2 }}>
           <p style={{ fontSize: 13, color: MUTED, lineHeight: 1.6, margin: '0 0 12px' }}>{a.description}</p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <div style={{ background: '#0C0C0C', borderRadius: 8, padding: '8px 12px' }}>
+            <div style={{ background: '#081420', borderRadius: 8, padding: '8px 12px' }}>
               <div style={{ fontSize: 10, color: FAINT }}>Due Date</div>
               <div style={{ fontSize: 13, fontWeight: 600, color: TEXT, marginTop: 2 }}>{a.dueDate}</div>
             </div>
-            <div style={{ background: '#0C0C0C', borderRadius: 8, padding: '8px 12px' }}>
+            <div style={{ background: '#081420', borderRadius: 8, padding: '8px 12px' }}>
               <div style={{ fontSize: 10, color: FAINT }}>Total Marks</div>
               <div style={{ fontSize: 13, fontWeight: 600, color: TEXT, marginTop: 2 }}>{a.total}</div>
             </div>
             {a.submittedDate && (
-              <div style={{ background: '#0C0C0C', borderRadius: 8, padding: '8px 12px' }}>
+              <div style={{ background: '#081420', borderRadius: 8, padding: '8px 12px' }}>
                 <div style={{ fontSize: 10, color: FAINT }}>Submitted</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: GREEN, marginTop: 2 }}>{a.submittedDate}</div>
               </div>
             )}
             {a.mark !== null && (
               <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 8, padding: '8px 12px' }}>
-                <div style={{ fontSize: 10, color: 'rgba(201,168,76,0.70)' }}>Your Mark</div>
+                <div style={{ fontSize: 10, color: 'rgba(96,165,250,0.70)' }}>Your Mark</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: GOLD, marginTop: 2 }}>{a.mark}/{a.total} ({pct}%)</div>
               </div>
             )}

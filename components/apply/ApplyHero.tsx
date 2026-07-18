@@ -28,7 +28,7 @@ const clip = (i: number) => ({
 // ─── Styled ───────────────────────────────────────────────────────────────────
 const Wrap = styled.section`
   position: relative;
-  min-height: 92vh;
+  min-height: 72vh;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -73,7 +73,7 @@ const Inner = styled.div`
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 140px clamp(24px, 8vw, 120px) 80px;
+  padding: 80px clamp(24px, 8vw, 120px) 80px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 80px;

@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, TrendingDown, Loader2, Users } from 'lucide-react';
 
-const BG='#0C0C0C',S2='#171717',S3='#1E1E1E';
+const BG='#081420',S2='#0F2032',S3='#14283E';
 const BORDER='rgba(255,255,255,0.07)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
 const RED='#EF4444',AMBER='#F59E0B',INDIGO='#6366F1';
 
 type RiskBand='critical'|'high'|'moderate';
@@ -68,7 +68,7 @@ export default function AtRiskPage() {
       </div>
 
       {ALL_RISK.length===0?(
-        <div style={{background:'#171717',border:`1px solid ${BORDER}`,borderRadius:16,padding:60,textAlign:'center'}}>
+        <div style={{background:'#0F2032',border:`1px solid ${BORDER}`,borderRadius:16,padding:60,textAlign:'center'}}>
           <Users size={36} style={{color:MUTED,marginBottom:12,opacity:0.5}}/>
           <div style={{fontSize:15,fontWeight:600,color:TEXT}}>No at-risk students</div>
           <div style={{fontSize:13,color:MUTED,marginTop:4}}>{marks.length===0?'No marks captured yet.':'All students are performing above 60%.'}</div>

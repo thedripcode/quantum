@@ -5,11 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styled, { keyframes } from 'styled-components';
 import { X, Send, RotateCcw, Bot } from 'lucide-react';
 
-const SURFACE = '#161616';
-const S2 = '#1E1E1E';
-const GOLD = '#C9A84C';
-const GOLD_DIM = 'rgba(201,168,76,0.10)';
-const GOLD_B = 'rgba(201,168,76,0.22)';
+const SURFACE = '#0E1E30';
+const S2 = '#14283E';
+const GOLD = '#60a5fa';
+const GOLD_DIM = 'rgba(96,165,250,0.10)';
+const GOLD_B = 'rgba(96,165,250,0.22)';
 const BORDER = 'rgba(255,255,255,0.07)';
 const TEXT = '#FFFFFF';
 const MUTED = 'rgba(255,255,255,0.50)';
@@ -25,7 +25,7 @@ const FabBtn = styled(motion.button)`
   width: 56px; height: 56px; border-radius: 50%;
   background: ${GOLD}; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 32px rgba(201,168,76,0.35);
+  box-shadow: 0 8px 32px rgba(96,165,250,0.35);
 `;
 
 const Panel = styled(motion.div)`
@@ -175,7 +175,7 @@ export default function SidiChatbot() {
             <PanelHeader>
               <Dot><Bot size={18} style={{ color: '#000' }} /></Dot>
               <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 14, color: GOLD }}>SIDI Admin</div>
+                <div style={{ fontFamily: "'Roboto Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: GOLD }}>SIDI Admin</div>
                 <div style={{ fontSize: 11, color: MUTED }}>AI Assistant · Sidelile High School</div>
               </div>
               <button onClick={() => setMsgs([msgs[0]])} style={{ background: 'none', border: 'none', cursor: 'pointer', color: FAINT, display: 'flex', padding: 4 }}>

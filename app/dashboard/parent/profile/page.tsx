@@ -4,10 +4,10 @@ import { useSession } from 'next-auth/react';
 import { User, Link as LinkIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
+const BG = '#081420'; const SURFACE = '#0E1E30';
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.08)'; const GOLD_B = 'rgba(96,165,250,0.22)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)';
-const F_H = "'Bricolage Grotesque', sans-serif"; const F_B = "'Inter', sans-serif";
+const F_H = "'Roboto Condensed', sans-serif"; const F_B = "'Inter', sans-serif";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (

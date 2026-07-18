@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, AlertTriangle, Award } from 'lucide-react';
 import { useStudentData, type RealSubject } from '@/lib/useStudentData';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E'; const S3 = '#272727';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
+const BG = '#081420'; const SURFACE = '#0E1E30'; const S2 = '#14283E'; const S3 = '#1A3049';
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.08)'; const GOLD_B = 'rgba(96,165,250,0.20)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.25)';
 const RED = '#EF4444'; const GREEN = '#10B981';
-const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
+const F_HEADING = "'Roboto Condensed', sans-serif"; const F_BODY = "'Inter', sans-serif";
 
 // ─── Simple SVG line chart ────────────────────────────────────────────────────
 function LineChart({ data, color, width = 200, height = 56 }: { data: { term: number; average: number }[]; color: string; width?: number; height?: number }) {
@@ -89,7 +89,7 @@ export default function MarksPage() {
       {/* Header stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
         <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 14, padding: 20, gridColumn: '1 / 2' }}>
-          <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.70)', fontWeight: 500, marginBottom: 6 }}>Overall Average</div>
+          <div style={{ fontSize: 11, color: 'rgba(96,165,250,0.70)', fontWeight: 500, marginBottom: 6 }}>Overall Average</div>
           <div style={{ fontFamily: F_HEADING, fontSize: 36, fontWeight: 800, color: GOLD, letterSpacing: '-0.03em', lineHeight: 1 }}>{graded.length ? `${overall}%` : '—'}</div>
           <div style={{ fontSize: 12, color: MUTED, marginTop: 6 }}>{graded.length ? `${graded.length} graded subject${graded.length !== 1 ? 's' : ''}` : 'No marks captured yet'}</div>
         </div>
@@ -201,7 +201,7 @@ export default function MarksPage() {
                     ))}
                     {sub.nextAssessment && (
                       <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_B}`, borderRadius: 8, padding: '8px 12px', marginLeft: 'auto' }}>
-                        <div style={{ fontSize: 10, color: 'rgba(201,168,76,0.70)' }}>Next: {sub.nextAssessment.task}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(96,165,250,0.70)' }}>Next: {sub.nextAssessment.task}</div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: GOLD, marginTop: 2 }}>{sub.nextAssessment.date} · {sub.nextAssessment.weight}%</div>
                       </div>
                     )}

@@ -5,11 +5,11 @@ import { Download, FileText, BarChart2, Users } from 'lucide-react';
 import { BarChart,Bar,LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer } from 'recharts';
 import { STUDENTS, MARKS, ASSESSMENTS, SCHOOL_CLASSES } from '@/lib/teacher/mockData';
 
-const BG='#0C0C0C',S1='#111111',S2='#171717',S3='#1E1E1E';
+const BG='#081420',S1='#0C1A2B',S2='#0F2032',S3='#14283E';
 const BORDER='rgba(255,255,255,0.07)',BORDER2='rgba(255,255,255,0.12)';
 const TEXT='#FFFFFF',MUTED='rgba(255,255,255,0.50)',FAINT='rgba(255,255,255,0.22)';
-const FH="'Bricolage Grotesque', sans-serif",FB="'Inter', sans-serif";
-const GOLD='#C9A84C';
+const FH="'Roboto Condensed', sans-serif",FB="'Inter', sans-serif";
+const GOLD='#60a5fa';
 
 const tipStyle={contentStyle:{background:S2,border:'1px solid rgba(255,255,255,0.10)',borderRadius:10,fontSize:12,color:TEXT}};
 const axisStyle={fill:'rgba(255,255,255,0.45)',fontSize:11};
@@ -61,7 +61,7 @@ export default function ReportsPage() {
         </div>
         {generated&&(
           <div style={{display:'flex',gap:8}}>
-            <button style={{display:'flex',alignItems:'center',gap:7,padding:'9px 16px',borderRadius:10,background:'rgba(201,168,76,0.10)',border:'1px solid rgba(201,168,76,0.25)',color:GOLD,fontFamily:FB,fontSize:12,fontWeight:600,cursor:'pointer'}}>
+            <button style={{display:'flex',alignItems:'center',gap:7,padding:'9px 16px',borderRadius:10,background:'rgba(96,165,250,0.10)',border:'1px solid rgba(96,165,250,0.25)',color:GOLD,fontFamily:FB,fontSize:12,fontWeight:600,cursor:'pointer'}}>
               <Download size={13}/> Download PDF
             </button>
             <button style={{display:'flex',alignItems:'center',gap:7,padding:'9px 16px',borderRadius:10,background:'rgba(59,130,246,0.10)',border:'1px solid rgba(59,130,246,0.25)',color:'#3B82F6',fontFamily:FB,fontSize:12,fontWeight:600,cursor:'pointer'}}>
@@ -81,8 +81,8 @@ export default function ReportsPage() {
           </select>
         </div>
         <button onClick={generate} disabled={loading}
-          style={{padding:'14px 28px',borderRadius:12,background:loading?S2:'rgba(201,168,76,0.12)',border:`1px solid ${loading?BORDER:'rgba(201,168,76,0.30)'}`,color:loading?MUTED:GOLD,fontFamily:FB,fontSize:13,fontWeight:700,cursor:loading?'default':'pointer',display:'flex',alignItems:'center',gap:8,whiteSpace:'nowrap'}}>
-          {loading?(<><div style={{width:14,height:14,borderRadius:'50%',border:'2px solid rgba(201,168,76,0.30)',borderTopColor:GOLD,animation:'spin 0.7s linear infinite'}}/>Generating…</>):(<><FileText size={14}/>Generate Report</>)}
+          style={{padding:'14px 28px',borderRadius:12,background:loading?S2:'rgba(96,165,250,0.12)',border:`1px solid ${loading?BORDER:'rgba(96,165,250,0.30)'}`,color:loading?MUTED:GOLD,fontFamily:FB,fontSize:13,fontWeight:700,cursor:loading?'default':'pointer',display:'flex',alignItems:'center',gap:8,whiteSpace:'nowrap'}}>
+          {loading?(<><div style={{width:14,height:14,borderRadius:'50%',border:'2px solid rgba(96,165,250,0.30)',borderTopColor:GOLD,animation:'spin 0.7s linear infinite'}}/>Generating…</>):(<><FileText size={14}/>Generate Report</>)}
         </button>
       </div>
 

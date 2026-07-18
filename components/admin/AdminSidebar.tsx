@@ -11,18 +11,18 @@ import {
   LogOut, ChevronLeft, Menu, Shield,
 } from 'lucide-react';
 
-const BG = '#0C0C0C';
-const GOLD = '#C9A84C';
-const GOLD_DIM = 'rgba(201,168,76,0.10)';
-const GOLD_B = 'rgba(201,168,76,0.22)';
-const BORDER = 'rgba(255,255,255,0.07)';
+const BG = '#0a1e2e';
+const GOLD = '#93c5fd';
+const GOLD_DIM = 'rgba(147,197,253,0.10)';
+const GOLD_B = 'rgba(147,197,253,0.25)';
+const BORDER = 'rgba(255,255,255,0.12)';
 const TEXT = '#FFFFFF';
-const MUTED = 'rgba(255,255,255,0.45)';
-const FAINT = 'rgba(255,255,255,0.22)';
+const MUTED = 'rgba(255,255,255,0.60)';
+const FAINT = 'rgba(255,255,255,0.32)';
 
 const goldPulse = keyframes`
-  0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
-  50%      { box-shadow: 0 0 0 6px rgba(201,168,76,0.12); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+  50%      { box-shadow: 0 0 0 6px rgba(96,165,250,0.12); }
 `;
 
 const Aside = styled.aside<{ $col: boolean; $mobileOpen: boolean }>`
@@ -51,9 +51,9 @@ const Brand = styled.div<{ $col: boolean }>`
 `;
 
 const BrandDot = styled.div`
-  width: 30px; height: 30px; border-radius: 8px; background: ${GOLD};
+  width: 30px; height: 30px; border-radius: 6px; background: #ffffff;
   display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 12px; color: #000; flex-shrink: 0;
+  font-weight: 800; font-size: 12px; color: #0a1e2e; flex-shrink: 0;
 `;
 
 const AdminCard = styled.div<{ $col: boolean }>`
@@ -64,9 +64,9 @@ const AdminCard = styled.div<{ $col: boolean }>`
 `;
 
 const Av = styled.div`
-  width: 36px; height: 36px; border-radius: 50%; background: ${GOLD};
+  width: 36px; height: 36px; border-radius: 50%; background: #ffffff;
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700; color: #000; flex-shrink: 0;
+  font-size: 12px; font-weight: 700; color: #0a1e2e; flex-shrink: 0;
 `;
 
 const NavSection = styled.nav`
@@ -88,13 +88,15 @@ const NI = styled.div<{ $a: boolean; $g?: boolean; $col: boolean }>`
   transition: background 0.15s, color 0.15s;
   white-space: nowrap; overflow: hidden; position: relative;
   justify-content: ${p => p.$col ? 'center' : 'flex-start'};
-  background: ${p => p.$a && p.$g ? GOLD_DIM : p.$a ? 'rgba(255,255,255,0.06)' : 'transparent'};
-  color: ${p => p.$a && p.$g ? GOLD : p.$a ? TEXT : MUTED};
-  border: 1px solid ${p => p.$a && p.$g ? GOLD_B : p.$a ? 'rgba(255,255,255,0.08)' : 'transparent'};
+  /* Educare portal style — active item is a white pill with navy text */
+  background: ${p => p.$a ? '#ffffff' : 'transparent'};
+  color: ${p => p.$a ? '#0a1e2e' : MUTED};
+  border: 1px solid transparent;
+  font-weight: ${p => p.$a ? 600 : 500};
   animation: ${p => p.$a && p.$g ? goldPulse : 'none'} 2s infinite;
   &:hover {
-    background: ${p => p.$g ? GOLD_DIM : 'rgba(255,255,255,0.05)'};
-    color: ${p => p.$g ? GOLD : TEXT};
+    background: ${p => p.$a ? '#ffffff' : 'rgba(255,255,255,0.08)'};
+    color: ${p => p.$a ? '#0a1e2e' : TEXT};
   }
 `;
 
@@ -163,7 +165,7 @@ function AdminSidebarContent({ col, setCol, onClose }: { col: boolean; setCol: (
         <BrandDot><Shield size={13} /></BrandDot>
         {!col && (
           <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
-            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: TEXT, letterSpacing: '-0.01em' }}>SIDELILE</div>
+            <div style={{ fontFamily: "'Roboto Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: TEXT, letterSpacing: '-0.01em' }}>SIDELILE</div>
             <div style={{ fontSize: 8.5, color: MUTED, letterSpacing: '0.12em', marginTop: 1 }}>ADMIN PORTAL</div>
           </div>
         )}

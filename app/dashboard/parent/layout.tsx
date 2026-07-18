@@ -8,7 +8,7 @@ export default function ParentDashboardLayout({ children }: { children: React.Re
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0C0C0C' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#081420' }}>
       <ParentSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       {/* Mobile backdrop */}

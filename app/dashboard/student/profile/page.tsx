@@ -5,10 +5,10 @@ import { Edit2, Save, X, Camera, User, BookOpen, Heart, Phone, Copy, Check } fro
 import { useSession } from 'next-auth/react';
 import { useStudentData } from '@/lib/useStudentData';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
+const BG = '#081420'; const SURFACE = '#0E1E30'; const S2 = '#14283E';
+const GOLD = '#60a5fa'; const GOLD_DIM = 'rgba(96,165,250,0.08)'; const GOLD_B = 'rgba(96,165,250,0.22)';
 const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
-const F_HEADING = "'Bricolage Grotesque', sans-serif"; const F_BODY = "'Inter', sans-serif";
+const F_HEADING = "'Roboto Condensed', sans-serif"; const F_BODY = "'Inter', sans-serif";
 
 function InfoRow({ label, value, editable, onChange }: { label: string; value: string; editable: boolean; onChange?: (v: string) => void }) {
   return (
@@ -51,7 +51,7 @@ function CopyButton({ value }: { value: string }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button onClick={copy} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.20)', color: copied ? '#10B981' : GOLD, fontSize: 11, fontWeight: 600, cursor: 'pointer', marginLeft: 8, fontFamily: F_BODY }}>
+    <button onClick={copy} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.20)', color: copied ? '#10B981' : GOLD, fontSize: 11, fontWeight: 600, cursor: 'pointer', marginLeft: 8, fontFamily: F_BODY }}>
       {copied ? <><Check size={10} /> Copied</> : <><Copy size={10} /> Copy</>}
     </button>
   );
@@ -95,7 +95,7 @@ export default function ProfilePage() {
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, padding: '28px 28px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 24 }}>
         {/* Avatar */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
-          <div style={{ width: 90, height: 90, borderRadius: '50%', background: `linear-gradient(135deg, ${GOLD} 0%, #a07830 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 800, color: '#000', border: `3px solid ${GOLD}`, boxShadow: `0 0 20px rgba(201,168,76,0.25)` }}>
+          <div style={{ width: 90, height: 90, borderRadius: '50%', background: `linear-gradient(135deg, ${GOLD} 0%, #a07830 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 800, color: '#000', border: `3px solid ${GOLD}`, boxShadow: `0 0 20px rgba(96,165,250,0.25)` }}>
             {initials}
           </div>
           <button style={{ position: 'absolute', bottom: 2, right: 2, width: 26, height: 26, borderRadius: '50%', background: GOLD, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

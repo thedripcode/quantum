@@ -5,16 +5,16 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
-const BG = '#0a1e2e';
-const BORDER = 'rgba(255,255,255,0.12)';
-const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.55)'; const FAINT = 'rgba(255,255,255,0.30)';
-const GOLD = '#C9A84C'; const GOLD_B = 'rgba(201,168,76,0.30)';
-const RED = '#EF4444'; const GREEN = '#10B981';
-const FH = "'Bricolage Grotesque', sans-serif"; const FB = "'Inter', sans-serif";
+const BG = '#F6F7F4';
+const BORDER = 'rgba(10,30,46,0.15)';
+const TEXT = '#0a1e2e'; const MUTED = 'rgba(10,30,46,0.55)'; const FAINT = 'rgba(10,30,46,0.38)';
+const GOLD = '#1e3a8a'; const GOLD_B = 'rgba(30,58,138,0.30)';
+const RED = '#DC2626'; const GREEN = '#059669';
+const FH = "'Roboto Condensed', 'Arial Narrow', sans-serif"; const FB = "'Inter', sans-serif";
 
 const inp: React.CSSProperties = {
-  width: '100%', padding: '12px 14px', borderRadius: 12,
-  background: 'rgba(255,255,255,0.07)', border: `1px solid ${BORDER}`,
+  width: '100%', padding: '12px 14px', borderRadius: 6,
+  background: '#ffffff', border: `1px solid ${BORDER}`,
   color: TEXT, fontFamily: FB, fontSize: 14, outline: 'none', boxSizing: 'border-box',
 };
 
@@ -67,7 +67,7 @@ function ResetForm() {
           <ArrowLeft size={14} /> Back to login
         </Link>
 
-        <div style={{ background: 'rgba(255,255,255,0.07)', border: `1px solid ${BORDER}`, borderRadius: 24, padding: '40px 36px', backdropFilter: 'blur(24px)' }}>
+        <div style={{ background: '#ffffff', border: `1px solid ${BORDER}`, borderRadius: 10, padding: '40px 36px', boxShadow: '0 24px 64px rgba(10,30,46,0.10)' }}>
           {done ? (
             <div style={{ textAlign: 'center' }}>
               <CheckCircle2 size={40} style={{ color: GREEN, margin: '0 auto 16px' }} />
@@ -128,7 +128,7 @@ function ResetForm() {
                   </div>
                 )}
 
-                <button type="submit" disabled={busy} style={{ width: '100%', padding: '13px', borderRadius: 12, background: GOLD, border: 'none', color: '#000', fontFamily: FH, fontSize: 14, fontWeight: 800, cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <button type="submit" disabled={busy} style={{ width: '100%', padding: '13px', borderRadius: 6, background: GOLD, border: 'none', color: '#fff', fontFamily: FH, fontSize: 14.5, fontWeight: 800, cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   {busy ? <Loader2 size={16} className="animate-spin" /> : null}
                   {busy ? 'Please wait…' : isResetStep ? 'Update Password' : 'Request Reset'}
                 </button>

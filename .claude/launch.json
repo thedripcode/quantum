@@ -17,11 +17,170 @@
       "startUrl": "http://localhost:3001/dashboard/teacher"
     }
   ,{
-      "name": "construction",
+      "name": "okudingayo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "-p", "3002"],
+      "cwd": "../../construction-management-system",
+      "port": 3002,
+      "startUrl": "http://localhost:3002"
+    }
+  ,{
+      "name": "viper-portfolio",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-p", "3005", "."],
+      "runtimeArgs": ["serve", "-l", "3005", "."],
+      "cwd": "../viper-portfolio",
       "port": 3005,
-      "startUrl": "http://localhost:3005/construction.html"
+      "startUrl": "http://localhost:3005"
+    }
+  ,{
+      "name": "meatboyz",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "3006"],
+      "cwd": "../meatboyz",
+      "port": 3006,
+      "startUrl": "http://localhost:3006"
+    }
+  ,{
+      "name": "banothando-mgmt",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "-p", "3008"],
+      "cwd": "../banothando-management",
+      "port": 3008,
+      "startUrl": "http://localhost:3008/dashboard"
+    }
+  ,{
+      "name": "banothando-holdings",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3007", "."],
+      "cwd": "../../banothando-holdings",
+      "port": 3007,
+      "startUrl": "http://localhost:3007"
+    }
+  ,{
+      "name": "lesmana-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3010", "C:/Users/User/Downloads/lesmana-replica"],
+      "port": 3010,
+      "startUrl": "http://localhost:3010"
+    }
+  ,{
+      "name": "clarity-care-site",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3009", "C:/Users/User/Downloads/clarity-care-site"],
+      "port": 3009,
+      "startUrl": "http://localhost:3009"
+    }
+  ,{
+      "name": "kwahluzingqondo-hs",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3011", "C:/Users/User/Downloads/kwahluzingqondo-hs"],
+      "port": 3011,
+      "startUrl": "http://localhost:3011"
+    }
+  ,{
+      "name": "mentaheal-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3012", "C:/Users/User/Downloads/mentaheal-replica"],
+      "port": 3012,
+      "startUrl": "http://localhost:3012"
+    }
+  ,{
+      "name": "brikk-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3013", "C:/Users/User/Downloads/brikk-replica"],
+      "port": 3013,
+      "startUrl": "http://localhost:3013"
+    }
+  ,{
+      "name": "meridian-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3014", "C:/Users/User/Downloads/meridian-replica"],
+      "port": 3014,
+      "startUrl": "http://localhost:3014"
+    }
+  ,{
+      "name": "educare-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3015", "C:/Users/User/Downloads/educare-replica"],
+      "port": 3015,
+      "startUrl": "http://localhost:3015"
+    }
+  ,{
+      "name": "uc-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3016", "C:/Users/User/Downloads/university-center-replica"],
+      "port": 3016,
+      "startUrl": "http://localhost:3016"
+    }
+  ,{
+      "name": "kidora-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3017", "C:/Users/User/Downloads/kidora-replica"],
+      "port": 3017,
+      "startUrl": "http://localhost:3017"
+    }
+  ,{
+      "name": "acadly-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3018", "C:/Users/User/Downloads/acadly-replica"],
+      "port": 3018,
+      "startUrl": "http://localhost:3018"
+    }
+  ,{
+      "name": "univo-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3019", "C:/Users/User/Downloads/univo-replica"],
+      "port": 3019,
+      "startUrl": "http://localhost:3019"
+    }
+  ,{
+      "name": "anth-preschool-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3020", "C:/Users/User/Downloads/anth-preschool-replica"],
+      "port": 3020,
+      "startUrl": "http://localhost:3020"
+    }
+  ,{
+      "name": "mthwalume-primary",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3021", "C:/Users/User/Downloads/mthwalume-primary"],
+      "port": 3021,
+      "startUrl": "http://localhost:3021"
+    }
+  ,{
+      "name": "craigburn-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3022", "C:/Users/User/Downloads/craigburn-replica"],
+      "port": 3022,
+      "startUrl": "http://localhost:3022"
+    }
+  ,{
+      "name": "port-shepstone-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3023", "C:/Users/User/Downloads/port-shepstone-replica"],
+      "port": 3023,
+      "startUrl": "http://localhost:3023"
+    }
+  ,{
+      "name": "brikk-replica-v2",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3024", "C:/Users/User/Downloads/brikk-replica-v2"],
+      "port": 3024,
+      "startUrl": "http://localhost:3024"
+    }
+  ,{
+      "name": "construa-replica",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3025", "C:/Users/User/Downloads/construa-replica"],
+      "port": 3025,
+      "startUrl": "http://localhost:3025"
+    }
+  ,{
+      "name": "ecommerce-platform",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Users/User/Downloads/ecommerce-platform/client", "run", "dev"],
+      "port": 5173,
+      "startUrl": "http://localhost:5173"
     }
   ]
 }

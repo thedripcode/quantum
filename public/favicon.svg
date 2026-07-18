@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="32" fill="#2B2A7B"/>
+
+  <!-- Outer ring -->
+  <circle cx="32" cy="32" r="30" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+  <circle cx="32" cy="32" r="27" fill="none" stroke="#ffffff" stroke-width="0.6"/>
+
+  <!-- Book base -->
+  <rect x="20" y="30" width="24" height="14" rx="1.5" fill="#ffffff"/>
+  <!-- Book spine -->
+  <rect x="31" y="30" width="2" height="14" fill="#2B2A7B"/>
+  <!-- Book left page lines -->
+  <line x1="23" y1="34" x2="30" y2="34" stroke="#2B2A7B" stroke-width="1"/>
+  <line x1="23" y1="37" x2="30" y2="37" stroke="#2B2A7B" stroke-width="1"/>
+  <line x1="23" y1="40" x2="30" y2="40" stroke="#2B2A7B" stroke-width="1"/>
+  <!-- Book right page lines -->
+  <line x1="34" y1="34" x2="41" y2="34" stroke="#2B2A7B" stroke-width="1"/>
+  <line x1="34" y1="37" x2="41" y2="37" stroke="#2B2A7B" stroke-width="1"/>
+  <line x1="34" y1="40" x2="41" y2="40" stroke="#2B2A7B" stroke-width="1"/>
+  <!-- Book open top curve -->
+  <path d="M20 30 Q32 24 44 30" fill="none" stroke="#ffffff" stroke-width="2"/>
+
+  <!-- Left laurel branch -->
+  <path d="M18 38 Q14 35 13 31" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+  <ellipse cx="15" cy="36" rx="3" ry="1.8" fill="#ffffff" transform="rotate(-40 15 36)"/>
+  <ellipse cx="13.5" cy="32.5" rx="3" ry="1.8" fill="#ffffff" transform="rotate(-55 13.5 32.5)"/>
+  <ellipse cx="14" cy="28.5" rx="2.8" ry="1.6" fill="#ffffff" transform="rotate(-70 14 28.5)"/>
+
+  <!-- Right laurel branch -->
+  <path d="M46 38 Q50 35 51 31" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+  <ellipse cx="49" cy="36" rx="3" ry="1.8" fill="#ffffff" transform="rotate(40 49 36)"/>
+  <ellipse cx="50.5" cy="32.5" rx="3" ry="1.8" fill="#ffffff" transform="rotate(55 50.5 32.5)"/>
+  <ellipse cx="50" cy="28.5" rx="2.8" ry="1.6" fill="#ffffff" transform="rotate(70 50 28.5)"/>
+
+  <!-- Sun / star at top -->
+  <circle cx="32" cy="16" r="3.5" fill="#ffffff"/>
+  <line x1="32" y1="10" x2="32" y2="12.5" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="32" y1="19.5" x2="32" y2="22" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="26" y1="16" x2="28.5" y2="16" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="35.5" y1="16" x2="38" y2="16" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="27.8" y1="11.8" x2="29.6" y2="13.6" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/>
+  <line x1="34.4" y1="18.4" x2="36.2" y2="20.2" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/>
+  <line x1="36.2" y1="11.8" x2="34.4" y2="13.6" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/>
+  <line x1="29.6" y1="18.4" x2="27.8" y2="20.2" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- Bottom text arc: S H S -->
+  <text font-family="Arial, sans-serif" font-size="5.5" font-weight="800" fill="#ffffff" text-anchor="middle">
+    <textPath href="#bottomArc" startOffset="50%">SIKHULA NGEMFUNDO</textPath>
+  </text>
+  <defs>
+    <path id="bottomArc" d="M 10,36 A 22,22 0 0,0 54,36"/>
+  </defs>
+
+  <!-- Top text -->
+  <path id="topArc" d="M 10,32 A 22,22 0 0,1 54,32" fill="none"/>
+  <text font-family="Arial, sans-serif" font-size="5" font-weight="800" fill="#ffffff" text-anchor="middle">
+    <textPath href="#topArc" startOffset="50%">SIDELILE HIGH SCHOOL</textPath>
+  </text>
+</svg>

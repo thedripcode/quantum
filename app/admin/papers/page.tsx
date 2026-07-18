@@ -248,7 +248,7 @@ export default function AdminPapersPage() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12, marginBottom: 24 }}>
         {[
           { label: "Total Papers", value: papers.length },
           { label: "Exams", value: papers.filter(p => p.type === "Exam" || p.type === "Both").length },

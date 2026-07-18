@@ -146,7 +146,8 @@ export default function SubjectChangesPage() {
       </div>
 
       {/* Table */}
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, overflow: 'hidden' }}>
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, overflow: 'hidden', minWidth: 820 }}>
         {/* Column headers */}
         <div style={{ display: 'grid', gridTemplateColumns: '90px 1fr 64px 180px 36px 180px 104px 90px 82px', alignItems: 'center', padding: '10px 18px', borderBottom: `1px solid ${BORDER}`, gap: 4 }}>
           {['Ref', 'Student', 'Grade', 'From Subject', '', 'To Subject', 'Date', 'Status', ''].map((h, i) => (
@@ -198,6 +199,7 @@ export default function SubjectChangesPage() {
             </div>
           );
         })}
+      </div>
       </div>
 
       {/* ─── Right Drawer ──────────────────────────────────────────────────────── */}

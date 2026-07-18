@@ -150,16 +150,15 @@ const NAV = [
   ]},
 ];
 
-export default function AdminSidebar({ mobileOpen = false, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
+function AdminSidebarContent({ col, setCol, onClose }: { col: boolean; setCol: (v: (p: boolean) => boolean) => void; onClose?: () => void }) {
   const pathname = usePathname();
   const router   = useRouter();
-  const [col, setCol] = useState(false);
 
   const isA = (href: string) =>
     href === '/admin' ? pathname === href : pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <Aside $col={col} $mobileOpen={mobileOpen}>
+    <>
       <Brand $col={col}>
         <BrandDot><Shield size={13} /></BrandDot>
         {!col && (
@@ -211,6 +210,38 @@ export default function AdminSidebar({ mobileOpen = false, onClose }: { mobileOp
           {!col && <NLabel>Sign Out</NLabel>}
         </NI>
       </Spacer>
-    </Aside>
+    </>
+  );
+}
+
+export default function AdminSidebar({ mobileOpen = false, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
+  const [col, setCol] = useState(false);
+
+  const desktopStyle: React.CSSProperties = {
+    width: col ? 64 : 240, flexShrink: 0, height: '100vh', position: 'sticky', top: 0,
+    background: BG, borderRight: `1px solid ${BORDER}`,
+    display: 'flex', flexDirection: 'column',
+    transition: 'width 0.28s cubic-bezier(0.33,1,0.68,1)', overflow: 'hidden', zIndex: 40,
+  };
+
+  const mobileStyle: React.CSSProperties = {
+    position: 'fixed', top: 0, left: 0, bottom: 0, width: 240,
+    background: BG, borderRight: `1px solid ${BORDER}`,
+    display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 50,
+    transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+    transition: 'transform 0.3s cubic-bezier(0.33,1,0.68,1)',
+  };
+
+  return (
+    <>
+      {/* Desktop — always visible */}
+      <aside className="hidden lg:flex flex-col flex-shrink-0" style={desktopStyle}>
+        <AdminSidebarContent col={col} setCol={setCol} onClose={onClose} />
+      </aside>
+      {/* Mobile — overlay */}
+      <aside className="lg:hidden" style={mobileStyle}>
+        <AdminSidebarContent col={false} setCol={setCol} onClose={onClose} />
+      </aside>
+    </>
   );
 }

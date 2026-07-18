@@ -75,6 +75,7 @@ model Application {
   academicYear     String
   status           String   @default("Pending")  // Pending | Approved | Rejected | Waitlisted
   adminNote        String?
+  documents        Json?                         // { label: string, url: string, name: string }[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -98,7 +99,11 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   // Parent ↔ student link (parent account stores the child's userId)
-  linkedStudentId String?
+  linkedStudentId  String?
+
+  // Password reset
+  resetToken       String?
+  resetTokenExpiry DateTime?
 
   accounts Account[]
   sessions Session[]
@@ -127,6 +132,7 @@ model Subject {
   marks       Mark[]
   assignments Assignment[]
   timetable   TimetableSlot[]
+  exams       Exam[]
 }
 
 model Enrollment {
@@ -244,6 +250,25 @@ model Goal {
   note       String?
 
   @@unique([studentId, subjectId])
+}
+
+// ─── Exams ────────────────────────────────────────────────────────────────────
+
+model Exam {
+  id         String   @id @default(cuid())
+  subjectId  String
+  grade      String                        // e.g. 'Grade 11'
+  term       Int      @default(1)
+  year       Int
+  date       DateTime
+  startTime  String                        // '09:00'
+  endTime    String                        // '11:00'
+  venue      String?
+  totalMarks Int      @default(100)
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 }
 
 // ─── Past Papers ──────────────────────────────────────────────────────────────

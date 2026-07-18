@@ -1,106 +1,109 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { TrendingUp, TrendingDown, BarChart2 } from 'lucide-react';
-import { ADMIN_CLASSES, ADMIN_STUDENTS } from '@/data/adminData';
 
-const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E'; const S3 = '#272727';
-const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.22)';
-const BORDER = 'rgba(255,255,255,0.07)'; const TEXT = '#FFFFFF'; const MUTED = 'rgba(255,255,255,0.50)'; const FAINT = 'rgba(255,255,255,0.22)';
-const GREEN = '#10B981'; const RED = '#EF4444'; const AMBER = '#F59E0B'; const BLUE = '#3B82F6';
-const FH = "'Bricolage Grotesque', sans-serif"; const FB = "'Inter', sans-serif";
+const BG = '#0C0C0C', SURFACE = '#161616', S2 = '#1E1E1E';
+const GOLD = '#C9A84C', GOLD_DIM = 'rgba(201,168,76,0.08)', GOLD_B = 'rgba(201,168,76,0.22)';
+const BORDER = 'rgba(255,255,255,0.07)', TEXT = '#FFFFFF', MUTED = 'rgba(255,255,255,0.50)', FAINT = 'rgba(255,255,255,0.22)';
+const GREEN = '#10B981', RED = '#EF4444', AMBER = '#F59E0B', BLUE = '#3B82F6';
+const FH = "'Bricolage Grotesque', sans-serif", FB = "'Inter', sans-serif";
 
-const SUBJECTS_DATA = [
-  { subject: 'Mathematics',       avg: 68, passRate: 82, highest: 96, lowest: 34, classes: 5 },
-  { subject: 'Physical Sciences', avg: 65, passRate: 78, highest: 94, lowest: 28, classes: 4 },
-  { subject: 'English',           avg: 74, passRate: 91, highest: 98, lowest: 45, classes: 5 },
-  { subject: 'Afrikaans',         avg: 70, passRate: 88, highest: 95, lowest: 40, classes: 5 },
-  { subject: 'Life Sciences',     avg: 72, passRate: 87, highest: 97, lowest: 38, classes: 3 },
-  { subject: 'Geography',         avg: 75, passRate: 90, highest: 99, lowest: 42, classes: 3 },
-  { subject: 'History',           avg: 77, passRate: 93, highest: 100, lowest: 47, classes: 2 },
-  { subject: 'Accounting',        avg: 63, passRate: 76, highest: 92, lowest: 30, classes: 2 },
-  { subject: 'Economics',         avg: 71, passRate: 85, highest: 96, lowest: 36, classes: 2 },
-  { subject: 'Life Orientation',  avg: 82, passRate: 97, highest: 100, lowest: 55, classes: 5 },
-];
-
-const GRADE_PERFORMANCE = [8, 9, 10, 11, 12].map(g => {
-  const classes = ADMIN_CLASSES.filter(c => c.grade === g);
-  const avg = Math.round(classes.reduce((s, c) => s + c.averageMark, 0) / (classes.length || 1));
-  const students = classes.reduce((s, c) => s + c.studentCount, 0);
-  return { grade: g, avg, students, classes: classes.length, passRate: Math.min(99, avg + 10) };
-});
-
-const TERM_TREND = [
-  { term: 'T1', avg: 68 },
-  { term: 'T2', avg: 71 },
-  { term: 'T3', avg: 72 },
-];
-
-function MiniBar({ value, max = 100, color }: { value: number; max?: number; color: string }) {
+function MiniBar({ value, color }: { value: number; color: string }) {
   return (
     <div style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden', flex: 1 }}>
-      <div style={{ height: '100%', width: `${(value / max) * 100}%`, background: color, borderRadius: 3, transition: 'width 0.8s ease' }} />
+      <div style={{ height: '100%', width: `${value}%`, background: color, borderRadius: 3, transition: 'width 0.8s ease' }} />
     </div>
   );
 }
 
-function SVGLineChart({ data }: { data: { term: string; avg: number }[] }) {
-  const W = 260; const H = 60; const pad = 20;
-  const maxY = 100; const minY = 50;
-  const points = data.map((d, i) => {
-    const x = pad + (i / (data.length - 1)) * (W - pad * 2);
-    const y = H - pad - ((d.avg - minY) / (maxY - minY)) * (H - pad * 2);
-    return `${x},${y}`;
-  });
-  return (
-    <svg width={W} height={H} style={{ overflow: 'visible' }}>
-      <polyline points={points.join(' ')} fill="none" stroke={GOLD} strokeWidth="2" strokeLinejoin="round" />
-      {data.map((d, i) => {
-        const [x, y] = points[i].split(',').map(Number);
-        return (
-          <g key={i}>
-            <circle cx={x} cy={y} r={4} fill={GOLD} />
-            <text x={x} y={H - 2} textAnchor="middle" fill={FAINT} fontSize={9}>{d.term}</text>
-            <text x={x} y={y - 8} textAnchor="middle" fill={GOLD} fontSize={9} fontWeight="bold">{d.avg}%</text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
+const GRADES = ['Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+const pColor = (v: number) => v >= 75 ? GREEN : v >= 60 ? AMBER : RED;
 
 export default function MarksPage() {
-  const [gradeFilter, setGradeFilter] = useState<number | 'all'>('all');
-  const [sortBy, setSortBy] = useState<'subject' | 'avg' | 'passRate'>('avg');
+  const [marks,    setMarks]    = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
+  const [loading,  setLoading]  = useState(true);
+  const [sortBy,   setSortBy]   = useState<'avg' | 'name'>('avg');
 
-  const schoolAvg = Math.round(SUBJECTS_DATA.reduce((s, d) => s + d.avg, 0) / SUBJECTS_DATA.length);
-  const overallPassRate = Math.round(SUBJECTS_DATA.reduce((s, d) => s + d.passRate, 0) / SUBJECTS_DATA.length);
-  const topSubject = SUBJECTS_DATA.reduce((prev, cur) => cur.avg > prev.avg ? cur : prev, SUBJECTS_DATA[0]);
-  const weakSubject = SUBJECTS_DATA.reduce((prev, cur) => cur.avg < prev.avg ? cur : prev, SUBJECTS_DATA[0]);
-  const atRisk = ADMIN_STUDENTS.filter(s => s.average < 60).length;
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/marks').then(r => r.json()),
+      fetch('/api/admin/subjects').then(r => r.json()),
+      fetch('/api/admin/users').then(r => r.json()),
+    ]).then(([m, s, u]) => {
+      setMarks(m.marks ?? []);
+      setSubjects(s.subjects ?? []);
+      setStudents((u.users ?? []).filter((x: any) => x.role === 'student'));
+    }).finally(() => setLoading(false));
+  }, []);
 
-  const sorted = [...SUBJECTS_DATA].sort((a, b) => {
-    if (sortBy === 'avg') return b.avg - a.avg;
-    if (sortBy === 'passRate') return b.passRate - a.passRate;
-    return a.subject.localeCompare(b.subject);
-  });
+  // Per-subject stats from real marks
+  const subjectStats = useMemo(() => subjects.map(sub => {
+    const sm = marks.filter(m => m.subjectId === sub.id);
+    if (!sm.length) return null;
+    const pcts = sm.map(m => (m.score / m.total) * 100);
+    const avg  = Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length);
+    const pass = Math.round((pcts.filter(p => p >= 40).length / pcts.length) * 100);
+    const high = Math.round(Math.max(...pcts));
+    const low  = Math.round(Math.min(...pcts));
+    return { id: sub.id, name: sub.name, color: sub.color, avg, pass, high, low };
+  }).filter(Boolean) as { id: string; name: string; color: string; avg: number; pass: number; high: number; low: number }[],
+  [marks, subjects]);
+
+  const sorted = [...subjectStats].sort((a, b) =>
+    sortBy === 'avg' ? b.avg - a.avg : a.name.localeCompare(b.name));
+
+  const schoolAvg = subjectStats.length
+    ? Math.round(subjectStats.reduce((s, x) => s + x.avg, 0) / subjectStats.length) : 0;
+  const overallPass = subjectStats.length
+    ? Math.round(subjectStats.reduce((s, x) => s + x.pass, 0) / subjectStats.length) : 0;
+  const topSub  = subjectStats.reduce((a, b) => b.avg > a.avg ? b : a, subjectStats[0]);
+  const weakSub = subjectStats.reduce((a, b) => b.avg < a.avg ? b : a, subjectStats[0]);
+
+  const atRisk = useMemo(() => students.filter(s => {
+    const sm = marks.filter(m => m.studentPortalId === s.portalId);
+    if (!sm.length) return false;
+    const avg = sm.reduce((x, m) => x + (m.score / m.total) * 100, 0) / sm.length;
+    return avg < 60;
+  }), [students, marks]);
+
+  // Grade breakdown from real data
+  const gradeStats = GRADES.map(grade => {
+    const gs = students.filter(s => s.grade === grade);
+    const gm = marks.filter(m => gs.find(s => s.portalId === m.studentPortalId));
+    if (!gm.length) return { grade, avg: null, count: gs.length };
+    const avg = Math.round(gm.reduce((x, m) => x + (m.score / m.total) * 100, 0) / gm.length);
+    return { grade, avg, count: gs.length };
+  }).filter(g => g.count > 0);
+
+  // Term trend from real marks grouped by term
+  const termTrend = [1, 2, 3].map(term => {
+    const tm = marks.filter(m => m.term === term);
+    if (!tm.length) return null;
+    const avg = Math.round(tm.reduce((x, m) => x + (m.score / m.total) * 100, 0) / tm.length);
+    return { term: `T${term}`, avg };
+  }).filter(Boolean) as { term: string; avg: number }[];
 
   return (
     <div style={{ padding: 24, fontFamily: FB, background: BG, minHeight: '100%' }}>
       <div style={{ marginBottom: 20 }}>
         <h2 style={{ fontFamily: FH, fontSize: 22, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.02em' }}>Marks Overview</h2>
-        <p style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>School-wide academic performance · Term 3, 2025</p>
+        <p style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>
+          {loading ? 'Loading…' : `${marks.length} marks recorded across ${subjectStats.length} subjects`}
+        </p>
       </div>
 
-      {/* Top stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      {/* Stat cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
         {[
-          { label: 'School Average', value: `${schoolAvg}%`,       color: GOLD,  icon: BarChart2 },
-          { label: 'Overall Pass Rate', value: `${overallPassRate}%`, color: GREEN, icon: TrendingUp },
-          { label: 'Top Subject', value: topSubject.subject.split(' ')[0], color: BLUE,  icon: TrendingUp },
-          { label: 'At Risk Students', value: `${atRisk}`,           color: RED,   icon: TrendingDown },
+          { label: 'School Average',    value: loading ? '—' : subjectStats.length ? `${schoolAvg}%` : '—',         color: GOLD,  Icon: BarChart2   },
+          { label: 'Overall Pass Rate', value: loading ? '—' : subjectStats.length ? `${overallPass}%` : '—',        color: GREEN, Icon: TrendingUp  },
+          { label: 'Top Subject',       value: loading ? '—' : topSub ? topSub.name.split(' ')[0] : '—',             color: BLUE,  Icon: TrendingUp  },
+          { label: 'At Risk Students',  value: loading ? '—' : String(atRisk.length),                                color: RED,   Icon: TrendingDown },
         ].map(c => {
-          const Icon = c.icon;
+          const Icon = c.Icon;
           return (
             <div key={c.label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
@@ -115,78 +118,103 @@ export default function MarksPage() {
         })}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 18 }}>
-        {/* Left — subject breakdown */}
-        <div>
-          {/* Sort controls */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontFamily: FH, fontSize: 14, fontWeight: 600, color: TEXT }}>Subject Breakdown</div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              {[{ key: 'avg', label: 'By Average' }, { key: 'passRate', label: 'By Pass Rate' }, { key: 'subject', label: 'Alphabetical' }].map(s => (
-                <button key={s.key} onClick={() => setSortBy(s.key as typeof sortBy)} style={{ padding: '5px 10px', borderRadius: 7, background: sortBy === s.key ? GOLD_DIM : S2, border: `1px solid ${sortBy === s.key ? GOLD_B : BORDER}`, color: sortBy === s.key ? GOLD : MUTED, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: FB }}>
-                  {s.label}
-                </button>
-              ))}
+      {loading ? (
+        <p style={{ color: MUTED, fontSize: 14 }}>Loading marks data…</p>
+      ) : marks.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: MUTED }}>
+          <BarChart2 size={32} style={{ marginBottom: 12, opacity: 0.4 }} />
+          <div style={{ fontSize: 15, fontWeight: 600, color: TEXT }}>No marks recorded yet</div>
+          <div style={{ fontSize: 13, marginTop: 4 }}>Teachers capture marks in their portal under Mark Capture.</div>
+        </div>
+      ) : (
+        <div className="portal-main-grid" style={{ gap: 18 }}>
+          {/* Subject breakdown */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div style={{ fontFamily: FH, fontSize: 14, fontWeight: 600, color: TEXT }}>Subject Breakdown</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {[{ key: 'avg', label: 'By Average' }, { key: 'name', label: 'Alphabetical' }].map(s => (
+                  <button key={s.key} onClick={() => setSortBy(s.key as typeof sortBy)} style={{ padding: '5px 10px', borderRadius: 7, background: sortBy === s.key ? GOLD_DIM : S2, border: `1px solid ${sortBy === s.key ? GOLD_B : BORDER}`, color: sortBy === s.key ? GOLD : MUTED, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: FB }}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 90px 90px 80px', padding: '10px 16px', borderBottom: `1px solid ${BORDER}` }}>
-              {['Subject', 'Average', 'Pass Rate', 'Highest', 'Lowest'].map(h => (
-                <div key={h} style={{ fontSize: 10, fontWeight: 600, color: FAINT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{h}</div>
-              ))}
-            </div>
-            {sorted.map((s, i) => (
-              <div key={s.subject} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 90px 90px 80px', alignItems: 'center', padding: '0 16px', borderTop: i === 0 ? 'none' : `1px solid rgba(255,255,255,0.04)` }}>
-                <div style={{ padding: '12px 0' }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: TEXT }}>{s.subject}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                    <MiniBar value={s.avg} color={s.avg >= 75 ? GREEN : s.avg >= 60 ? AMBER : RED} />
+            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' as any }}>
+            <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, overflow: 'hidden', minWidth: 480 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 90px 80px 80px', padding: '10px 16px', borderBottom: `1px solid ${BORDER}` }}>
+                {['Subject', 'Average', 'Pass Rate', 'Highest', 'Lowest'].map(h => (
+                  <div key={h} style={{ fontSize: 10, fontWeight: 600, color: FAINT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{h}</div>
+                ))}
+              </div>
+              {sorted.map((s, i) => (
+                <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 90px 80px 80px', alignItems: 'center', padding: '0 16px', borderTop: i === 0 ? 'none' : `1px solid rgba(255,255,255,0.04)` }}>
+                  <div style={{ padding: '12px 0' }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: TEXT }}>{s.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                      <MiniBar value={s.avg} color={pColor(s.avg)} />
+                    </div>
                   </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: pColor(s.avg) }}>{s.avg}%</div>
+                  <div style={{ fontSize: 13, color: s.pass >= 80 ? GREEN : AMBER }}>{s.pass}%</div>
+                  <div style={{ fontSize: 13, color: GREEN }}>{s.high}%</div>
+                  <div style={{ fontSize: 13, color: s.low < 40 ? RED : AMBER }}>{s.low}%</div>
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: s.avg >= 75 ? GREEN : s.avg >= 60 ? AMBER : RED }}>{s.avg}%</div>
-                <div style={{ fontSize: 13, color: s.passRate >= 80 ? GREEN : AMBER }}>{s.passRate}%</div>
-                <div style={{ fontSize: 13, color: GREEN }}>{s.highest}%</div>
-                <div style={{ fontSize: 13, color: s.lowest < 40 ? RED : AMBER }}>{s.lowest}%</div>
+              ))}
+            </div>
+            </div>
+          </div>
+
+          {/* Right panel */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* Term trend */}
+            {termTrend.length > 1 && (
+              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '16px 18px' }}>
+                <div style={{ fontFamily: FH, fontSize: 13, fontWeight: 600, color: TEXT, marginBottom: 12 }}>Term Trend</div>
+                {termTrend.map(t => (
+                  <div key={t.term} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                    <span style={{ fontSize: 11, color: MUTED, width: 28, flexShrink: 0 }}>{t.term}</span>
+                    <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${t.avg}%`, background: GOLD, borderRadius: 3 }} />
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: GOLD, width: 36, textAlign: 'right' }}>{t.avg}%</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+
+            {/* Grade performance */}
+            <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '16px 18px' }}>
+              <div style={{ fontFamily: FH, fontSize: 13, fontWeight: 600, color: TEXT, marginBottom: 12 }}>Grade Performance</div>
+              {gradeStats.map(g => (
+                <div key={g.grade} style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, color: TEXT }}>{g.grade}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: g.avg !== null ? pColor(g.avg) : FAINT }}>
+                      {g.avg !== null ? `${g.avg}%` : 'No marks'}
+                    </span>
+                  </div>
+                  <MiniBar value={g.avg ?? 0} color={g.avg !== null ? pColor(g.avg) : FAINT} />
+                </div>
+              ))}
+            </div>
+
+            {/* Needs attention */}
+            {subjectStats.filter(s => s.avg < 70).length > 0 && (
+              <div style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.20)', borderRadius: 16, padding: '16px 18px' }}>
+                <div style={{ fontFamily: FH, fontSize: 13, fontWeight: 600, color: RED, marginBottom: 10 }}>⚠ Needs Attention</div>
+                {subjectStats.filter(s => s.avg < 70).sort((a, b) => a.avg - b.avg).map(s => (
+                  <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: 12, color: TEXT }}>{s.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: s.avg < 60 ? RED : AMBER }}>{s.avg}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Right panel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* Term trend */}
-          <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '16px 18px' }}>
-            <div style={{ fontFamily: FH, fontSize: 13, fontWeight: 600, color: TEXT, marginBottom: 12 }}>Term Trend</div>
-            <SVGLineChart data={TERM_TREND} />
-          </div>
-
-          {/* Grade performance */}
-          <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '16px 18px' }}>
-            <div style={{ fontFamily: FH, fontSize: 13, fontWeight: 600, color: TEXT, marginBottom: 12 }}>Grade Performance</div>
-            {GRADE_PERFORMANCE.map(g => (
-              <div key={g.grade} style={{ marginBottom: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: TEXT }}>Grade {g.grade}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: g.avg >= 75 ? GREEN : g.avg >= 60 ? AMBER : RED }}>{g.avg}%</span>
-                </div>
-                <MiniBar value={g.avg} color={g.avg >= 75 ? GREEN : g.avg >= 60 ? AMBER : RED} />
-              </div>
-            ))}
-          </div>
-
-          {/* Flagged subjects */}
-          <div style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.20)', borderRadius: 16, padding: '16px 18px' }}>
-            <div style={{ fontFamily: FH, fontSize: 13, fontWeight: 600, color: RED, marginBottom: 10 }}>⚠️ Needs Attention</div>
-            {SUBJECTS_DATA.filter(s => s.avg < 70).map(s => (
-              <div key={s.subject} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: TEXT }}>{s.subject}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: s.avg < 60 ? RED : AMBER }}>{s.avg}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

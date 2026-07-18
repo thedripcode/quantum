@@ -14,7 +14,7 @@ export async function GET() {
     notices: notices.map(n => ({
       id: n.id, category: n.category, title: n.title, body: n.body,
       date: n.createdAt.toISOString().slice(0, 10),
-      author: n.author ?? 'School Office', pinned: n.pinned,
+      author: n.author ?? 'School Office', pinned: n.pinned, audience: n.audience,
     })),
   });
 }
@@ -28,15 +28,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { title, body, category, pinned } = await req.json();
+    const { title, body, category, audience, pinned } = await req.json();
     if (!title?.trim() || !body?.trim()) {
       return NextResponse.json({ error: 'Title and body are required.' }, { status: 400 });
     }
+    const validAudiences = ['all', 'students', 'parents', 'teachers'];
     const notice = await prisma.notice.create({
       data: {
         title: title.trim(),
         body: body.trim(),
         category: category ?? 'Admin',
+        audience: validAudiences.includes(audience) ? audience : 'all',
         pinned: !!pinned,
         author: session.user.name ?? 'Staff',
       },

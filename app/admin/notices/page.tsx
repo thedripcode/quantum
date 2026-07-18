@@ -20,7 +20,7 @@ export default function AdminNoticesPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy]       = useState(false);
   const [toast, setToast]     = useState('');
-  const [form, setForm]       = useState({ title: '', body: '', category: 'Admin', pinned: false });
+  const [form, setForm]       = useState({ title: '', body: '', category: 'Admin', audience: 'all', pinned: false });
 
   const load = useCallback(() => fetch('/api/notices').then(r => r.json()).then(d => setNotices(d.notices ?? [])).finally(() => setLoading(false)), []);
   useEffect(() => { load(); }, [load]);
@@ -34,7 +34,7 @@ export default function AdminNoticesPage() {
     setBusy(false);
     if (!res.ok) { flash('Could not post notice.'); return; }
     flash('✓ Notice posted.');
-    setForm({ title: '', body: '', category: 'Admin', pinned: false });
+    setForm({ title: '', body: '', category: 'Admin', audience: 'all', pinned: false });
     load();
   };
 
@@ -68,6 +68,13 @@ export default function AdminNoticesPage() {
                 {['Academic', 'Sport', 'Event', 'Admin', 'Urgent'].map(c => <option key={c} style={{ background: S2 }}>{c}</option>)}
               </select>
             </div>
+            <div><span style={label}>AUDIENCE</span>
+              <select style={{ ...input, cursor: 'pointer' }} value={form.audience} onChange={e => setForm(f => ({ ...f, audience: e.target.value }))}>
+                {[{ v: 'all', l: 'Everyone' }, { v: 'students', l: 'Students only' }, { v: 'parents', l: 'Parents only' }, { v: 'teachers', l: 'Teachers only' }].map(({ v, l }) => (
+                  <option key={v} value={v} style={{ background: S2 }}>{l}</option>
+                ))}
+              </select>
+            </div>
             <div><span style={label}>BODY</span><textarea rows={5} style={{ ...input, resize: 'vertical' }} value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} placeholder="Write the notice…" /></div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: MUTED }}>
               <input type="checkbox" checked={form.pinned} onChange={e => setForm(f => ({ ...f, pinned: e.target.checked }))} style={{ accentColor: GOLD }} />
@@ -95,7 +102,7 @@ export default function AdminNoticesPage() {
                 <div key={n.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', background: S2, borderRadius: 10, border: `1px solid ${n.pinned ? GOLD_B : BORDER}` }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 600, color: TEXT }}>{n.pinned ? '📌 ' : ''}{n.title}</div>
-                    <div style={{ fontSize: 11, color: FAINT, margin: '3px 0 6px' }}>{n.category} · {n.author} · {n.date}</div>
+                    <div style={{ fontSize: 11, color: FAINT, margin: '3px 0 6px' }}>{n.category} · {n.audience ?? 'all'} · {n.author} · {n.date}</div>
                     <div style={{ fontSize: 12.5, color: MUTED, lineHeight: 1.5 }}>{n.body.length > 160 ? n.body.slice(0, 160) + '…' : n.body}</div>
                   </div>
                   <button onClick={() => remove(n)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#EF4444', fontSize: 11.5, fontWeight: 600, flexShrink: 0 }}>

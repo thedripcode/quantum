@@ -36,7 +36,7 @@ export default function ParentAttendancePage() {
   }, []);
 
   const countByStatus = (st: string) => records.filter(r => r.status === st).length;
-  const pct = stats?.attendancePct;
+  const pct = stats?.attendancePct ?? null;
   const pctColor = pct === null ? MUTED : pct >= 90 ? GREEN : pct >= 75 ? YELLOW : RED;
 
   return (

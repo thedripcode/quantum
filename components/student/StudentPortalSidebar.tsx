@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import styled from 'styled-components';
 import {
-  LayoutDashboard, BarChart2, ClipboardList, Calendar,
+  LayoutDashboard, BarChart2, ClipboardList, Calendar, CalendarCheck,
   CheckSquare, BookOpen, Brain, Bell, MessageSquare,
   Award, Target, User, Users, LogOut, ChevronLeft, Menu,
   AlertTriangle, FileText, ScrollText,
@@ -211,55 +211,66 @@ const CollapseBtn = styled.button<{ $collapsed: boolean }>`
   &:hover { color: ${TEXT}; background: rgba(255,255,255,0.05); }
 `;
 
-// ─── Nav items ────────────────────────────────────────────────────────────────
-const NAV = [
-  {
-    section: 'Overview',
-    items: [
-      { label: 'Dashboard',  href: '/dashboard/student',              Icon: LayoutDashboard, badge: null,  gold: false },
-    ],
-  },
-  {
-    section: 'Academic',
-    items: [
-      { label: 'My Marks',   href: '/dashboard/student/marks',        Icon: BarChart2,       badge: null,  gold: false },
-      { label: 'Report Card', href: '/dashboard/student/report',      Icon: ScrollText,      badge: null,  gold: true  },
-      { label: 'Assignments',href: '/dashboard/student/assignments',   Icon: ClipboardList,   badge: '3',   gold: false },
-      { label: 'Timetable',  href: '/dashboard/student/timetable',    Icon: Calendar,        badge: null,  gold: false },
-      { label: 'Attendance', href: '/dashboard/student/attendance',   Icon: CheckSquare,     badge: null,  gold: false },
-      { label: 'Subjects',   href: '/dashboard/student/subjects',     Icon: BookOpen,        badge: null,  gold: false },
-    ],
-  },
-  {
-    section: 'Tools',
-    items: [
-      { label: 'SIDI',        href: '/dashboard/student/sidi',         Icon: Brain,           badge: null,  gold: false },
-      { label: 'Past Papers', href: '/dashboard/student/papers',       Icon: FileText,        badge: null,  gold: false },
-      { label: 'Notices',    href: '/dashboard/student/notices',      Icon: Bell,            badge: '2',   gold: false },
-      { label: 'Messages',   href: '/dashboard/student/messages',     Icon: MessageSquare,   badge: '1',   gold: false },
-      { label: 'Achievements',href: '/dashboard/student/achievements',Icon: Award,           badge: null,  gold: false },
-      { label: 'Goals',      href: '/dashboard/student/goals',        Icon: Target,          badge: null,  gold: false },
-    ],
-  },
-  {
-    section: 'Account',
-    items: [
-      { label: 'Profile',    href: '/dashboard/student/profile',      Icon: User,            badge: null,  gold: false },
-      { label: 'Parent View',href: '/dashboard/student/parent-view',  Icon: Users,           badge: null,  gold: false },
-    ],
-  },
-];
+// ─── Nav items (badges computed per render inside component) ─────────────────
+function buildNav(pendingAssignments: number, recentNotices: number) {
+  return [
+    {
+      section: 'Overview',
+      items: [
+        { label: 'Dashboard',   href: '/dashboard/student',             Icon: LayoutDashboard, badge: null,                                         gold: false },
+      ],
+    },
+    {
+      section: 'Academic',
+      items: [
+        { label: 'My Marks',    href: '/dashboard/student/marks',       Icon: BarChart2,       badge: null,                                         gold: false },
+        { label: 'Report Card', href: '/dashboard/student/report',      Icon: ScrollText,      badge: null,                                         gold: true  },
+        { label: 'Assignments', href: '/dashboard/student/assignments',  Icon: ClipboardList,   badge: pendingAssignments > 0 ? String(pendingAssignments) : null, gold: false },
+        { label: 'Exams',       href: '/dashboard/student/exams',       Icon: CalendarCheck,   badge: null,                                         gold: false },
+      { label: 'Timetable',   href: '/dashboard/student/timetable',   Icon: Calendar,        badge: null,                                         gold: false },
+        { label: 'Attendance',  href: '/dashboard/student/attendance',  Icon: CheckSquare,     badge: null,                                         gold: false },
+        { label: 'Subjects',    href: '/dashboard/student/subjects',    Icon: BookOpen,        badge: null,                                         gold: false },
+      ],
+    },
+    {
+      section: 'Tools',
+      items: [
+        { label: 'SIDI',        href: '/dashboard/student/sidi',        Icon: Brain,           badge: null,                                         gold: false },
+        { label: 'Past Papers', href: '/dashboard/student/papers',      Icon: FileText,        badge: null,                                         gold: false },
+        { label: 'Notices',     href: '/dashboard/student/notices',     Icon: Bell,            badge: recentNotices > 0 ? String(recentNotices) : null, gold: false },
+        { label: 'Messages',    href: '/dashboard/student/messages',    Icon: MessageSquare,   badge: null,                                         gold: false },
+        { label: 'Achievements',href: '/dashboard/student/achievements',Icon: Award,           badge: null,                                         gold: false },
+        { label: 'Goals',       href: '/dashboard/student/goals',       Icon: Target,          badge: null,                                         gold: false },
+      ],
+    },
+    {
+      section: 'Account',
+      items: [
+        { label: 'Profile',     href: '/dashboard/student/profile',     Icon: User,            badge: null,                                         gold: false },
+        { label: 'Parent View', href: '/dashboard/student/parent-view', Icon: Users,           badge: null,                                         gold: false },
+      ],
+    },
+  ];
+}
 
-// ─── Component ────────────────────────────────────────────────────────────────
-export default function StudentPortalSidebar({ mobileOpen = false, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
+// ─── Inner content (shared between desktop and mobile renders) ────────────────
+function SidebarContent({ collapsed, setCollapsed, onClose }: { collapsed: boolean; setCollapsed: (v: (p: boolean) => boolean) => void; onClose?: () => void }) {
   const pathname   = usePathname();
   const router     = useRouter();
   const { data: session } = useSession();
   const { data: studentData } = useStudentData();
   const AT_RISK_SUBJECTS = studentData.atRiskSubjects;
-  const [collapsed, setCollapsed] = useState(false);
 
-  // Real logged-in user
+  const pendingAssignments = studentData.assignments.filter(
+    a => a.status === 'pending' || a.status === 'overdue'
+  ).length;
+  const recentNotices = studentData.notices.filter(n => {
+    const days = (Date.now() - new Date(n.date).getTime()) / 86_400_000;
+    return days <= 7;
+  }).length;
+
+  const NAV = buildNav(pendingAssignments, recentNotices);
+
   const displayName  = session?.user?.name ?? '…';
   const displayGrade = (session?.user as any)?.grade ?? '';
   const initials     = displayName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
@@ -270,7 +281,7 @@ export default function StudentPortalSidebar({ mobileOpen = false, onClose }: { 
       : pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <Aside $collapsed={collapsed} $mobileOpen={mobileOpen}>
+    <>
       {/* Brand */}
       <Brand $collapsed={collapsed}>
         <BrandDot>S</BrandDot>
@@ -287,9 +298,7 @@ export default function StudentPortalSidebar({ mobileOpen = false, onClose }: { 
         <Avatar>{initials}</Avatar>
         {!collapsed && (
           <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: TEXT, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {displayName}
-            </div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: TEXT, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayName}</div>
             <div style={{ fontSize: 11, color: MUTED, marginTop: 1 }}>{displayGrade}</div>
           </div>
         )}
@@ -326,15 +335,9 @@ export default function StudentPortalSidebar({ mobileOpen = false, onClose }: { 
                 >
                   <Icon size={15} strokeWidth={active ? 2 : 1.6} style={{ flexShrink: 0 }} />
                   {!collapsed && <NavLabel>{label}</NavLabel>}
-                  {!collapsed && badge && (
-                    <Badge $gold={gold}>{badge}</Badge>
-                  )}
+                  {!collapsed && badge && <Badge $gold={gold}>{badge}</Badge>}
                   {collapsed && badge && (
-                    <span style={{
-                      position: 'absolute', top: 4, right: 4,
-                      width: 8, height: 8, borderRadius: '50%',
-                      background: '#EF4444',
-                    }} />
+                    <span style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderRadius: '50%', background: '#EF4444' }} />
                   )}
                 </NavItem>
               );
@@ -346,10 +349,7 @@ export default function StudentPortalSidebar({ mobileOpen = false, onClose }: { 
       {/* Footer */}
       <Spacer>
         <CollapseBtn $collapsed={collapsed} onClick={() => setCollapsed(v => !v)} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-          {collapsed
-            ? <Menu size={15} />
-            : <><ChevronLeft size={15} /><span style={{ fontSize: 13 }}>Collapse</span></>
-          }
+          {collapsed ? <Menu size={15} /> : <><ChevronLeft size={15} /><span style={{ fontSize: 13 }}>Collapse</span></>}
         </CollapseBtn>
         <button
           onClick={() => signOut({ callbackUrl: '/student-portal' })}
@@ -360,6 +360,56 @@ export default function StudentPortalSidebar({ mobileOpen = false, onClose }: { 
           {!collapsed && <span>Sign Out</span>}
         </button>
       </Spacer>
-    </Aside>
+    </>
+  );
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+export default function StudentPortalSidebar({ mobileOpen = false, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const desktopStyle: React.CSSProperties = {
+    width: collapsed ? 64 : 240,
+    flexShrink: 0,
+    height: '100vh',
+    position: 'sticky',
+    top: 0,
+    background: BG,
+    borderRight: `1px solid ${BORDER}`,
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'width 0.28s cubic-bezier(0.33,1,0.68,1)',
+    overflow: 'hidden',
+    zIndex: 40,
+  };
+
+  const mobileStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: 240,
+    background: BG,
+    borderRight: `1px solid ${BORDER}`,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    zIndex: 50,
+    transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+    transition: 'transform 0.3s cubic-bezier(0.33,1,0.68,1)',
+  };
+
+  return (
+    <>
+      {/* Desktop sidebar — always visible on lg+ */}
+      <aside className="hidden lg:flex flex-col flex-shrink-0" style={desktopStyle}>
+        <SidebarContent collapsed={collapsed} setCollapsed={setCollapsed} onClose={onClose} />
+      </aside>
+
+      {/* Mobile sidebar — overlay, slides in when open */}
+      <aside className="lg:hidden" style={mobileStyle}>
+        <SidebarContent collapsed={false} setCollapsed={setCollapsed} onClose={onClose} />
+      </aside>
+    </>
   );
 }

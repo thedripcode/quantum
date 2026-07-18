@@ -261,6 +261,7 @@ export default function ApplicationForm() {
   const [loading,   setLoading]   = useState(false);
   const [appRef,    setAppRef]    = useState('');
   const [submitErr, setSubmitErr] = useState('');
+  const [uploadedDocs, setUploadedDocs] = useState<Record<string, { name: string; file: File }>>({});
   const [form,      setForm]      = useState({
     firstName: '', lastName: '', dob: '', gender: '', idNumber: '', email: '', phone: '', address: '', city: '', province: '',
     parentName: '', parentRelation: '', parentPhone: '', parentEmail: '', parentOccupation: '',
@@ -274,6 +275,7 @@ export default function ApplicationForm() {
     setLoading(true);
     setSubmitErr('');
     try {
+      // Step 1: submit form to get the ref
       const res = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -284,7 +286,34 @@ export default function ApplicationForm() {
         setSubmitErr(data.error ?? 'Could not submit application. Please try again.');
         return;
       }
-      setAppRef(data.ref);
+      const ref = data.ref;
+
+      // Step 2: upload each document and collect URLs
+      const documents: { label: string; url: string; name: string }[] = [];
+      for (const [label, { file }] of Object.entries(uploadedDocs)) {
+        try {
+          const fd = new FormData();
+          fd.append('file', file);
+          fd.append('label', label);
+          fd.append('ref', ref);
+          const up = await fetch('/api/upload', { method: 'POST', body: fd });
+          if (up.ok) {
+            const d = await up.json();
+            documents.push({ label, url: d.url, name: d.name });
+          }
+        } catch { /* skip failed uploads silently */ }
+      }
+
+      // Step 3: if we have documents, patch them onto the application
+      if (documents.length > 0) {
+        await fetch('/api/applications/documents', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ref, documents }),
+        });
+      }
+
+      setAppRef(ref);
       setSubmitted(true);
     } catch {
       setSubmitErr('Network error. Please check your connection and try again.');
@@ -475,19 +504,39 @@ export default function ApplicationForm() {
 
               <Label style={{ display: 'block', marginBottom: 12 }}>Required Documents</Label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {DOCS.map(doc => (
-                  <DocRow key={doc}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <Upload size={15} strokeWidth={1.5} style={{ color: 'var(--text-faint)', flexShrink: 0 }} />
-                      <span style={{ fontFamily: F.body, fontSize: 13, fontWeight: 300, color: 'var(--text-muted)' }}>{doc}</span>
-                    </div>
-                    <UploadBtn type="button">
-                      <Upload size={11} strokeWidth={1.5} />
-                      Upload
-                    </UploadBtn>
-                  </DocRow>
-                ))}
+                {DOCS.map(doc => {
+                  const uploaded = uploadedDocs[doc];
+                  return (
+                    <DocRow key={doc} onClick={() => document.getElementById(`file-${doc}`)?.click()}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
+                        <Upload size={15} strokeWidth={1.5} style={{ color: uploaded ? '#10B981' : 'var(--text-faint)', flexShrink: 0 }} />
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ fontFamily: F.body, fontSize: 13, fontWeight: 300, color: 'var(--text-muted)', display: 'block' }}>{doc}</span>
+                          {uploaded && <span style={{ fontFamily: F.body, fontSize: 11, color: '#10B981', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>✓ {uploaded.name}</span>}
+                        </div>
+                      </div>
+                      <input
+                        id={`file-${doc}`}
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        style={{ display: 'none' }}
+                        onClick={e => e.stopPropagation()}
+                        onChange={e => {
+                          const file = e.target.files?.[0];
+                          if (file) setUploadedDocs(prev => ({ ...prev, [doc]: { name: file.name, file } }));
+                        }}
+                      />
+                      <UploadBtn type="button" style={uploaded ? { color: '#10B981', borderColor: 'rgba(16,185,129,0.3)' } : {}}>
+                        <Upload size={11} strokeWidth={1.5} />
+                        {uploaded ? 'Change' : 'Upload'}
+                      </UploadBtn>
+                    </DocRow>
+                  );
+                })}
               </div>
+              <p style={{ fontFamily: F.body, fontSize: 11, color: 'var(--text-faint)', marginTop: 10 }}>
+                Accepted formats: PDF, JPG, PNG. Original certified copies must be presented on enrolment.
+              </p>
             </div>
           )}
         </motion.div>

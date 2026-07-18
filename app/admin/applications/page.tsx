@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { CheckCircle2, Clock, XCircle, AlertCircle, Search, ChevronDown, FileText, Loader2 } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, AlertCircle, Search, ChevronDown, FileText, Loader2, Download, Eye } from 'lucide-react';
 
 const BG = '#0C0C0C', SURFACE = '#161616', S2 = '#1E1E1E';
 const GOLD = '#C9A84C';
@@ -18,11 +18,14 @@ const STATUS_CFG: Record<Status, { color: string; bg: string; icon: React.Elemen
   Waitlisted: { color: BLUE,  bg: 'rgba(59,130,246,0.10)',  icon: AlertCircle },
 };
 
+interface Doc { label: string; url: string; name: string; }
+
 interface App {
   id: string; ref: string; firstName: string; lastName: string;
   applyingGrade: string; academicYear: string; status: Status;
   email: string | null; phone: string | null; parentName: string | null;
   parentPhone: string | null; previousSchool: string | null; adminNote: string | null;
+  documents: Doc[] | null;
   createdAt: string;
 }
 
@@ -61,6 +64,40 @@ function DetailModal({ app, onClose, onStatusChange }: {
               <span style={{ fontSize: 13, color: TEXT }}>{val}</span>
             </div>
           ) : null)}
+          {/* Documents */}
+          <div style={{ marginTop: 16, marginBottom: 16 }}>
+            <div style={{ fontSize: 11, color: MUTED, fontWeight: 600, marginBottom: 8, letterSpacing: '0.08em' }}>SUBMITTED DOCUMENTS</div>
+            {app.documents && app.documents.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {app.documents.map((doc, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 14px', background: S2, border: `1px solid ${BORDER}`, borderRadius: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                      <FileText size={14} style={{ color: GOLD, flexShrink: 0 }} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: TEXT, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.label}</div>
+                        <div style={{ fontSize: 10, color: FAINT, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.name}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                      <a href={doc.url} target="_blank" rel="noopener noreferrer"
+                        style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 7, background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.25)`, color: GOLD, fontSize: 11, fontWeight: 600, textDecoration: 'none', fontFamily: FB }}>
+                        <Eye size={11} /> View
+                      </a>
+                      <a href={doc.url} download={doc.name}
+                        style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 7, background: S2, border: `1px solid ${BORDER}`, color: MUTED, fontSize: 11, fontWeight: 600, textDecoration: 'none', fontFamily: FB }}>
+                        <Download size={11} /> Save
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '12px 14px', background: S2, border: `1px dashed ${BORDER}`, borderRadius: 10, fontSize: 12, color: FAINT }}>
+                No documents uploaded with this application.
+              </div>
+            )}
+          </div>
+
           <div style={{ marginTop: 16 }}>
             <div style={{ fontSize: 11, color: MUTED, fontWeight: 600, marginBottom: 6 }}>ADMIN NOTE</div>
             <textarea rows={3} value={note} onChange={e => setNote(e.target.value)} placeholder="Optional note…"
@@ -92,7 +129,7 @@ export default function AdminApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState<Status | 'All'>('All');
   const [selected, setSelected] = useState<App | null>(null);
 
-  const flash = (m: string) => { setToast(m); setTimeout(() => setToast(''), 4000); };
+  const flash = (m: string, ms = 6000) => { setToast(m); setTimeout(() => setToast(''), ms); };
 
   const load = useCallback(() => {
     setLoading(true);
@@ -106,8 +143,18 @@ export default function AdminApplicationsPage() {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status, adminNote }),
     });
-    if (res.ok) { flash(`✓ Application ${status.toLowerCase()}.`); load(); }
-    else flash('Could not update application.');
+    const data = await res.json();
+    if (res.ok) {
+      if (data.createdAccount) {
+        const { portalId, schoolEmail, tempPassword } = data.createdAccount;
+        flash(`✓ Approved & account created! ID: ${portalId} | Email: ${schoolEmail} | Temp password: ${tempPassword}`);
+      } else {
+        flash(`✓ Application ${status.toLowerCase()}.`);
+      }
+      load();
+    } else {
+      flash('Could not update application.');
+    }
   };
 
   const counts = { All: apps.length, Pending: 0, Approved: 0, Rejected: 0, Waitlisted: 0 };

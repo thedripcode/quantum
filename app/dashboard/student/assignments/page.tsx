@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Clock, FileCheck, Filter } from 'lucide-react';
-import { useStudentData, type RealAssignment as Assignment } from '@/lib/useStudentData';
+import { AlertTriangle, CheckCircle2, Clock, FileCheck, Filter, Send, Loader2 } from 'lucide-react';
+import { useStudentData, invalidateStudentData, type RealAssignment as Assignment } from '@/lib/useStudentData';
 
 const BG = '#0C0C0C'; const SURFACE = '#161616'; const S2 = '#1E1E1E';
 const GOLD = '#C9A84C'; const GOLD_DIM = 'rgba(201,168,76,0.08)'; const GOLD_B = 'rgba(201,168,76,0.20)';
@@ -21,9 +21,16 @@ const STATUS_CONFIG = {
 
 const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
-function AssignmentCard({ a }: { a: Assignment }) {
+function AssignmentCard({ a, onSubmit }: { a: Assignment; onSubmit: (id: string) => Promise<void> }) {
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const sc  = STATUS_CONFIG[a.status];
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    await onSubmit(a.id);
+    setSubmitting(false);
+  };
   const Icon = sc.icon;
   const due = new Date(a.dueDate);
   const today = new Date();
@@ -92,6 +99,19 @@ function AssignmentCard({ a }: { a: Assignment }) {
               <p style={{ fontSize: 13, color: MUTED, margin: 0, lineHeight: 1.6 }}>{a.feedback}</p>
             </div>
           )}
+          {(a.status === 'pending' || a.status === 'overdue') && (
+            <div style={{ marginTop: 14 }}>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 18px', borderRadius: 10, background: GOLD, border: 'none', color: '#000', fontFamily: F_HEADING, fontSize: 13, fontWeight: 700, cursor: submitting ? 'default' : 'pointer', opacity: submitting ? 0.6 : 1 }}
+              >
+                {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                {submitting ? 'Submitting…' : 'Mark as Submitted'}
+              </button>
+              <p style={{ fontSize: 11, color: FAINT, marginTop: 6 }}>This tells your teacher you have completed this assignment.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -101,6 +121,15 @@ function AssignmentCard({ a }: { a: Assignment }) {
 export default function AssignmentsPage() {
   const [filter, setFilter] = useState<Filter>('all');
   const { data, loading } = useStudentData();
+
+  const handleSubmit = async (assignmentId: string) => {
+    const res = await fetch('/api/submissions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignmentId }),
+    });
+    if (res.ok) { invalidateStudentData(); window.location.reload(); }
+  };
   const ASSIGNMENTS = data.assignments;
 
   if (loading) {
@@ -179,7 +208,7 @@ export default function AssignmentsPage() {
           <div style={{ fontSize: 13, marginTop: 4 }}>No assignments in this category.</div>
         </div>
       ) : (
-        filtered.map(a => <AssignmentCard key={a.id} a={a} />)
+        filtered.map(a => <AssignmentCard key={a.id} a={a} onSubmit={handleSubmit} />)
       )}
     </div>
   );

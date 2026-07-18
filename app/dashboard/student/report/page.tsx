@@ -168,7 +168,7 @@ export default function ReportCardPage() {
 
             {/* Subjects table */}
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontFamily: FH, fontSize: 14, fontWeight: 800, color: '#111', marginBottom: 10, letterSpacing: '-0.01em', textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11, color: '#6b7280' }}>
+              <div style={{ fontFamily: FH, fontSize: 11, fontWeight: 800, color: '#6b7280', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Academic Results — Term {term}
               </div>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>

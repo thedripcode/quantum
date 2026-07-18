@@ -616,7 +616,7 @@ export default function LoginForm({ type }: LoginFormProps) {
                 </span>
               </label>
               <Link
-                href="#"
+                href="/reset-password"
                 style={{ fontFamily: F.body, fontSize: 13, fontWeight: 600, color: 'rgba(147,197,253,0.85)', textDecoration: 'none' }}
               >
                 Forgot password?

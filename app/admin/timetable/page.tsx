@@ -116,12 +116,44 @@ export default function TimetablePage() {
   const [selectedGrade, setSelectedGrade] = useState<number>(11);
   const [selectedSection, setSelectedSection] = useState<string>('A');
   const [published, setPublished] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
   const [timetable, setTimetable] = useState<string[][]>([]);
   const [editCell, setEditCell] = useState<{ day: number; period: number } | null>(null);
+  const [dbSubjects, setDbSubjects] = useState<{ code: string; name: string; color: string }[]>([]);
 
   useEffect(() => {
-    setTimetable(generateTimetable(selectedGrade, selectedSection));
-    setPublished(false);
+    fetch('/api/admin/subjects').then(r => r.json()).then(d => {
+      setDbSubjects(d.subjects ?? []);
+    });
+  }, []);
+
+  useEffect(() => {
+    const grade = `Grade ${selectedGrade}`;
+    fetch(`/api/admin/timetable?grade=${encodeURIComponent(grade)}`).then(r => r.json()).then(d => {
+      const slots: any[] = d.slots ?? [];
+      if (slots.length > 0) {
+        // Build grid from DB slots
+        const grid: string[][] = Array.from({ length: 5 }, () => Array(10).fill(''));
+        slots.forEach(s => {
+          const dIdx = DAYS.indexOf(s.day);
+          // period is 1-indexed non-break period; map back to row index
+          let p1count = 0;
+          for (let i = 0; i < PERIODS.length; i++) {
+            if (PERIODS[i] !== 'Break' && PERIODS[i] !== 'Lunch') p1count++;
+            if (p1count === s.period) { if (dIdx >= 0) grid[dIdx][i] = s.subjectName; break; }
+          }
+        });
+        setTimetable(grid);
+        setPublished(true);
+      } else {
+        setTimetable(generateTimetable(selectedGrade, selectedSection));
+        setPublished(false);
+      }
+    }).catch(() => {
+      setTimetable(generateTimetable(selectedGrade, selectedSection));
+      setPublished(false);
+    });
     setEditCell(null);
   }, [selectedGrade, selectedSection]);
 
@@ -172,11 +204,38 @@ export default function TimetablePage() {
             </div>
           )}
           <button
-            onClick={() => setPublished(true)}
-            style={{ background: GOLD, color: '#000', borderRadius: 9999, padding: '9px 20px', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: 13, fontFamily: FB }}
+            onClick={async () => {
+              setSaving(true);
+              setSaveMsg('');
+              const grade = `Grade ${selectedGrade}`;
+              const slots: any[] = [];
+              let p1count = 0;
+              for (let pIdx = 0; pIdx < PERIODS.length; pIdx++) {
+                if (PERIODS[pIdx] === 'Break' || PERIODS[pIdx] === 'Lunch') continue;
+                p1count++;
+                DAYS.forEach((day, dIdx) => {
+                  const subjectName = timetable[dIdx]?.[pIdx];
+                  if (!subjectName) return;
+                  // Find subject code from DB subjects or use name as code
+                  const sub = dbSubjects.find(s => s.name === subjectName);
+                  if (sub) slots.push({ day, period: p1count, time: PERIODS[pIdx].split('–')[0], endTime: PERIODS[pIdx].split('–')[1] ?? '', subjectCode: sub.code });
+                });
+              }
+              const res = await fetch('/api/admin/timetable', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ grade, slots }),
+              });
+              setSaving(false);
+              if (res.ok) { setPublished(true); setSaveMsg('Saved!'); setTimeout(() => setSaveMsg(''), 3000); }
+              else setSaveMsg('Save failed — check subject codes match DB.');
+            }}
+            disabled={saving}
+            style={{ background: GOLD, color: '#000', borderRadius: 9999, padding: '9px 20px', fontWeight: 700, border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: 13, fontFamily: FB, opacity: saving ? 0.7 : 1 }}
           >
-            Publish Timetable
+            {saving ? 'Saving…' : 'Publish Timetable'}
           </button>
+          {saveMsg && <span style={{ fontSize: 12, color: saveMsg.includes('failed') ? '#EF4444' : GREEN }}>{saveMsg}</span>}
         </div>
       </div>
 
@@ -251,7 +310,8 @@ export default function TimetablePage() {
       </div>
 
       {/* Timetable grid */}
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, overflow: 'hidden', marginBottom: 12 }}>
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', marginBottom: 12 }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, overflow: 'hidden', minWidth: 680 }}>
 
         {/* Header row */}
         <div style={{ display: 'grid', gridTemplateColumns: '128px repeat(5, 1fr)', borderBottom: `1px solid ${BORDER}` }}>
@@ -383,6 +443,7 @@ export default function TimetablePage() {
             </div>
           );
         })}
+      </div>
       </div>
 
       <p style={{ fontSize: 11, color: FAINT, marginTop: 8 }}>

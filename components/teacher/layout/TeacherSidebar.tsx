@@ -45,6 +45,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href:'/dashboard/teacher/capture',     icon:PenLine,         label:'Capture' },
       { href:'/dashboard/teacher/gradebook',   icon:BookOpen,        label:'Gradebook',   badgeKey:'pending' },
       { href:'/dashboard/teacher/assignments', icon:ClipboardList,   label:'Assignments' },
+      { href:'/dashboard/teacher/submissions', icon:FileText,        label:'Submissions' },
       { href:'/dashboard/teacher/exams',       icon:CalendarCheck,   label:'Exams' },
     ],
   },

@@ -119,7 +119,7 @@ export default function AdminPortalPage() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: FAINT }}>
-          Demo credentials: <span style={{ color: GOLD }}>admin / admin123</span>
+          Admin ID: <span style={{ color: GOLD }}>ADM001</span> &nbsp;·&nbsp; Password: <span style={{ color: GOLD }}>admin123</span>
         </div>
       </div>
 

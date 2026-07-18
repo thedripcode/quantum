@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import styled from 'styled-components';
@@ -21,31 +20,6 @@ const GOLD_DIM = 'rgba(201,168,76,0.08)';
 const GOLD_B   = 'rgba(201,168,76,0.22)';
 const ACCENT_DIM = 'rgba(255,255,255,0.06)';
 const ACCENT_B   = 'rgba(255,255,255,0.10)';
-
-const Aside = styled.aside<{ $collapsed: boolean; $mobileOpen: boolean }>`
-  width: ${({ $collapsed }) => ($collapsed ? '64px' : '240px')};
-  flex-shrink: 0;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  background: ${BG};
-  border-right: 1px solid ${BORDER};
-  display: flex;
-  flex-direction: column;
-  transition: width 0.28s cubic-bezier(0.33,1,0.68,1);
-  overflow: hidden;
-  z-index: 40;
-
-  @media (max-width: 1023px) {
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    height: 100dvh;
-    width: 240px !important;
-    transform: ${({ $mobileOpen }) => $mobileOpen ? 'translateX(0)' : 'translateX(-100%)'};
-    transition: transform 0.3s cubic-bezier(0.33,1,0.68,1);
-    z-index: 50;
-  }
-`;
 
 const Brand = styled.div<{ $collapsed: boolean }>`
   height: 60px;
@@ -150,11 +124,18 @@ const NAV = [
   },
 ];
 
-export default function ParentSidebar({ mobileOpen = false, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
+function ParentSidebarContent({
+  collapsed,
+  setCollapsed,
+  onClose,
+}: {
+  collapsed: boolean;
+  setCollapsed: (fn: (v: boolean) => boolean) => void;
+  onClose?: () => void;
+}) {
   const pathname = usePathname();
   const router   = useRouter();
   const { data: session } = useSession();
-  const [collapsed, setCollapsed] = useState(false);
 
   const displayName = session?.user?.name ?? '…';
   const initials    = displayName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
@@ -163,7 +144,7 @@ export default function ParentSidebar({ mobileOpen = false, onClose }: { mobileO
     href === '/dashboard/parent' ? pathname === href : pathname.startsWith(href);
 
   return (
-    <Aside $collapsed={collapsed} $mobileOpen={mobileOpen}>
+    <>
       <Brand $collapsed={collapsed}>
         <BrandDot>P</BrandDot>
         {!collapsed && (
@@ -220,6 +201,38 @@ export default function ParentSidebar({ mobileOpen = false, onClose }: { mobileO
           {!collapsed && <span>Sign Out</span>}
         </button>
       </Spacer>
-    </Aside>
+    </>
+  );
+}
+
+export default function ParentSidebar({ mobileOpen = false, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const desktopStyle: React.CSSProperties = {
+    width: collapsed ? 64 : 240, flexShrink: 0, height: '100vh', position: 'sticky', top: 0,
+    background: BG, borderRight: `1px solid ${BORDER}`,
+    display: 'flex', flexDirection: 'column',
+    transition: 'width 0.28s cubic-bezier(0.33,1,0.68,1)', overflow: 'hidden', zIndex: 40,
+  };
+
+  const mobileStyle: React.CSSProperties = {
+    position: 'fixed', top: 0, left: 0, bottom: 0, width: 240,
+    background: BG, borderRight: `1px solid ${BORDER}`,
+    display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 50,
+    transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+    transition: 'transform 0.3s cubic-bezier(0.33,1,0.68,1)',
+  };
+
+  return (
+    <>
+      {/* Desktop — always visible */}
+      <aside className="hidden lg:flex flex-col flex-shrink-0" style={desktopStyle}>
+        <ParentSidebarContent collapsed={collapsed} setCollapsed={setCollapsed} onClose={onClose} />
+      </aside>
+      {/* Mobile — overlay */}
+      <aside className="lg:hidden" style={mobileStyle}>
+        <ParentSidebarContent collapsed={false} setCollapsed={setCollapsed} onClose={onClose} />
+      </aside>
+    </>
   );
 }

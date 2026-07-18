@@ -21,6 +21,7 @@
     "@anthropic-ai/sdk": "^0.104.1",
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^5.22.0",
+    "@supabase/supabase-js": "^2.108.1",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
@@ -32,6 +33,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.8.1",
+    "resend": "^6.12.4",
     "styled-components": "^6.4.2",
     "tailwind-merge": "^2.5.4",
     "ts-node": "^10.9.2"

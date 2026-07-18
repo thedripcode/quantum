@@ -156,7 +156,7 @@ export default function SettingsPage() {
         </FieldRow>
         <div>
           <div style={{ fontSize: 11, fontWeight: 600, color: FAINT, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Class Capacity Per Grade</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(70px, 1fr))', gap: 8 }}>
             {(['8', '9', '10', '11', '12'] as const).map(g => (
               <div key={g} style={{ background: S2, borderRadius: 10, padding: '10px 12px', textAlign: 'center' }}>
                 <div style={{ fontSize: 10, color: FAINT, marginBottom: 6 }}>Grade {g}</div>

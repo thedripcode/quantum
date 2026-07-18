@@ -121,7 +121,7 @@ export default function ReportsPage() {
       </div>
 
       {/* ── Quick stat cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
         {QUICK_STATS.map(s => (
           <div key={s.label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '14px 16px' }}>
             <div style={{ fontSize: 11, color: MUTED, marginBottom: 5 }}>{s.label}</div>
@@ -134,7 +134,7 @@ export default function ReportsPage() {
       {/* ── Report type selector ── */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Report Type</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
           {REPORT_TYPE_CONFIG.map(r => {
             const active = reportType === r.id;
             return (

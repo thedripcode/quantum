@@ -82,7 +82,7 @@ export default function AcademicYearPage() {
           <div style={{ height: '100%', width: `${progressPct}%`, background: `linear-gradient(90deg, ${GREEN}, ${GOLD})`, borderRadius: 4, transition: 'width 1s ease' }} />
         </div>
         {/* Mini term tiles */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 8 }}>
           {terms.map(t => {
             const sc = STATUS_CFG[t.status];
             return (
@@ -96,7 +96,7 @@ export default function AcademicYearPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20 }}>
+      <div className="portal-main-grid" style={{ gap: 20 }}>
         {/* Left: Term details */}
         <div>
           <div style={{ fontFamily: FH, fontSize: 14, fontWeight: 700, color: TEXT, marginBottom: 14 }}>Term Details</div>

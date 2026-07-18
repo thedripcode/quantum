@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import bcrypt from 'bcryptjs';
+import { sendApplicationConfirmationEmail, sendAccountCreatedEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,6 +46,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Send confirmation email to parent or applicant
+    const confirmTo = body.parentEmail || body.email;
+    if (confirmTo) {
+      try {
+        await sendApplicationConfirmationEmail(confirmTo, firstName, ref, applyingGrade);
+      } catch (emailErr) {
+        console.error('Failed to send application confirmation email:', emailErr);
+      }
+    }
+
     return NextResponse.json({ success: true, ref: application.ref });
   } catch (err) {
     console.error('Application submit error:', err);
@@ -64,7 +76,65 @@ export async function PATCH(req: NextRequest) {
       where: { id },
       data: { status, ...(adminNote !== undefined ? { adminNote } : {}) },
     });
-    return NextResponse.json({ success: true, application });
+
+    // Auto-create student account when approved
+    let createdAccount: { portalId: string; schoolEmail: string; tempPassword: string } | null = null;
+    if (status === 'Approved') {
+      // Check if an account already exists for this applicant's email
+      const existingEmail = application.email?.trim().toLowerCase();
+      const alreadyExists = existingEmail
+        ? await prisma.user.findUnique({ where: { email: existingEmail } })
+        : null;
+
+      if (!alreadyExists) {
+        // Generate portal ID: STU + year + 3-digit sequence
+        const year = new Date().getFullYear();
+        const stuCount = await prisma.user.count({ where: { role: 'student' } });
+        const portalId = `STU${year}${String(stuCount + 1).padStart(3, '0')}`;
+        const schoolEmail = `${portalId.toLowerCase()}@sidelile.edu.za`;
+
+        // Temporary password = first name + last 4 digits of ID number (or 1234)
+        const idSuffix = application.idNumber ? application.idNumber.slice(-4) : '1234';
+        const tempPassword = `${application.firstName}${idSuffix}`;
+        const hashedPassword = await bcrypt.hash(tempPassword, 12);
+
+        const fullName = `${application.firstName} ${application.lastName}`;
+        const accountEmail = existingEmail || schoolEmail;
+
+        await prisma.user.create({
+          data: {
+            name: fullName,
+            email: accountEmail,
+            schoolEmail,
+            portalId,
+            password: hashedPassword,
+            role: 'student',
+            grade: application.applyingGrade,
+            active: true,
+          },
+        });
+
+        createdAccount = { portalId, schoolEmail, tempPassword };
+
+        // Email the student their login credentials
+        const accountEmailTo = existingEmail || application.parentEmail || null;
+        if (accountEmailTo) {
+          try {
+            await sendAccountCreatedEmail(
+              accountEmailTo,
+              `${application.firstName} ${application.lastName}`,
+              portalId,
+              schoolEmail,
+              tempPassword,
+            );
+          } catch (emailErr) {
+            console.error('Failed to send account created email:', emailErr);
+          }
+        }
+      }
+    }
+
+    return NextResponse.json({ success: true, application, createdAccount });
   } catch (err) {
     console.error('Application update error:', err);
     return NextResponse.json({ error: 'Could not update application.' }, { status: 500 });

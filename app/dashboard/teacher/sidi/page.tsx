@@ -47,7 +47,7 @@ function LessonPlanTool() {
 
   return (
     <div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:16 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))', gap:12, marginBottom:16 }}>
         <div><div style={{ fontFamily:FB, fontSize:11, color:FAINT, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Grade</div>
           {sel(grade, setGrade, ['8','9','10','11','12'])}</div>
         <div><div style={{ fontFamily:FB, fontSize:11, color:FAINT, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Subject</div>
@@ -125,7 +125,7 @@ function AssessmentTool() {
 
   return (
     <div>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:16 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))', gap:12, marginBottom:16 }}>
         <div><div style={{ fontFamily:FB, fontSize:11, color:FAINT, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Type</div>
           {sel(type, setType, ['Quiz','Test','Exam','Worksheet'])}</div>
         <div><div style={{ fontFamily:FB, fontSize:11, color:FAINT, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Grade</div>
@@ -198,7 +198,7 @@ function InsightsTool() {
   return (
     <div>
       {/* Stats grid */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))', gap:12, marginBottom:24 }}>
         {INSIGHTS.map(({ label, value, sub, color }) => (
           <div key={label} style={{ background:S2, border:`1px solid ${BORDER}`, borderRadius:14, padding:'16px 18px' }}>
             <div style={{ fontFamily:FB, fontSize:11, color:MUTED, marginBottom:6 }}>{label}</div>

@@ -50,7 +50,7 @@ export default function TeacherExamsPage() {
   const flash = (m: string) => { setToast(m); setTimeout(() => setToast(''), 5000); };
 
   const loadSubjects = useCallback(async () => {
-    const r = await fetch('/api/admin/subjects');
+    const r = await fetch('/api/teacher/roster');
     if (r.ok) {
       const d = await r.json();
       const subs = d.subjects ?? [];

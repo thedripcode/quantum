@@ -9,7 +9,7 @@ import {
   LayoutDashboard, BarChart2, ClipboardList, Calendar, CalendarCheck,
   CheckSquare, BookOpen, Brain, Bell, MessageSquare,
   Award, Target, User, Users, LogOut, ChevronLeft, Menu,
-  AlertTriangle, FileText, ScrollText,
+  AlertTriangle, FileText, ScrollText, PlayCircle,
 } from 'lucide-react';
 import { useStudentData } from '@/lib/useStudentData';
 
@@ -238,6 +238,7 @@ function buildNav(pendingAssignments: number, recentNotices: number) {
       section: 'Tools',
       items: [
         { label: 'SIDI',        href: '/dashboard/student/sidi',        Icon: Brain,           badge: null,                                         gold: false },
+        { label: 'Videos',      href: '/dashboard/student/videos',      Icon: PlayCircle,      badge: null,                                         gold: false },
         { label: 'Past Papers', href: '/dashboard/student/papers',      Icon: FileText,        badge: null,                                         gold: false },
         { label: 'Notices',     href: '/dashboard/student/notices',     Icon: Bell,            badge: recentNotices > 0 ? String(recentNotices) : null, gold: false },
         { label: 'Messages',    href: '/dashboard/student/messages',    Icon: MessageSquare,   badge: null,                                         gold: false },

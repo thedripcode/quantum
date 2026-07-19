@@ -19,7 +19,7 @@ export async function GET() {
       orderBy: { name: 'asc' },
     }),
     prisma.subject.findMany({
-      select: { code: true, name: true, short: true, color: true },
+      select: { id: true, code: true, name: true, short: true, color: true },
       orderBy: { name: 'asc' },
     }),
   ]);

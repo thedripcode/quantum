@@ -10,7 +10,7 @@ import {
   Users, UserCheck, AlertTriangle, Building2,
   BarChart2, FileText, Download, Bell, MessageSquare,
   PhoneCall, Settings, GraduationCap, LogOut, ChevronRight,
-  PanelLeftClose, PanelLeftOpen, Brain, PenLine,
+  PanelLeftClose, PanelLeftOpen, Brain, PenLine, Youtube,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TEACHERS, CURRENT_TEACHER_ID, SCHOOL_CLASSES } from '@/lib/teacher/mockData';
@@ -47,6 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href:'/dashboard/teacher/assignments', icon:ClipboardList,   label:'Assignments' },
       { href:'/dashboard/teacher/submissions', icon:FileText,        label:'Submissions' },
       { href:'/dashboard/teacher/exams',       icon:CalendarCheck,   label:'Exams' },
+      { href:'/dashboard/teacher/videos',      icon:Youtube,         label:'Videos' },
     ],
   },
   {

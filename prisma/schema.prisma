@@ -113,6 +113,7 @@ model User {
   marks             Mark[]
   attendanceRecords AttendanceRecord[]
   submissions       AssignmentSubmission[]
+  videosAdded       VideoResource[]        @relation("VideoAddedBy")
 }
 
 // ─── Academics ────────────────────────────────────────────────────────────────
@@ -133,6 +134,23 @@ model Subject {
   assignments Assignment[]
   timetable   TimetableSlot[]
   exams       Exam[]
+  videos      VideoResource[]
+}
+
+// Teacher-curated video lessons (YouTube etc.) shown in the student portal
+model VideoResource {
+  id          String   @id @default(cuid())
+  title       String
+  url         String                        // original link as pasted
+  videoId     String?                       // YouTube video id (embeds + thumbnails)
+  provider    String   @default("youtube")  // youtube | vimeo | other
+  description String?
+  grade       String?                       // e.g. 'Grade 11' — null = all grades
+  subjectId   String?
+  subject     Subject? @relation(fields: [subjectId], references: [id])
+  addedById   String
+  addedBy     User     @relation("VideoAddedBy", fields: [addedById], references: [id])
+  createdAt   DateTime @default(now())
 }
 
 model Enrollment {

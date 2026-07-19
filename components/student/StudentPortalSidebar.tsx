@@ -250,7 +250,6 @@ function buildNav(pendingAssignments: number, recentNotices: number) {
       section: 'Account',
       items: [
         { label: 'Profile',     href: '/dashboard/student/profile',     Icon: User,            badge: null,                                         gold: false },
-        { label: 'Parent View', href: '/dashboard/student/parent-view', Icon: Users,           badge: null,                                         gold: false },
       ],
     },
   ];

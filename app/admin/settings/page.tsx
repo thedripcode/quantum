@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { CheckCircle2, School, Clock, Bell, Shield, Save } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle2, School, Clock, Bell, Shield, Save, Loader2 } from 'lucide-react';
 
 const BG = '#081420', SURFACE = '#0E1E30', S2 = '#14283E', S3 = '#1A3049';
 const GOLD = '#60a5fa', GOLD_DIM = 'rgba(96,165,250,0.10)', GOLD_B = 'rgba(96,165,250,0.22)';
@@ -78,14 +78,14 @@ function ConfirmInput({ onConfirm, onCancel, word }: { onConfirm: () => void; on
 }
 
 export default function SettingsPage() {
-  const [schoolName, setSchoolName]     = useState('Sidelile High School');
-  const [principal, setPrincipal]       = useState('Mr. T. Mthembu');
-  const [address, setAddress]           = useState('Sidelile, KwaDukuza, KwaZulu-Natal, 4450');
-  const [phone, setPhone]               = useState('+27 32 551 0000');
-  const [email, setEmail]               = useState('admin@sidelile.edu.za');
+  const [schoolName, setSchoolName]     = useState('');
+  const [principal, setPrincipal]       = useState('');
+  const [address, setAddress]           = useState('');
+  const [phone, setPhone]               = useState('');
+  const [email, setEmail]               = useState('');
 
-  const [currentTerm, setCurrentTerm]   = useState('Term 3');
-  const [currentYear, setCurrentYear]   = useState('2025');
+  const [currentTerm, setCurrentTerm]   = useState('Term 1');
+  const [currentYear, setCurrentYear]   = useState('2026');
   const [passmark, setPassmark]         = useState('60');
 
   const [gradeCapacity, setGradeCapacity] = useState<Record<string, string>>({ '8': '40', '9': '40', '10': '38', '11': '35', '12': '32' });
@@ -94,15 +94,55 @@ export default function SettingsPage() {
   const [smsNotifs, setSmsNotifs]       = useState(false);
   const [parentNotifs, setParentNotifs] = useState(true);
   const [twoFA, setTwoFA]               = useState(false);
-  const [sessionTimeout, setSessionTimeout] = useState('30');
+  const [sessionTimeout, setSessionTimeout] = useState('30 min');
 
+  const [loading, setLoading]           = useState(true);
+  const [saving, setSaving]             = useState(false);
   const [saved, setSaved]               = useState(false);
+  const [error, setError]               = useState('');
   const [showPromote, setShowPromote]   = useState(false);
-  const [promoted, setPromoted]         = useState(false);
+  const [promoting, setPromoting]       = useState(false);
+  const [promoteResult, setPromoteResult] = useState<any>(null);
 
-  const handleSave = () => {
+  useEffect(() => {
+    (async () => {
+      const r = await fetch('/api/admin/settings');
+      if (r.ok) {
+        const { settings: s } = await r.json();
+        setSchoolName(s.schoolName); setPrincipal(s.principal); setAddress(s.address);
+        setPhone(s.phone); setEmail(s.email);
+        setCurrentTerm(s.currentTerm); setCurrentYear(s.academicYear); setPassmark(String(s.passMark));
+        try { setGradeCapacity(JSON.parse(s.gradeCapacity)); } catch {}
+        setEmailNotifs(s.emailNotifs); setSmsNotifs(s.smsNotifs); setParentNotifs(s.parentNotifs);
+        setTwoFA(s.twoFA); setSessionTimeout(s.sessionTimeout);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true); setError('');
+    const res = await fetch('/api/admin/settings', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        schoolName, principal, address, phone, email,
+        currentTerm, academicYear: currentYear, passMark: passmark,
+        gradeCapacity, emailNotifs, smsNotifs, parentNotifs, twoFA, sessionTimeout,
+      }),
+    });
+    setSaving(false);
+    if (!res.ok) { const d = await res.json(); setError(d.error ?? 'Could not save settings.'); return; }
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  };
+
+  const runPromotion = async () => {
+    setShowPromote(false); setPromoting(true); setError('');
+    const res = await fetch('/api/admin/promote', { method: 'POST' });
+    const d = await res.json();
+    setPromoting(false);
+    if (!res.ok) { setError(d.error ?? 'Promotion failed.'); return; }
+    setPromoteResult(d);
   };
 
   return (
@@ -115,11 +155,18 @@ export default function SettingsPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {saved && <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: GREEN }}><CheckCircle2 size={13} /> Saved</div>}
-          <button onClick={handleSave} style={{ background: GOLD, color: '#000', borderRadius: 9999, padding: '9px 22px', fontWeight: 700, fontFamily: FB, fontSize: 13, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
-            <Save size={13} /> Save Changes
+          {error && <div style={{ fontSize: 12, color: RED }}>{error}</div>}
+          <button onClick={handleSave} disabled={saving || loading} style={{ background: GOLD, color: '#000', borderRadius: 9999, padding: '9px 22px', fontWeight: 700, fontFamily: FB, fontSize: 13, border: 'none', cursor: saving || loading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 7, opacity: saving || loading ? 0.7 : 1 }}>
+            {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} {saving ? 'Saving…' : 'Save Changes'}
           </button>
         </div>
       </div>
+
+      {loading && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: MUTED, padding: '10px 0 20px' }}>
+          <Loader2 size={15} className="animate-spin" /> Loading settings…
+        </div>
+      )}
 
       {/* School Info */}
       <Section title="School Information" icon={School}>
@@ -198,17 +245,33 @@ export default function SettingsPage() {
           This action promotes all qualifying students to the next grade based on the pass mark of <strong style={{ color: TEXT }}>{passmark}%</strong>.
           Students who have not met the requirement will be flagged for review. <strong style={{ color: RED }}>This cannot be undone.</strong>
         </div>
-        {!showPromote && !promoted && (
+        {!showPromote && !promoting && !promoteResult && (
           <button onClick={() => setShowPromote(true)} style={{ padding: '9px 20px', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.30)', borderRadius: 9999, color: RED, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: FB }}>
             Run Year-End Promotion
           </button>
         )}
-        {showPromote && !promoted && (
-          <ConfirmInput word="PROMOTE" onConfirm={() => { setPromoted(true); setShowPromote(false); }} onCancel={() => setShowPromote(false)} />
+        {showPromote && (
+          <ConfirmInput word="PROMOTE" onConfirm={runPromotion} onCancel={() => setShowPromote(false)} />
         )}
-        {promoted && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: GREEN, fontWeight: 600 }}>
-            <CheckCircle2 size={15} /> All qualifying students have been promoted to the next grade.
+        {promoting && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: MUTED }}>
+            <Loader2 size={15} className="animate-spin" /> Promoting students…
+          </div>
+        )}
+        {promoteResult && (
+          <div style={{ fontSize: 13, lineHeight: 1.7 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: GREEN, fontWeight: 600, marginBottom: 6 }}>
+              <CheckCircle2 size={15} /> Promotion complete (pass mark {promoteResult.passMark}%)
+            </div>
+            <div style={{ color: MUTED }}>
+              <strong style={{ color: TEXT }}>{promoteResult.promoted}</strong> promoted ·{' '}
+              <strong style={{ color: TEXT }}>{promoteResult.held}</strong> held back ·{' '}
+              <strong style={{ color: TEXT }}>{promoteResult.noMarks}</strong> without marks (unchanged) ·{' '}
+              <strong style={{ color: TEXT }}>{promoteResult.seniors}</strong> Grade 12s (unchanged)
+            </div>
+            {promoteResult.heldNames?.length > 0 && (
+              <div style={{ color: AMBER, marginTop: 6 }}>Flagged for review: {promoteResult.heldNames.join(', ')}</div>
+            )}
           </div>
         )}
       </div>

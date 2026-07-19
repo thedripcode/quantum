@@ -24,7 +24,6 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/student/achievements': 'Achievements',
   '/dashboard/student/goals':        'Goals',
   '/dashboard/student/profile':      'Profile',
-  '/dashboard/student/parent-view':  'Parent View',
 };
 
 export default function StudentPortalTopBar({ onMenuClick }: { onMenuClick?: () => void }) {

@@ -137,6 +137,26 @@ model Subject {
   videos      VideoResource[]
 }
 
+// Single-row school configuration edited on the admin Settings page
+model SchoolSettings {
+  id             String   @id @default("main")
+  schoolName     String   @default("Sidelile High School")
+  principal      String   @default("Mr. T. Mthembu")
+  address        String   @default("Sidelile, KwaDukuza, KwaZulu-Natal, 4450")
+  phone          String   @default("+27 32 551 0000")
+  email          String   @default("admin@sidelile.edu.za")
+  currentTerm    String   @default("Term 1")
+  academicYear   String   @default("2026")
+  passMark       Int      @default(60)
+  gradeCapacity  String   @default("{\"8\":\"40\",\"9\":\"40\",\"10\":\"38\",\"11\":\"35\",\"12\":\"32\"}") // JSON grade -> seats
+  emailNotifs    Boolean  @default(true)
+  smsNotifs      Boolean  @default(false)
+  parentNotifs   Boolean  @default(true)
+  twoFA          Boolean  @default(false)
+  sessionTimeout String   @default("30 min")
+  updatedAt      DateTime @updatedAt
+}
+
 // Teacher-curated video lessons (YouTube etc.) shown in the student portal
 model VideoResource {
   id          String   @id @default(cuid())
